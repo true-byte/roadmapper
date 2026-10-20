@@ -160,7 +160,7 @@ To add an icon set, put it into `src/icons/`, and add a loader by its name to `s
 
    If no release branch fits the change, open an issue at https://github.com/true-byte/roadmapper/issues that says which release the change is for. Go on to step 3 when the command lists the release branch.
 
-3. From that release branch, make a branch for one change. `<version>` is the version of that release branch, and `<branch>` is the name of the new branch. Name a fix `fix/` followed by a short name, such as `fix/npm-audit`. Name any other change `feature/` followed by a short name, such as `feature/links`.
+3. From that release branch, make a branch for one change. `<version>` is the version of that release branch, and `<branch>` is the name of the new branch. Name a fix `fix/<version>-` followed by a short name, such as `fix/1.0.0-npm-audit`. Name any other change `feature/<version>-` followed by a short name, such as `feature/1.0.0-links`.
 
    ```sh
    git fetch origin
@@ -224,18 +224,18 @@ git push -u origin release/<version>
 
 ### Finish a release
 
-1. Set the version in `package.json` and `package-lock.json`, on the branch `feature/version-<version>`:
+1. Set the version in `package.json` and `package-lock.json`, on the branch `feature/<version>-version`:
 
    ```sh
    git fetch origin
-   git switch -c feature/version-<version> origin/release/<version>
+   git switch -c feature/<version>-version origin/release/<version>
    npm version <version> --no-git-tag-version
    git add package.json package-lock.json
    git commit -m "Set the version to <version>"
-   git push -u origin feature/version-<version>
+   git push -u origin feature/<version>-version
    ```
 
-   Open `https://github.com/true-byte/roadmapper/compare/release/<version>...feature/version-<version>?expand=1`, and click 'Create pull request'. Merge the pull request when the check 'All tests' passes.
+   Open `https://github.com/true-byte/roadmapper/compare/release/<version>...feature/<version>-version?expand=1`, and click 'Create pull request'. Merge the pull request when the check 'All tests' passes.
 
 2. Open `https://github.com/true-byte/roadmapper/compare/main...release/<version>?expand=1`, and click 'Create pull request'. When the check 'All tests' passes, merge the pull request with 'Create a merge commit', so that `main` keeps the commits of the release.
 3. Tag `main`, and push the tag:
