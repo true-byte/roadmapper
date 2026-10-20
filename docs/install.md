@@ -6,12 +6,12 @@ This doc covers what Roadmapper needs, how to build its package, how to install 
 
 | Tool | Version | Needed for |
 |---|---|---|
-| Node | 20.19 or a later 20, or 22.12 or later | The clone and your project |
+| Node | 22.12 or later | The clone and your project |
 | npm | The version that comes with Node | The clone and your project |
 | Git | Any version | The clone |
 | React | The version that [embed.md](embed.md) gives | Only the React component of the lib |
 
-Vite 8 builds Roadmapper, and Vite 8 needs one of these Node versions. The `engines` key in Roadmapper's `package.json` gives the same Node versions.
+The `engines` key in Roadmapper's `package.json` gives the same Node version.
 
 ## Build the package
 
@@ -67,6 +67,7 @@ Follow these steps to update Roadmapper in your project.
 
    ```sh
    git pull
+   npm install
    npm run package
    ```
 

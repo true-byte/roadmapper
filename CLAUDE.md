@@ -5,7 +5,7 @@ This doc covers the rules for a Claude session that works on Roadmapper itself, 
 | What | Where |
 |---|---|
 | What Roadmapper is for, and the list of the docs on using it | [docs/README.md](docs/README.md) |
-| How to set up a clone, build, check and test the code, add a theme, and find each folder | [CONTRIBUTING.md](CONTRIBUTING.md) |
+| How to set up a clone, build, check and test the code, add a theme, send a change, make a release, and find each folder | [CONTRIBUTING.md](CONTRIBUTING.md) |
 | The rules that every edit to a doc follows | [CONTRIBUTING.md, section "Write docs"](CONTRIBUTING.md#write-docs) |
 | Every command that draws, checks or exports a roadmap file, or packs Roadmapper | [docs/commands.md](docs/commands.md) |
 | The roadmap file format | [.claude/skills/roadmapper/format.md](.claude/skills/roadmapper/format.md) |
@@ -47,7 +47,7 @@ This project adds these rules to the skill:
 - The 'Code' track of a feature also holds the feature's docs, where it has any.
 - Features that do not need each other go side by side in a branching.
 - A step can take many sessions.
-- Each version is a top-level branch. Its first step waits for the release of the version before it, with `waitsFor`.
+- Each version is a top-level branch. Its name is `v` followed by the version, such as 'v1.0.0'. Its first step waits for the release of the version before it, with `waitsFor`.
 - A build step writes the keys that its feature adds to the roadmap file format into `format.md`, when the step is done.
 - `format.md` never gets a key before the feature that draws it.
 

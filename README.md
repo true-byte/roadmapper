@@ -62,7 +62,7 @@ npx skills add https://github.com/true-byte/roadmapper --skill roadmapper -a cla
 
 ## Contributing
 
-[CONTRIBUTING.md](https://github.com/true-byte/roadmapper/blob/main/CONTRIBUTING.md) says how to set up a clone, run the tests and add a theme. It also gives the rules for code and docs, and where each part of the code is.
+[CONTRIBUTING.md](https://github.com/true-byte/roadmapper/blob/main/CONTRIBUTING.md) says how to set up a clone, run the tests, add a theme, send a change and make a release. It also gives the rules for code and docs, and what each folder of the clone holds.
 
 ## License
 
