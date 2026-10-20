@@ -1,0 +1,395 @@
+/* The look of the view: its layout and the style of each of its parts. Every color and font is a variable of the theme (src/themes/), which comes after this.
+   Layout: the roadmap's name and how far it is at the top, the plan in a stage that fits it or scrolls, and the zoom control at the bottom, with the popup of the key at its end.
+   The app takes it on its page. The lib takes it inside the shadow root of each <roadmapper-view>, where html, body and :root match nothing. */
+
+/* In a box on another page: the element the page puts there, and the root of the view in it. Nothing of the page gets in, and every layer of the view stays in the box.
+   The page sets the size of the element with its own CSS, which wins over :host. */
+:host { display: block; position: relative; height: 560px; border-radius: 16px; overflow: hidden; contain: layout paint style; }
+:host([hidden]) { display: none; }
+:host(:focus) { outline: none; }
+/* the whole page, as the HTML export has it */
+:host([page]) { position: fixed; inset: 0; height: auto; border-radius: 0; }
+/* all of the page's looks stop here, but whether the box is seen or takes the pointer is still the page's; a plan reads left to right on any page */
+.roadmap.box, .roadmap.page { all: initial; container-type: size; visibility: inherit; pointer-events: inherit; direction: ltr; position: absolute; inset: 0; display: flex; flex-direction: column; overflow: hidden;
+  background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.5;
+  touch-action: pan-x pan-y; -webkit-tap-highlight-color: transparent; }
+:host(:focus-visible) .roadmap.box { box-shadow: inset 0 0 0 2px var(--line); }
+
+html, body { height: 100%; margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.5; }
+/* the element the view is put into: every layer of the view stands in it */
+/* its own size, not the window's, picks the layout of the head, the zoom control and the side bar: see Sizes at the end */
+.roadmap { container-type: size; position: relative; overflow: clip; height: 100%; display: flex; flex-direction: column; touch-action: pan-x pan-y; -webkit-tap-highlight-color: transparent; }
+
+/* the head: the roadmap's name, then how many of its steps are done, on one row at every size */
+.head { display: flex; flex-wrap: nowrap; align-items: baseline; gap: 20px; padding: 20px 24px 0; }
+.title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--display); font-weight: 500; font-size: 12.8px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin: 0; }
+.progress { flex: none; color: var(--muted); font-size: 16px; white-space: nowrap; }
+.mark { display: block; flex: none; }
+
+.lane { stroke: var(--line); stroke-width: 2; fill: none; stroke-linecap: round; }
+.label { fill: var(--ink); font-family: var(--body); font-size: 13px; text-anchor: middle; }
+.label.down { text-anchor: start; }
+
+/* A step is a ring, and its state is told by the ring and the sign in it, never by color alone.
+   To do: an empty ring. Done: filled, with a check. In progress: gold, with a dot. Blocked: red, with a bar.
+   Canceled: gray, with a cross and a struck name. TBD: a dashed ring. */
+.node .ring { fill: var(--bg); stroke: var(--line); stroke-width: 2; }
+.node .sign { fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.node.done .ring { fill: var(--line); }
+.node.done .sign { stroke: var(--bg); }
+.node.in-progress .ring { stroke: var(--name); }
+.node.in-progress .dot { fill: var(--name); }
+.node.blocked .ring, .node.blocked .sign { stroke: var(--stop); }
+.node.blocked .sign { stroke-width: 2.2; }
+.node.canceled .ring, .node.canceled .sign { stroke: var(--muted); }
+.node.tbd .ring { stroke-dasharray: 3 3; }
+.label.canceled { fill: var(--muted); text-decoration: line-through; }
+.cap { fill: var(--name); font-family: var(--display); font-weight: 600; font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; }
+
+/* A step that was just added, or whose state just changed: it pops in and a gold ring spreads from it.
+   Where the step is not drawn at this level, the ring spreads from what stands for it: the pill of its closed track, or far out the step of its group. */
+.halo { fill: none; stroke: var(--name); stroke-width: 2; opacity: 0; pointer-events: none; }
+@media (prefers-reduced-motion: no-preference) {
+  .zn.fresh > .pop { transform-box: fill-box; transform-origin: center; animation: pop 0.5s ease-out both; }
+  .label.fresh { animation: fade 0.5s ease-out both; }
+  .halo { transform-box: fill-box; transform-origin: center; animation: ring 1.4s ease-out 2; }
+  .halo.pill { animation-name: ring-pill; }
+}
+@media (prefers-reduced-motion: reduce) {
+  /* no motion: a still ring marks the step until it is tidied away */
+  .halo { opacity: 0.9; transform-box: fill-box; transform-origin: center; transform: scale(2); }
+  .halo.pill { transform: scale(1.3); }
+}
+@keyframes pop { from { transform: scale(0.2); opacity: 0; } }
+@keyframes fade { from { opacity: 0; } }
+@keyframes ring { from { transform: scale(1); opacity: 0.9; } to { transform: scale(4.5); opacity: 0; } }
+@keyframes ring-pill { from { transform: scale(1); opacity: 0.9; } to { transform: scale(1.8); opacity: 0; } }
+
+/* The error list: a broken file shows every error in place of the plan, which stays as it was under it, unseen. */
+.roadmap.broken > :not(.errors) { visibility: hidden; }
+.errors { position: absolute; z-index: 5; inset: 0; overflow: auto; background: var(--bg); }
+.errors[hidden] { display: none; }
+.errors .wrap { max-width: 1040px; margin: 0 auto; padding: 72px 24px 48px; }
+.errors .bar { display: flex; align-items: center; gap: 14px; margin-bottom: 28px; }
+.errors .bar .mark .ring { stroke-width: 1.4; }
+.errors .bar .mark .sign { stroke-width: 1.7; }
+.errors .file { min-width: 0; overflow-wrap: anywhere; margin: 0; font-family: var(--display); font-weight: 600; font-size: 22px; letter-spacing: 0.02em; }
+.errors .howmany { flex: none; margin-left: auto; font-family: var(--display); font-weight: 600; font-size: 12.8px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--stop); }
+.errors .list { overflow-x: auto; border: 1px solid var(--hair); border-radius: 16px; background: var(--panel); }
+.errors .row { display: grid; grid-template-columns: 56px minmax(0, 1fr) 96px 136px 176px; min-width: 640px; align-items: baseline; gap: 20px; padding: 14px 22px; }
+.errors .row + .row { border-top: 1px solid var(--hair); }
+.errors .cols { padding-top: 12px; padding-bottom: 10px; font-family: var(--display); font-weight: 500; font-size: 11.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+.errors .ln { font-family: var(--mono); font-size: 14px; color: var(--muted); text-align: right; font-variant-numeric: tabular-nums; }
+.errors .cols .ln { font-family: var(--display); font-size: inherit; }
+.errors .where { display: flex; min-width: 0; white-space: nowrap; }
+.errors .where .up { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.errors .where b { flex: none; font-weight: 700; }
+.errors .where .sep { flex: none; margin: 0 6px; color: var(--muted); }
+.errors .field code { padding: 2px 8px; border-radius: 6px; background: var(--hair); color: var(--name); font-family: var(--mono); font-size: 13.5px; }
+.errors .what { color: var(--stop); }
+.errors .val code { overflow-wrap: anywhere; color: var(--ink); font-family: var(--mono); font-size: 13.5px; }
+
+/* One finger scrolls the stage, the browser's own way; two fingers are the view's. The touch-action is on the stage itself, as a scroller sets its own.
+   A scroll that reaches an end stops there: no back swipe, no pull to refresh. --sheet says where the side bar lies, and --flow the layout the plan is drawn in until the user picks one, for the script. */
+.stage { flex: 1; min-height: 0; overflow: auto; display: flex; padding: 16px 24px 112px; user-select: none; --sheet: side; --flow: across;
+  touch-action: pan-x pan-y; -webkit-touch-callout: none; overscroll-behavior: contain; }
+/* in a box, the wheel up and down is the page's: the plan moves up and down by a drag or the keys, and a swipe up or down scrolls the page */
+.roadmap.box .stage { overflow-y: hidden; overscroll-behavior-y: auto; }
+/* the hand shows only where there is somewhere to drag to */
+.stage.pans { cursor: grab; }
+.stage.dragging { cursor: grabbing; }
+/* the script sizes the sheet and puts the plan on it, so a scroll bar that comes or goes moves nothing */
+.sheet { flex: none; }
+.plan { display: block; }
+.plan text { text-rendering: geometricPrecision; }
+.lane { pointer-events: none; }
+
+/* A closed track is a pill on its line. It holds the mark of the state of the track, and how many of its steps are done. The wide clear stroke makes it easy to point at. */
+.zbar { fill: var(--hair); stroke: transparent; stroke-width: 12; }
+.tally text { fill: var(--ink); font-family: var(--body); font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums; text-anchor: middle; }
+
+/* A milestone: a ring around its mark, and its name in bold. */
+.ms { fill: none; stroke: var(--ink); stroke-width: 1.25; }
+.label.milestone { font-weight: 700; }
+
+.count { fill: var(--ink); font-family: var(--body); font-size: 11.5px; }
+
+/* The zoom control: one stop for each level, a knob that moves with the zoom, and a button at each end. */
+.zoom { --zb: 20px; position: absolute; left: 50%; bottom: var(--zb); transform: translateX(-50%); display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+  border: 1px solid var(--hair); border-radius: 18px; background: color-mix(in srgb, var(--bg) 88%, var(--ink)); box-shadow: var(--shadow); touch-action: none; }
+.zoom button { font: inherit; color: var(--ink); background: none; border: 0; padding: 0; cursor: pointer; }
+.zoom button:focus-visible { outline: 2px solid var(--line); outline-offset: 2px; border-radius: 8px; }
+.zoom .step { width: 44px; height: 44px; border: 1px solid var(--muted); border-radius: 12px; font-size: 26px; line-height: 1; }
+.zoom .step:hover:not([aria-disabled="true"]) { background: var(--hair); }
+.zoom .step[aria-disabled="true"] { opacity: 0.3; cursor: default; }
+.stops { position: relative; display: grid; grid-auto-flow: column; grid-auto-columns: 104px; }
+.rail { position: absolute; top: 11px; left: 52px; right: 52px; height: 2px; background: var(--muted); opacity: 0.5; pointer-events: none; }
+.knob { position: absolute; z-index: 1; top: 4px; width: 16px; height: 16px; margin-left: -8px; border-radius: 50%; background: var(--name); pointer-events: none; }
+.zoom .stop { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 6px 0 2px; color: var(--muted); font-size: 13.6px; }
+.stop::before { content: ""; position: relative; box-sizing: border-box; width: 12px; height: 12px; border: 2px solid var(--muted); border-radius: 50%; background: var(--bg); }
+.zoom .stop[aria-current="true"] { color: var(--ink); font-weight: 700; }
+
+/* The icon of a step says what the step is about: one plain drawing in one color. A step that has not started is dimmer, so the done part of the plan still shows. */
+.ic { color: var(--ink); }
+.ic.in-progress { color: var(--name); }
+.ic.todo, .ic.blocked, .ic.tbd, .ic.canceled { color: var(--muted); }
+.ic.canceled .art { opacity: 0.5; }
+.ic .back { fill: var(--bg); }
+/* In an open branch a step with an icon is a coin: a round body with the icon on it. Its own edge lights when it is pointed at or picked, so no ring is drawn near its name. */
+.coin { fill: color-mix(in srgb, var(--bg) 45%, var(--hair)); stroke: color-mix(in srgb, var(--hair) 80%, var(--muted)); stroke-width: 1; transition: fill 0.12s, stroke 0.12s; }
+.zn.hot .coin { fill: color-mix(in srgb, var(--hair) 90%, var(--muted)); stroke: color-mix(in srgb, var(--muted) 70%, var(--ink)); }
+
+/* The button at the end of the control that opens the popup. Open, it is lit. */
+.rule { align-self: stretch; width: 1px; margin: 4px 2px; background: var(--muted); opacity: 0.4; }
+.zoom .info { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 12px; color: var(--muted); font-size: 20px; font-weight: 700; }
+.zoom .info svg { display: block; }
+.zoom .info:hover { color: var(--ink); }
+.zoom .info[aria-expanded="true"] { background: var(--hair); color: var(--ink); }
+
+/* The popup: the key, a hairline, then two rows: the switch between marks and icons over the switch that hides the labels, and the pair of layouts right of both. It lies over the plan, 8 px over the end of the control. */
+.popup { position: absolute; z-index: 3; box-sizing: border-box; width: 320px; min-width: min-content; padding: 14px 16px 16px; border: 1px solid var(--hair); border-radius: 16px;
+  background: color-mix(in srgb, var(--bg) 88%, var(--ink)); box-shadow: var(--shadow); color: var(--ink); font-size: 14.4px; touch-action: manipulation; overflow-y: auto; }
+.popup[hidden], .popup [hidden], .popup .switch[hidden] { display: none; }
+@media (prefers-reduced-motion: no-preference) {
+  .popup { animation: rise 0.15s ease-out; }
+}
+@keyframes rise { from { opacity: 0; transform: translateY(6px); } }
+.popup button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+.popup button:focus-visible { outline: 2px solid var(--line); outline-offset: 2px; border-radius: 8px; }
+/* the key: one mark and one word for each state that is on the plan, in two columns */
+.key { display: grid; grid-template-columns: 1fr 1fr; grid-auto-rows: 30px; column-gap: 12px; margin: 0; padding: 0; list-style: none; }
+.key li { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+.key .mark { width: 18px; height: 18px; }
+.popup hr { height: 1px; margin: 12px 0; border: 0; background: var(--muted); opacity: 0.4; }
+.opts { display: grid; grid-template-columns: 1fr auto; grid-auto-rows: minmax(44px, auto); align-items: center; column-gap: 4px; }
+/* the switches, one over the other at the left. On: the icons are hidden; the labels are hidden */
+.popup .switch { grid-column: 1; justify-self: start; display: flex; align-items: center; gap: 10px; height: 44px; white-space: nowrap; }
+.switch::before { content: ""; flex: none; box-sizing: border-box; width: 34px; height: 20px; border: 2px solid var(--muted); border-radius: 10px;
+  background: radial-gradient(circle at 8px 50%, var(--muted) 5px, transparent 5.5px); }
+.switch[aria-checked="true"]::before { border-color: var(--name); background: radial-gradient(circle at 22px 50%, var(--name) 5px, transparent 5.5px); }
+/* the pair of layouts: the one chosen is gold, as the knob. It sits across both rows, or on the one row of a plan that names no icon */
+.seg { grid-column: 2; grid-row: 1 / span 2; display: flex; padding: 2px; border: 1px solid color-mix(in srgb, var(--hair) 60%, var(--muted)); border-radius: 14px; }
+.opts:has(> .switch[hidden]) > .seg { grid-row: 1; }
+.popup .flow { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 12px; color: var(--muted); }
+.flow svg { display: block; }
+.flow.v svg { transform: rotate(90deg); }
+.popup .flow:hover { color: var(--ink); }
+.popup .flow[aria-checked="true"] { color: var(--name); background: color-mix(in srgb, var(--name) 16%, transparent); }
+
+/* The list of top-level branches: the button left of (i), as (i), and the list over the zoom control, as the popup: a search, then one row for each branch,
+   with a box that is gold while the branch shows, the mark of its state, its name on up to 2 lines and how many of its steps are done. */
+.zoom .layers { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 12px; color: var(--muted); }
+.zoom .layers[hidden] { display: none; }
+.zoom .layers svg { display: block; }
+.zoom .layers:hover { color: var(--ink); }
+.zoom .layers[aria-expanded="true"] { background: var(--hair); color: var(--ink); }
+.picker { position: absolute; z-index: 3; display: flex; flex-direction: column; box-sizing: border-box; width: 320px; padding: 10px; border: 1px solid var(--hair); border-radius: 16px;
+  background: color-mix(in srgb, var(--bg) 88%, var(--ink)); box-shadow: var(--shadow); color: var(--ink); font-size: 14.4px; touch-action: manipulation; }
+.picker[hidden] { display: none; }
+@media (prefers-reduced-motion: no-preference) {
+  .picker { animation: rise 0.15s ease-out; }
+}
+.find { display: flex; flex: none; align-items: center; gap: 8px; height: 40px; padding: 0 10px; border: 1px solid var(--hair); border-radius: 10px; color: var(--muted); }
+.find svg { display: block; flex: none; }
+.find input { all: unset; flex: 1; min-width: 0; height: 100%; color: var(--ink); font: inherit; }
+.find input::placeholder { color: var(--muted); }
+.find:focus-within { border-color: var(--line); }
+.branches { min-height: 0; margin: 6px 0 0; padding: 0; list-style: none; max-height: min(320px, 45cqh); overflow-y: auto; }
+.branches .pick { all: unset; box-sizing: border-box; width: 100%; display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 6px 8px; border-radius: 10px; cursor: pointer; }
+.branches .pick:hover { background: var(--hair); }
+.branches .pick:focus-visible { outline: 2px solid var(--line); outline-offset: -2px; }
+.branches .pick[aria-disabled="true"] { cursor: default; }
+.branches .box { position: relative; flex: none; box-sizing: border-box; width: 18px; height: 18px; border: 2px solid var(--muted); border-radius: 5px; }
+.branches .pick[aria-checked="true"] .box { border-color: var(--name); background: var(--name); }
+.branches .pick[aria-checked="true"] .box::after { content: ""; position: absolute; left: 4px; top: 0; width: 5px; height: 10px; border: solid var(--bg); border-width: 0 2px 2px 0; transform: rotate(45deg); }
+.branches .mark { width: 18px; height: 18px; }
+.branches .name { flex: 1; min-width: 0; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; overflow-wrap: anywhere; line-height: 1.3; }
+.branches .pick[aria-checked="false"] .name { color: var(--muted); }
+.branches .dim { flex: none; color: var(--muted); }
+
+/* The grip: a tab on the top edge of the zoom control. It hides the control down to the grip alone at the bottom of the view, and brings it back. */
+.zoom .grip { position: absolute; left: 50%; top: -22px; transform: translateX(-50%); box-sizing: border-box; width: 56px; height: 23px; display: grid; place-items: center;
+  border: 1px solid var(--hair); border-bottom: 0; border-radius: 12px 12px 0 0; background: color-mix(in srgb, var(--bg) 88%, var(--ink)); color: var(--muted); }
+/* a finger needs more than the tab */
+.zoom .grip::before { content: ""; position: absolute; inset: -12px -8px -4px; }
+.zoom .grip svg { display: block; }
+.zoom .grip:hover { color: var(--ink); }
+.roadmap.tucked .zoom { transform: translate(-50%, calc(100% + var(--zb))); box-shadow: none; }
+.roadmap.tucked .side { bottom: 31px; }
+@media (prefers-reduced-motion: no-preference) {
+  .roadmap .zoom { transition: filter 0.25s, transform 0.2s ease; }
+}
+
+/* Hover and click. Every step and every branch answers the pointer: it lights under it, and stays lit in gold while it is picked. Nothing grows, so it is never taken for a zoom. */
+.zn, .label, .zbar, .tally, .cap, .count, .hit { cursor: pointer; }
+.stage.dragging * { cursor: grabbing; }
+.aura { fill: none; stroke: var(--ink); stroke-width: 3; opacity: 0; pointer-events: all; transition: opacity 0.12s; }
+.zn.hot .aura { opacity: 0.4; }
+.zn.picked .aura { stroke: var(--name); stroke-width: 2; opacity: 1; }
+/* a milestone has a ring of its own, and that ring is the one that lights */
+.zn.picked .ms { stroke: var(--name); }
+.label.picked, .tally.picked text { fill: var(--name); }
+/* under each line of a branch, a wide clear line that takes the pointer for it */
+.hit { fill: none; stroke: transparent; stroke-width: 14; pointer-events: stroke; }
+/* with the labels hidden, a clear disc around each mark takes a finger for it */
+.tap { fill: transparent; stroke: none; pointer-events: all; }
+.lane, .zbar { transition: stroke 0.12s, stroke-width 0.12s, fill 0.12s; }
+.lane.hot { stroke: color-mix(in srgb, var(--line) 50%, var(--ink)); stroke-width: 3.5; }
+.lane.picked { stroke: var(--name); stroke-width: 3.5; }
+.zbar.hot { fill: color-mix(in srgb, var(--hair) 55%, var(--line)); }
+.zbar.picked { fill: color-mix(in srgb, var(--hair) 62%, var(--name)); }
+.cap.hot, .cap.picked { fill: var(--ink); }
+.zoom .stop:hover { color: var(--ink); }
+.zoom button:active { opacity: 0.7; }
+
+/* The name of a step with its icon, or of a branch; then its state and tags as small facts. The tip and the side bar share them. */
+.name { display: flex; align-items: center; gap: 8px; }
+.name strong { font-size: 15.2px; }
+.name.branch strong, .name.branch h2 { color: var(--name); font-family: var(--display); font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; }
+.face { flex: none; }
+.facts { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin-top: 6px; color: var(--muted); font-size: 12.8px; }
+.fact { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
+.fact.tag { padding: 1px 8px; border: 1px solid var(--muted); border-radius: 9px; font-size: 11.52px; }
+.meter { width: 64px; height: 6px; border-radius: 3px; background: linear-gradient(90deg, var(--line) var(--done), var(--hair) var(--done)); }
+
+/* The tip: short, over what is pointed at. It never takes the pointer. */
+.tip { position: absolute; z-index: 4; box-sizing: border-box; max-width: 280px; padding: 10px 12px; border: 1px solid var(--hair); border-radius: 12px;
+  background: color-mix(in srgb, var(--bg) 84%, var(--ink)); box-shadow: var(--tip-shadow); pointer-events: none; font-size: 13.6px; }
+.tip[hidden], .side[hidden] { display: none; }
+.tip p { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; margin: 8px 0 0; line-height: 1.35; }
+
+/* The side bar: all that the plan says about what is picked. It lies over the page and stops above the zoom control. */
+.side { position: absolute; z-index: 2; top: 16px; right: 16px; bottom: 112px; width: 320px; box-sizing: border-box; padding: 18px 18px 20px; overflow-y: auto;
+  border: 1px solid var(--hair); border-radius: 18px; background: color-mix(in srgb, var(--bg) 88%, var(--ink)); box-shadow: var(--shadow);
+  touch-action: pan-y; overscroll-behavior: contain; }
+.side button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; text-align: left; }
+.side button:focus-visible { outline: 2px solid var(--line); outline-offset: 2px; border-radius: 6px; }
+.side .close { position: absolute; top: 10px; right: 10px; width: 32px; height: 32px; border-radius: 8px; color: var(--muted); font-size: 22px; line-height: 1; text-align: center; }
+.side .close:hover { background: var(--hair); color: var(--ink); }
+.path { display: flex; flex-wrap: wrap; margin: 0 36px 12px 0; font-size: 11.52px; }
+.side .crumb { color: var(--name); font-family: var(--display); font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; }
+.crumb + .crumb::before { content: "›"; margin: 0 6px; color: var(--muted); }
+.crumb:hover { text-decoration: underline; }
+.side .name { gap: 12px; margin-right: 36px; }
+.side h2 { margin: 0; font-size: 20px; line-height: 1.2; }
+.side .facts { margin-top: 10px; font-size: 13.6px; }
+.side .lead { margin: 14px 0 0; line-height: 1.45; }
+.part { margin-top: 18px; }
+.part h3 { margin: 0 0 6px; color: var(--muted); font-family: var(--display); font-size: 11.2px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; }
+.part p { margin: 0; line-height: 1.45; }
+.side .row { display: flex; align-items: center; gap: 8px; width: calc(100% + 16px); margin: 0 -8px; padding: 6px 8px; border-radius: 8px; }
+/* a step in a hidden branch: not on the plan, so it answers no pointer. The pill says which branch it is in, and that it is hidden */
+.side .row.off { cursor: default; }
+.side .row.off:hover { background: none; }
+.gone { display: inline-flex; flex: none; align-items: center; gap: 5px; margin-left: auto; padding: 3px 9px; border: 1px solid var(--muted); border-radius: 999px; color: var(--ink); font-size: 13.6px; line-height: 1; white-space: nowrap; }
+.gone svg { display: block; }
+.side .row:hover { background: var(--hair); }
+.row .strong { font-weight: 700; }
+.row .branch { color: var(--name); font-family: var(--display); font-size: 12.48px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; }
+.row .dim { margin-left: auto; color: var(--muted); font-size: 12.8px; white-space: nowrap; }
+
+/* Back: top left of the side bar, across from the close button, before the branches around what is picked. */
+.side .top { display: flex; align-items: center; gap: 6px; margin: -8px 36px 10px -8px; }
+.side .top .path { margin: 0; }
+.side .back { flex: none; width: 32px; height: 32px; display: grid; place-items: center; border-radius: 8px; color: var(--muted); text-align: center; }
+.side .back:hover { background: var(--hair); color: var(--ink); }
+
+/* A name pointed at in the side bar: a ring around its thing on the plan, or an arrow at the edge toward it. Both stay in the part of the page where the plan shows. */
+.aim { position: absolute; z-index: 1; overflow: hidden; pointer-events: none; }
+.aim [hidden] { display: none; }
+.aim .ring { position: absolute; box-sizing: border-box; border: 2px solid var(--line); border-radius: 16px;
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--line) 22%, transparent), 0 0 22px color-mix(in srgb, var(--line) 60%, transparent); }
+.aim .ring.round { border-radius: 999px; }
+.aim .arrow { position: absolute; width: 0; height: 0; transform: rotate(var(--turn)); }
+.aim .arrow span { position: absolute; left: -24px; top: -24px; width: 48px; height: 48px; display: grid; place-items: center; border-radius: 50%;
+  background: var(--line); color: var(--bg); font-size: 24px; box-shadow: var(--shadow), 0 0 0 6px color-mix(in srgb, var(--line) 22%, transparent); }
+@media (prefers-reduced-motion: no-preference) {
+  .aim .ring { animation: ring-in 0.35s ease-out; }
+  .aim .arrow span { animation: nudge 0.9s ease-in-out infinite; }
+}
+@keyframes ring-in { from { opacity: 0; transform: scale(1.6); } }
+@keyframes nudge { 50% { transform: translateX(6px); } }
+
+/* 'Show only blockers': all of the page goes soft but a blocked step and the steps that block it, or what stands for them. The side bar steps aside.
+   Their names show at reading size however far out the page is, and one button brings all back. */
+.side .show-only { display: block; width: 100%; margin-top: 10px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 10px; color: var(--line); text-align: center; font-weight: 700; }
+.side .show-only:hover { background: var(--hair); }
+.plan > g > *, .head, .zoom { transition: filter 0.25s; }
+.roadmap.only .plan > g > :not(.keep), .roadmap.only .head, .roadmap.only .zoom { filter: blur(3px); opacity: 0.3; pointer-events: none; }
+.roadmap.only .side { visibility: hidden; }
+.roadmap.only .plan .label.keep { opacity: 0; }
+.names { position: absolute; z-index: 1; inset: 0; pointer-events: none; }
+.names[hidden], .names [hidden], .show-all[hidden] { display: none; }
+.names div { position: absolute; max-width: 130px; color: var(--ink); font-size: calc(13px * 1.2); line-height: 1.25; text-align: center; }
+.names .picked { color: var(--name); }
+/* down, each name is right of its step */
+.names.down div { text-align: left; }
+.show-all { position: absolute; z-index: 3; top: 16px; right: 16px; padding: 8px 16px; border: 0; border-radius: 10px; background: var(--line); color: var(--bg);
+  font: inherit; font-weight: 700; cursor: pointer; box-shadow: var(--shadow); }
+.show-all:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+/* An open group: a soft frame around all that is in it, with its name over its top left corner. The frame never takes the pointer: its name does. */
+.group { fill: color-mix(in srgb, var(--hair) 38%, transparent); stroke: color-mix(in srgb, var(--hair) 60%, var(--muted)); stroke-width: 1; pointer-events: none; transition: stroke 0.12s; }
+.gname { fill: var(--ink); font-family: var(--body); font-size: 13px; font-weight: 700; }
+.gname[data-pod] { cursor: pointer; }
+.group.hot { stroke: color-mix(in srgb, var(--muted) 70%, var(--ink)); }
+.group.picked { stroke: var(--name); }
+.gname.picked { fill: var(--name); }
+
+/* ---- Sizes. The view's own size picks them, so the app, a box and the export follow the same rules from the first frame.
+   Narrow: under 664 px wide, the laptop's zoom control and a gutter at each side. Short: under 500 px high, and not narrow. Compact: either one. ---- */
+
+/* compact: the zoom control is no wider than its targets need. The stops are the targets, so − and + go, and their keys stay */
+@container (width < 664px) or (height < 500px) {
+  .zoom { --col: clamp(60px, calc((100cqw - 117px) / 3), 84px); --zb: 12px; gap: 6px; padding: 6px 8px; border-radius: 16px; }
+  /* the button of the list of branches takes room too */
+  .zoom:has(> .layers:not([hidden])) { --col: clamp(56px, calc((100cqw - 167px) / 3), 84px); }
+  .zoom .step { display: none; }
+  .stops { grid-auto-columns: var(--col); }
+  .rail { left: calc(var(--col) / 2); right: calc(var(--col) / 2); }
+  .zoom .stop { text-align: center; }
+}
+
+/* narrow: the stage near the edges, and the side bar a sheet above the zoom control */
+@container (width < 664px) {
+  .head { padding: 16px 16px 4px; }
+  .stage { padding: 8px 16px 82px; --sheet: bottom; }
+  .side { top: auto; left: 8px; right: 8px; bottom: 102px; width: auto; max-height: 40cqh; border-radius: 18px; }
+  /* a finger needs 44 px: the close button at the top right, and back across from it */
+  .side .close { top: 4px; right: 4px; width: 44px; height: 44px; }
+  .side .top { margin: -14px 32px 6px -14px; }
+  .side .back { width: 44px; height: 44px; }
+  .errors .wrap { padding: 32px 16px; }
+  /* each error on two lines: where it is, then its key, error and value */
+  .errors .row { grid-template-columns: 32px auto auto minmax(0, 1fr); min-width: 0; gap: 6px 12px; padding: 12px 16px; }
+  .errors .row > .where { grid-column: 2 / -1; }
+  .errors .row > .field { grid-column: 2; }
+  .errors .cols { display: none; }
+}
+
+/* narrow and upright, as a phone is held: the plan is drawn down. Not in a box: there up and down belong to the page around it */
+@container (width < 664px) and (orientation: portrait) {
+  .roadmap:not(.box) .stage { --flow: down; }
+}
+
+/* short: the head and the zoom control nearer the edges */
+@container (height < 500px) and (width >= 664px) {
+  .head { padding: 8px 16px 0; }
+  .stage { padding: 8px 24px 76px; }
+  .zoom { --zb: 8px; }
+  .side { top: 8px; bottom: 98px; }
+  /* a phone on its side: a finger needs 44 px here too */
+  .side .close { top: 4px; right: 4px; width: 44px; height: 44px; }
+  .side .top { margin: -14px 32px 6px -14px; }
+  .side .back { width: 44px; height: 44px; }
+  .errors .wrap { padding-top: 32px; }
+}
+
+/* narrow enough that 'Main steps' takes two lines: the zoom control is taller, so the plan and the sheet stop higher.
+   Each stop keeps room for two lines, whichever name is bold and whichever font has loaded, so the control does not change its height from level to level */
+@container (width < 330px) {
+  .zoom .stop { box-sizing: border-box; min-height: calc(26px + 2lh); }
+  .stage { padding-bottom: 103px; }
+  .side { bottom: 123px; }
+}

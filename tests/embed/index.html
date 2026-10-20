@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Northwind Trails</title>
+    <style>
+      /* The landing page's own CSS: the rules a real site has, that would reach into a view that is not walled off.
+         Its own colors under the names the view's theme uses, rem on a root of 10 px, border-box everywhere, and the class names the view uses. */
+      html { font-size: 62.5%; }
+      :root { --bg: #fbf7ef; --ink: #2b2118; --line: #d1495b; --name: #00798c; }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--bg); color: var(--ink); font: 1.8rem/1.7 Georgia, serif; letter-spacing: 0.02em; text-align: justify; }
+      svg { fill: currentColor; }
+      button { padding: 0.8rem 2rem; border: 2px solid var(--line); border-radius: 999px; background: var(--line); color: #fff; font: 700 1.4rem/1 sans-serif; text-transform: uppercase; }
+      .top { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; gap: 2.4rem; height: 64px; padding: 0 4rem; background: var(--ink); color: var(--bg); }
+      .top input { flex: 1; max-width: 32rem; padding: 0.8rem 1.2rem; border: 0; border-radius: 0.4rem; font: inherit; }
+      main { max-width: 1200px; margin: 0 auto; padding: 2.4rem 4rem; }
+      .title { margin: 0 0 1.2rem; color: var(--name); font-size: 4.8rem; line-height: 1.1; letter-spacing: -0.02em; }
+      .row { display: flex; align-items: flex-start; gap: 2.4rem; margin: 4rem 0; }
+      .group { display: grid; flex: 1; grid-template-columns: repeat(3, 1fr); gap: 1.6rem; }
+      .side { flex: 0 0 28rem; padding: 2rem; border-left: 4px solid var(--name); background: #fff; }
+      .tip { position: relative; padding: 1.2rem 1.6rem; border-radius: 0.8rem; background: var(--name); color: #fff; }
+      .zoom { margin: 0; transition: transform 0.2s; }
+      .zoom:hover { transform: scale(1.05); }
+      .key { display: inline-block; padding: 0 0.6rem; border: 1px solid; border-radius: 0.4rem; font: 1.3rem monospace; }
+      .tall { height: 2400px; background: repeating-linear-gradient(var(--bg) 0 200px, #f1e9d8 200px 400px); }
+    </style>
+  </head>
+  <body>
+    <header class="top">
+      <strong>Northwind Trails</strong>
+      <input id="search" type="search" placeholder="Search trails" aria-label="Search trails">
+      <button>Sign in</button>
+    </header>
+    <main>
+      <h1 class="title">Where the trails go next</h1>
+      <p>Our plan for the year, step by step. Press <span class="key">+</span> to look closer.</p>
+      <div id="app"></div>
+      <section class="row">
+        <div class="group">
+          <figure class="zoom"><svg viewBox="0 0 24 24" width="48" height="48"><circle cx="12" cy="12" r="10"/></svg><figcaption>Coast</figcaption></figure>
+          <figure class="zoom"><svg viewBox="0 0 24 24" width="48" height="48"><rect x="2" y="2" width="20" height="20"/></svg><figcaption>Forest</figcaption></figure>
+          <figure class="zoom"><svg viewBox="0 0 24 24" width="48" height="48"><path d="M2 22 12 2l10 20z"/></svg><figcaption>Peaks</figcaption></figure>
+        </div>
+        <aside class="side"><h2>News</h2><p>The north loop opens in May.</p></aside>
+      </section>
+      <p class="tip">Tip: bring water for every ten miles.</p>
+      <section class="tall"><h2 class="title">Stories</h2><p>Walkers tell of the long way round.</p></section>
+    </main>
+    <script type="module" src="./app.ts"></script>
+  </body>
+</html>

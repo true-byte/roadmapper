@@ -1,0 +1,977 @@
+{
+  "title": "Roadmapper",
+  "about": "For creating and managing roadmaps. The picture comes first and the text last.",
+  "branches": [
+    {
+      "name": "V0",
+      "holds": "The first sketch view, the ideas, the description.",
+      "items": [
+        {
+          "id": "ideas",
+          "name": "Ideas",
+          "icon": "bulb",
+          "state": "done",
+          "why": "What Alex wants from a roadmap tool: the tree shape, the states, picking a node, what a node waits for, the lib and the export."
+        },
+        {
+          "id": "live-view",
+          "name": "Live view",
+          "icon": "live-view",
+          "state": "done",
+          "why": "The tree must grow in front of Alex, so the view is built before anything else.",
+          "doneWhen": "A node added to the roadmap file shows on his open page within seconds, with no click."
+        },
+        {
+          "id": "node-states",
+          "name": "Node states",
+          "icon": "progress-check",
+          "state": "done",
+          "why": "Live view is done and the page cannot show it. The tree must show where the work is.",
+          "doneWhen": "Live view shows as done, and a node set to in progress, TBD, blocked or canceled in the file changes its look on the open page."
+        },
+        {
+          "id": "solution-description",
+          "name": "Solution description",
+          "icon": "file-description",
+          "private": true,
+          "state": "done",
+          "why": "The roadmap cannot be judged until it is clear what Roadmapper is, who it is for and what each version holds.",
+          "doneWhen": "Claude interviews Alex, one question at a time. The description is written from his answers, and he says it is right."
+        },
+        {
+          "id": "real-roadmap",
+          "name": "Real roadmap",
+          "icon": "route",
+          "state": "done",
+          "why": "The roadmap listed features only. The versions, design, docs and e2e tests were not on it. The plan can be judged only against the solution description, so it comes after it.",
+          "doneWhen": "The tree shows V0, V1 and V2 as separate branches, one under the other, with design, build, tests and docs. Alex says the plan is right."
+        }
+      ]
+    },
+    {
+      "name": "V1",
+      "holds": "The standalone app, the embeddable lib, the HTML export, zoom, icons on the nodes, and private and public items.",
+      "items": [
+        {
+          "id": "zoom-levels",
+          "name": "Zoom design",
+          "icon": "zoom-in",
+          "state": "done",
+          "why": "A full tree dumps everything at once. Three levels, each with more detail: 'Main steps', where each group is one step; 'Tracks', where each track of a group is one pill with how many of its steps are done; 'Every step'. A group and a branching are told apart.",
+          "doneWhen": "On the mock of the example plan, Alex said yes to the three levels and their names."
+        },
+        {
+          "name": "Zoom build",
+          "split": [
+            {
+              "name": "Code",
+              "items": [
+                {
+                  "id": "zoom-build",
+                  "name": "Zoom code",
+                  "icon": "zoom-in",
+                  "state": "done",
+                  "why": "His own page zooms through the three levels of the design.",
+                  "doneWhen": "On his own page (npm run dev), Alex zooms his roadmap through 'Main steps', 'Tracks' and 'Every step', and a save to the file still redraws it."
+                }
+              ]
+            },
+            {
+              "name": "Tests",
+              "private": true,
+              "items": [
+                {
+                  "id": "zoom-tests",
+                  "name": "Zoom tests",
+                  "icon": "zoom-in",
+                  "state": "done",
+                  "why": "Tests in a real browser for Zoom, so a change cannot break it unseen.",
+                  "doneWhen": "Alex runs one command, and the zoom tests run in a real browser on the built page and pass."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "icons",
+          "name": "Icons design",
+          "icon": "icons",
+          "state": "done",
+          "why": "The marks say the state of a step and nothing about the step. A step gets an icon that fits what it is about, set in the file and open to change, and one switch hides the icons.",
+          "doneWhen": "On the mock of the example plan, Alex turns \"hide node icons\" off and each step shows the icon set for it in the file, with its state small at the bottom right. Zoomed all the way out, only the milestones show their icons, so the plan is not crowded. Turned on, the view is as before. He says the icons read right."
+        },
+        {
+          "name": "Icons build",
+          "split": [
+            {
+              "name": "Code",
+              "items": [
+                {
+                  "id": "icons-build",
+                  "name": "Icons code",
+                  "icon": "icons",
+                  "state": "done",
+                  "why": "A step shows the icon set for it in the file, as a coin where its name shows, and one switch brings back the marks.",
+                  "doneWhen": "On his own page, each step shows its icon, and 'Hide node icons' turns every step into its mark and back."
+                }
+              ]
+            },
+            {
+              "name": "Tests",
+              "items": [
+                {
+                  "id": "icons-tests",
+                  "name": "Icons tests",
+                  "icon": "icons",
+                  "state": "done",
+                  "why": "Tests in a real browser for Icons, so a change cannot break it unseen.",
+                  "doneWhen": "Alex runs one command, and the icons tests run in a real browser on the built page and pass."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "node-details",
+          "name": "Hover and click design",
+          "icon": "pointer",
+          "state": "done",
+          "why": "The hover tip is plain text and hard to read, a branch shows nothing, and nothing reacts to the pointer. A short tip on hover and a side bar with the data on a click, for a branch as for a step. Zooming and picking one step must never be taken for each other.",
+          "doneWhen": "On the mock of the example plan, Alex points at a step and at a branch, and each shows that it is pointed at and gives a short tip. He clicks each: it stays lit and a side bar shows its data, and a click on empty space closes it. No click zooms. He says it reads right."
+        },
+        {
+          "name": "Hover and click build",
+          "split": [
+            {
+              "name": "Code",
+              "items": [
+                {
+                  "id": "hover-and-click-build",
+                  "name": "Hover and click code",
+                  "icon": "pointer",
+                  "state": "done",
+                  "why": "A hover lights what is under the pointer and shows a short tip. A click picks it, and the side bar shows its data.",
+                  "doneWhen": "On his own page, Alex points at a step and at a branch, and each lights and shows a tip. A click keeps it lit in gold and opens the side bar, and a click on empty space closes it. No click zooms."
+                }
+              ]
+            },
+            {
+              "name": "Tests",
+              "items": [
+                {
+                  "id": "hover-and-click-tests",
+                  "name": "Hover and click tests",
+                  "icon": "pointer",
+                  "state": "done",
+                  "why": "Tests in a real browser for Hover and click, so a change cannot break it unseen.",
+                  "doneWhen": "Alex runs one command, and the hover and click tests run in a real browser on the built page and pass."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "waits-for-look",
+          "name": "Waits on others design",
+          "icon": "hourglass",
+          "state": "done",
+          "why": "A step can wait for steps on other branches, and no line may cross branches. A blocked step lists what blocks it, and one button blurs all but it and its blockers.",
+          "doneWhen": "On a mock, Alex picks a blocked step, presses 'Show only blockers', and says yes to how its blockers stand out."
+        },
+        {
+          "name": "Waits on others build",
+          "split": [
+            {
+              "name": "Code",
+              "items": [
+                {
+                  "id": "waits-for-build",
+                  "name": "Waits on others code",
+                  "icon": "hourglass",
+                  "state": "done",
+                  "why": "A step that waits for one not done is blocked by itself. Its side bar lists what blocks it, and 'Show only blockers' blurs all but it and them.",
+                  "doneWhen": "On his roadmap, Alex clicks 'Edit on page design', presses 'Show only blockers', points at 'Release v1' in the side bar, and goes back with the back arrow."
+                }
+              ]
+            },
+            {
+              "name": "Tests",
+              "items": [
+                {
+                  "id": "waits-for-tests",
+                  "name": "Waits on others tests",
+                  "icon": "hourglass",
+                  "state": "done",
+                  "why": "Tests in a real browser for Waits on others, so a change cannot break it unseen.",
+                  "doneWhen": "npm test checks the blocked state, 'Blocked by', 'Show only blockers', the ring and the arrow, and the back arrow, and all tests still run in seconds."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "branching": true,
+          "split": [
+            {
+              "name": "Sharing",
+              "items": [
+                {
+                  "id": "roadmap-model",
+                  "name": "Roadmap spec design",
+                  "icon": "file-code",
+                  "state": "done",
+                  "why": "How a roadmap is written: one file holds it all, as today. A new id is the name in kebab-case, with -2 or -3 when taken. Files are not kept with the roadmap; in V2 a step links to what it produced.",
+                  "doneWhen": "Alex says yes to how a roadmap is written."
+                },
+                {
+                  "name": "Roadmap spec build",
+                  "split": [
+                    {
+                      "name": "Code",
+                      "items": [
+                        {
+                          "id": "roadmap-spec-build",
+                          "name": "Roadmap spec code",
+                          "icon": "file-code",
+                          "state": "canceled",
+                          "why": "The file stays as it is today: nothing to build."
+                        }
+                      ]
+                    },
+                    {
+                      "name": "Tests",
+                      "items": [
+                        {
+                          "id": "roadmap-spec-tests",
+                          "name": "Roadmap spec tests",
+                          "icon": "file-code",
+                          "state": "canceled",
+                          "why": "The file stays as it is today: nothing to build."
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "embeddable-lib-design",
+                  "name": "Embeddable lib design",
+                  "icon": "package",
+                  "state": "done",
+                  "why": "Another project shows a roadmap with one short piece of code: a React app with one component, any page with one tag. The page sets only the size, and the box leaves the page alone. The lib reads the roadmap as the spec says, so it comes after the spec.",
+                  "doneWhen": "On a mock, Alex says yes to how another project puts a roadmap on its own page."
+                },
+                {
+                  "name": "Embeddable lib build",
+                  "split": [
+                    {
+                      "name": "Code",
+                      "items": [
+                        {
+                          "id": "embeddable-lib",
+                          "name": "Embeddable lib code",
+                          "icon": "package",
+                          "state": "done",
+                          "why": "A React app shows a roadmap in a box on its page with one component, and any page with one tag, without running this app.",
+                          "doneWhen": "On a React page that installs the lib, Alex sees his roadmap in a box that leaves the page alone, and README.md says how."
+                        }
+                      ]
+                    },
+                    {
+                      "name": "Tests",
+                      "items": [
+                        {
+                          "id": "embeddable-lib-tests",
+                          "name": "Embeddable lib tests",
+                          "icon": "package",
+                          "state": "done",
+                          "why": "Tests in a real browser for Embeddable lib, so a change cannot break it unseen.",
+                          "doneWhen": "npm test checks the box on a React page and on a plain page: the page still scrolls, the keys, the side bar, and the page's own look."
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "html-export-design",
+                  "name": "HTML export design",
+                  "icon": "file-export",
+                  "state": "done",
+                  "why": "The export is two files side by side: roadmap.html holds the roadmap and its icons, and the lib file, named by its content, holds the code. So the page stays light, and an old export keeps its own lib.",
+                  "doneWhen": "On a mock, Alex says yes to the HTML file he would upload to a landing page."
+                },
+                {
+                  "name": "HTML export build",
+                  "split": [
+                    {
+                      "name": "Code",
+                      "items": [
+                        {
+                          "id": "html-export",
+                          "name": "HTML export code",
+                          "icon": "file-export",
+                          "state": "done",
+                          "why": "npm run export writes roadmap.html and its lib file, ready to upload to a landing page, and README.md says how to make and upload them.",
+                          "doneWhen": "Alex runs npm run export and opens the roadmap.html it writes: his roadmap, as on the mock he said yes to."
+                        }
+                      ]
+                    },
+                    {
+                      "name": "Tests",
+                      "items": [
+                        {
+                          "id": "html-export-tests",
+                          "name": "HTML export tests",
+                          "icon": "file-export",
+                          "state": "done",
+                          "why": "Tests in a real browser for HTML export, so a change cannot break it unseen.",
+                          "doneWhen": "npm test checks the export from disk and from a made-up host: the page draws, a missing lib shows its line, and a '<' in the roadmap cannot break the page."
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "private-items",
+                  "name": "Private items design",
+                  "icon": "lock",
+                  "state": "done",
+                  "why": "The export leaves out every private item, with no gap, lock or count. The one trace: a shown step that waits on unfinished private work is drawn blocked, without naming what blocks it.",
+                  "doneWhen": "On a mock of the export of his roadmap, Alex says yes to what a stranger sees where an item is private."
+                },
+                {
+                  "name": "Private items build",
+                  "split": [
+                    {
+                      "name": "Code",
+                      "items": [
+                        {
+                          "id": "private-items-build",
+                          "name": "Private items code",
+                          "icon": "lock",
+                          "state": "done",
+                          "why": "npm run export writes roadmap.json with every private item and all inside it left out, roadmapper.js that reads it, and roadmap.html, the whole page. README.md says how a page shows it.",
+                          "doneWhen": "Alex marks items private in his roadmap, runs npm run export, and the page shows what the mock he said yes to showed."
+                        }
+                      ]
+                    },
+                    {
+                      "name": "Tests",
+                      "items": [
+                        {
+                          "id": "private-items-tests",
+                          "name": "Private items tests",
+                          "icon": "lock",
+                          "state": "done",
+                          "why": "Tests in a real browser for Private items, so a change cannot break it unseen.",
+                          "doneWhen": "npm test checks that no private name, id or icon is in an export, that a step waiting on private work is drawn blocked, and that a plan left with nothing exports nothing."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "Focus",
+              "items": [
+                {
+                  "id": "focus-rule",
+                  "name": "Focus design",
+                  "icon": "focus-2",
+                  "state": "canceled",
+                  "why": "Dropped: Alex said the current look is fine, and that 'Main steps' is the view with no noise he meant."
+                },
+                {
+                  "name": "Focus build",
+                  "split": [
+                    {
+                      "name": "Code",
+                      "items": [
+                        {
+                          "id": "focus-build",
+                          "name": "Focus code",
+                          "icon": "focus-2",
+                          "state": "canceled",
+                          "why": "The tree shows work in progress, waiting work and done work in their detail by itself."
+                        }
+                      ]
+                    },
+                    {
+                      "name": "Tests",
+                      "items": [
+                        {
+                          "id": "focus-tests",
+                          "name": "Focus tests",
+                          "icon": "focus-2",
+                          "state": "canceled",
+                          "why": "Tests in a real browser for Focus, so a change cannot break it unseen."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "Show and hide",
+              "items": [
+                {
+                  "id": "show-hide-design",
+                  "name": "Show and hide design",
+                  "icon": "eye",
+                  "state": "done",
+                  "why": "Finished top-level branches start hidden. A layers button in the zoom control, left of (i), opens a list with a search to show or hide any of them. A blocker in a hidden branch has a pill with its branch name in the side bar. A tab on the zoom control hides it.",
+                  "doneWhen": "On a mock of his roadmap at phone and laptop size, Alex says yes to the picker and to how a blocker in a hidden branch shows."
+                },
+                {
+                  "name": "Show and hide build",
+                  "split": [
+                    {
+                      "name": "Code",
+                      "items": [
+                        {
+                          "id": "show-hide-code",
+                          "name": "Show and hide code",
+                          "icon": "eye",
+                          "state": "done",
+                          "why": "Build the design he said yes to: the hidden default, the layers button and its list, the pill of a hidden blocker, and the tab that hides the zoom control.",
+                          "doneWhen": "On his own roadmap at phone and laptop size, Alex hides and shows branches and the zoom control, and says yes."
+                        }
+                      ]
+                    },
+                    {
+                      "name": "Tests",
+                      "items": [
+                        {
+                          "id": "show-hide-tests",
+                          "name": "Show and hide tests",
+                          "icon": "eye",
+                          "state": "done",
+                          "why": "Tests in a real browser for Show and hide, so a change cannot break it unseen.",
+                          "doneWhen": "Browser tests of the hidden default, the list and its search, the pill of a hidden blocker and the tab pass with npm test."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "Layout",
+              "items": [
+                {
+                  "id": "layout",
+                  "name": "Layout design",
+                  "icon": "layout",
+                  "state": "done",
+                  "why": "A phone draws the tree top to bottom and a laptop left to right, with a switch between them. An (i) at the end of the bar opens the key, 'Hide node icons', 'Hide labels' and that switch; with labels hidden the tree packs tight. Branches join right after their last step, the first view opens on the step in progress, and a pinch scales the plan, not the page.",
+                  "doneWhen": "On a mock of his export at phone and laptop size, Alex says yes to how the tree is laid out and read, and to how the zoom control fits."
+                },
+                {
+                  "name": "Layout build",
+                  "split": [
+                    {
+                      "name": "Code",
+                      "items": [
+                        {
+                          "id": "layout-build",
+                          "name": "Layout code",
+                          "icon": "layout",
+                          "state": "done",
+                          "why": "The app, the lib and the export draw the layout of the mock he said yes to.",
+                          "doneWhen": "On his own roadmap at phone and laptop size, Alex sees the layout of the mock, and each switch in (i) works on its own and leaves the popup open."
+                        }
+                      ]
+                    },
+                    {
+                      "name": "Tests",
+                      "items": [
+                        {
+                          "id": "layout-tests",
+                          "name": "Layout tests",
+                          "icon": "layout",
+                          "state": "done",
+                          "why": "Tests in a real browser for Layout, so a change cannot break it unseen.",
+                          "doneWhen": "npm test checks both layouts at every level and with labels hidden: no line crosses another or runs through a name, the default follows the screen, the switches in (i) act on their own, and a pinch scales the plan, not the page."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "Looks",
+              "items": [
+                {
+                  "id": "size-and-looks",
+                  "name": "Looks design",
+                  "icon": "typography",
+                  "private": true,
+                  "state": "done",
+                  "why": "The sizes stay. Parallel lanes get more room between them, so each name reads as its own step's, not the one over it.",
+                  "doneWhen": "On a mock of his roadmap, Alex says yes to the sizes and to how each step and state look."
+                },
+                {
+                  "name": "Looks build",
+                  "split": [
+                    {
+                      "name": "Code",
+                      "items": [
+                        {
+                          "id": "looks-build",
+                          "name": "Looks code",
+                          "icon": "typography",
+                          "state": "done",
+                          "why": "More room between parallel lanes where the names are written.",
+                          "doneWhen": "On his page at V2, the name of each step reads as its own, not the step's over it."
+                        }
+                      ]
+                    },
+                    {
+                      "name": "Tests",
+                      "items": [
+                        {
+                          "id": "looks-tests",
+                          "name": "Looks tests",
+                          "icon": "typography",
+                          "state": "done",
+                          "why": "Tests in a real browser for Looks, so a change cannot break it unseen.",
+                          "doneWhen": "A test fails when the name of a step lies less than 3 times as far from the step over it as from its own."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "Dates",
+              "items": [
+                {
+                  "id": "dates",
+                  "name": "Dates design",
+                  "icon": "calendar",
+                  "state": "done",
+                  "why": "The export for strangers shows no days: it leaves out each step's start, end and deadline.",
+                  "doneWhen": "On a mock of his roadmap, Alex says yes to where the dates show, or he moves dates out of V1."
+                },
+                {
+                  "name": "Dates build",
+                  "split": [
+                    {
+                      "name": "Code",
+                      "items": [
+                        {
+                          "id": "dates-build",
+                          "name": "Dates code",
+                          "icon": "calendar",
+                          "state": "done",
+                          "why": "The export leaves out the days of each step.",
+                          "doneWhen": "A stranger's export holds no start, end or deadline, and its side bar shows none."
+                        }
+                      ]
+                    },
+                    {
+                      "name": "Tests",
+                      "items": [
+                        {
+                          "id": "dates-tests",
+                          "name": "Dates tests",
+                          "icon": "calendar",
+                          "state": "done",
+                          "why": "Tests in a real browser for Dates, so a change cannot break it unseen.",
+                          "doneWhen": "A test proves the export for strangers holds no day, and the export with --private keeps them."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "Viewer level",
+              "private": true,
+              "items": [
+                {
+                  "id": "viewer-level",
+                  "name": "Viewer level design",
+                  "icon": "eye",
+                  "state": "done",
+                  "why": "The stranger sets their own level with the zoom: Alex said \"fine\" to them going down to every step. The owner sets the rest: \"export must allow an option to include private items\".",
+                  "doneWhen": "On a mock of his export, Alex says yes to what a stranger sees at the level set for them, or he moves the viewer level out of V1."
+                },
+                {
+                  "name": "Viewer level build",
+                  "split": [
+                    {
+                      "name": "Code",
+                      "items": [
+                        {
+                          "id": "viewer-level-build",
+                          "name": "Viewer level code",
+                          "icon": "eye",
+                          "state": "done",
+                          "why": "An export can keep the private items, for those who may read the whole roadmap.",
+                          "doneWhen": "Alex runs npm run export -- --private and sees his private steps in npm run export:preview -- --private."
+                        }
+                      ]
+                    },
+                    {
+                      "name": "Tests",
+                      "items": [
+                        {
+                          "id": "viewer-level-tests",
+                          "name": "Viewer level tests",
+                          "icon": "eye",
+                          "state": "done",
+                          "why": "Tests in a real browser for Viewer level, so a change cannot break it unseen.",
+                          "doneWhen": "A browser test shows that --private keeps every private item with its tag, and the plain export still leaves them out."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "release-v1",
+          "name": "Release v1",
+          "icon": "rocket",
+          "state": "done",
+          "why": "V1 is out when an export is ready to upload to a landing page, and each feature of V1 is designed, built and tested.",
+          "doneWhen": "An export of his roadmap is ready to upload, and Alex says V1 is out."
+        }
+      ]
+    },
+    {
+      "name": "V2",
+      "private": true,
+      "holds": "Edit on page, Git integration, themes, expand and collapse, links, export in the app, and a timeline.",
+      "items": [
+        {
+          "branching": true,
+          "split": [
+            {
+              "name": "Edit on page",
+              "items": [
+                {
+                  "id": "edit-on-page",
+                  "name": "Edit on page design",
+                  "icon": "pencil",
+                  "state": "tbd",
+                  "why": "V2 waits for Release v1. Alex changes the roadmap on the page, not in a file.",
+                  "waitsFor": [
+                    "release-v1"
+                  ]
+                },
+                {
+                  "name": "Edit on page build",
+                  "split": [
+                    {
+                      "name": "Code",
+                      "items": [
+                        {
+                          "id": "edit-on-page-build",
+                          "name": "Edit on page code",
+                          "icon": "pencil",
+                          "state": "tbd",
+                          "why": "Edit on page works in the app as designed."
+                        }
+                      ]
+                    },
+                    {
+                      "name": "Tests",
+                      "items": [
+                        {
+                          "id": "edit-on-page-tests",
+                          "name": "Edit on page tests",
+                          "icon": "pencil",
+                          "state": "tbd",
+                          "why": "Tests in a real browser for Edit on page, so a change cannot break it unseen."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "Git integration",
+              "items": [
+                {
+                  "id": "git-integration",
+                  "name": "Git integration design",
+                  "icon": "git-branch",
+                  "state": "tbd",
+                  "why": "A roadmap on a landing page follows its project in Git, with no upload by hand.",
+                  "waitsFor": [
+                    "release-v1"
+                  ]
+                },
+                {
+                  "name": "Git integration build",
+                  "split": [
+                    {
+                      "name": "Code",
+                      "items": [
+                        {
+                          "id": "git-integration-build",
+                          "name": "Git integration code",
+                          "icon": "git-branch",
+                          "state": "tbd",
+                          "why": "Git integration works in the app as designed."
+                        }
+                      ]
+                    },
+                    {
+                      "name": "Tests",
+                      "items": [
+                        {
+                          "id": "git-integration-tests",
+                          "name": "Git integration tests",
+                          "icon": "git-branch",
+                          "state": "tbd",
+                          "why": "Tests in a real browser for Git integration, so a change cannot break it unseen."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "Themes",
+              "items": [
+                {
+                  "id": "themes",
+                  "name": "Themes design",
+                  "icon": "palette",
+                  "state": "tbd",
+                  "why": "The user picks a theme for the page with a switch in (i), light and dark among them: its colors, icons and styles. Today the page follows the device's light or dark. We add a new theme easily; users do not make their own.",
+                  "waitsFor": [
+                    "release-v1"
+                  ]
+                },
+                {
+                  "name": "Themes build",
+                  "split": [
+                    {
+                      "name": "Code",
+                      "items": [
+                        {
+                          "id": "themes-build",
+                          "name": "Themes code",
+                          "icon": "palette",
+                          "state": "tbd",
+                          "why": "The switch in (i) picks the theme in the app, the lib and the export, as designed."
+                        }
+                      ]
+                    },
+                    {
+                      "name": "Tests",
+                      "items": [
+                        {
+                          "id": "themes-tests",
+                          "name": "Themes tests",
+                          "icon": "palette",
+                          "state": "tbd",
+                          "why": "Tests in a real browser for Themes, so a change cannot break it unseen."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "Expand and collapse",
+              "items": [
+                {
+                  "id": "expand-collapse",
+                  "name": "Expand and collapse design",
+                  "icon": "fold",
+                  "state": "tbd",
+                  "why": "At each level, a group opens or closes on its own, so a deep plan needs no extra level.",
+                  "waitsFor": [
+                    "release-v1"
+                  ]
+                },
+                {
+                  "name": "Expand and collapse build",
+                  "split": [
+                    {
+                      "name": "Code",
+                      "items": [
+                        {
+                          "id": "expand-collapse-build",
+                          "name": "Expand and collapse code",
+                          "icon": "fold",
+                          "state": "tbd",
+                          "why": "Expand and collapse works in the app as designed."
+                        }
+                      ]
+                    },
+                    {
+                      "name": "Tests",
+                      "items": [
+                        {
+                          "id": "expand-collapse-tests",
+                          "name": "Expand and collapse tests",
+                          "icon": "fold",
+                          "state": "tbd",
+                          "why": "Tests in a real browser for Expand and collapse, so a change cannot break it unseen."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "Links",
+              "items": [
+                {
+                  "id": "links",
+                  "name": "Links design",
+                  "icon": "link",
+                  "state": "tbd",
+                  "why": "V2 waits for Release v1. A step links to what it produced, like the approved mock, a doc or a demo.",
+                  "waitsFor": [
+                    "release-v1"
+                  ]
+                },
+                {
+                  "name": "Links build",
+                  "split": [
+                    {
+                      "name": "Code",
+                      "items": [
+                        {
+                          "id": "links-build",
+                          "name": "Links code",
+                          "icon": "link",
+                          "state": "tbd",
+                          "why": "Links works in the app as designed."
+                        }
+                      ]
+                    },
+                    {
+                      "name": "Tests",
+                      "items": [
+                        {
+                          "id": "links-tests",
+                          "name": "Links tests",
+                          "icon": "link",
+                          "state": "tbd",
+                          "why": "Tests in a real browser for Links, so a change cannot break it unseen."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "Export in the app",
+              "items": [
+                {
+                  "id": "export-in-the-app",
+                  "name": "Export in the app design",
+                  "icon": "download",
+                  "state": "tbd",
+                  "why": "V2 waits for Release v1. An 'Export' button in the app downloads the export, with private items left out unless 'Include private items' is on.",
+                  "waitsFor": [
+                    "release-v1"
+                  ]
+                },
+                {
+                  "name": "Export in the app build",
+                  "split": [
+                    {
+                      "name": "Code",
+                      "items": [
+                        {
+                          "id": "export-in-the-app-build",
+                          "name": "Export in the app code",
+                          "icon": "download",
+                          "state": "tbd",
+                          "why": "Export in the app works in the app as designed."
+                        }
+                      ]
+                    },
+                    {
+                      "name": "Tests",
+                      "items": [
+                        {
+                          "id": "export-in-the-app-tests",
+                          "name": "Export in the app tests",
+                          "icon": "download",
+                          "state": "tbd",
+                          "why": "Tests in a real browser for Export in the app, so a change cannot break it unseen."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "Timeline",
+              "items": [
+                {
+                  "id": "timeline",
+                  "name": "Timeline design",
+                  "icon": "timeline",
+                  "state": "tbd",
+                  "why": "A layout to turn on, over a range (today, this week, this month, custom): what is going on now, what is late (past its end) and what is missed (past its deadline). Late and missed show only with it on. An export has it only when the owner asks, as with private items; then strangers can turn it on.",
+                  "waitsFor": [
+                    "release-v1"
+                  ]
+                },
+                {
+                  "name": "Timeline build",
+                  "split": [
+                    {
+                      "name": "Code",
+                      "items": [
+                        {
+                          "id": "timeline-build",
+                          "name": "Timeline code",
+                          "icon": "timeline",
+                          "state": "tbd",
+                          "why": "The timeline works in the app, the lib and the export, as designed."
+                        }
+                      ]
+                    },
+                    {
+                      "name": "Tests",
+                      "items": [
+                        {
+                          "id": "timeline-tests",
+                          "name": "Timeline tests",
+                          "icon": "timeline",
+                          "state": "tbd",
+                          "why": "Tests in a real browser for the timeline, so a change cannot break it unseen."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "release-v2",
+          "name": "Release v2",
+          "icon": "rocket",
+          "state": "tbd",
+          "why": "V2 is out when editing on the page, Git integration and themes are designed, built and tested."
+        }
+      ]
+    }
+  ]
+}

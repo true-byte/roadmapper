@@ -1,0 +1,291 @@
+{
+  "title": "Plant care app",
+  "about": "A phone app that tells you when to water each plant.",
+  "branches": [
+    {
+      "name": "V1",
+      "holds": "Add your plants and get a reminder when each one needs water.",
+      "items": [
+        {
+          "id": "add-plants",
+          "name": "Add plants",
+          "icon": "plant",
+          "state": "done",
+          "why": "The app knows nothing until you tell it what you grow.",
+          "doneWhen": "A user adds a plant with a name, a photo and how often it needs water."
+        },
+        {
+          "id": "watering-reminders",
+          "name": "Watering reminders",
+          "icon": "bell",
+          "state": "done",
+          "why": "The reason people get the app: no more dry plants.",
+          "doneWhen": "The phone pings on the day a plant needs water."
+        },
+        {
+          "id": "release-v1",
+          "name": "Release V1",
+          "icon": "rocket",
+          "state": "done",
+          "milestone": true,
+          "why": "The first version is out.",
+          "doneWhen": "Anyone can get the app from the app stores and add a plant."
+        }
+      ]
+    },
+    {
+      "name": "V2",
+      "holds": "Share your plants with your home, and name a plant from a photo.",
+      "items": [
+        {
+          "id": "user-survey",
+          "name": "User survey",
+          "icon": "message-question",
+          "state": "done",
+          "why": "Ask V1 users what they miss most.",
+          "doneWhen": "50 users answered, and their top three asks are listed.",
+          "waitsFor": ["release-v1"]
+        },
+        {
+          "branching": true,
+          "split": [
+            {
+              "name": "Sharing",
+              "items": [
+                {
+                  "id": "sharing-design",
+                  "name": "Sharing design",
+                  "icon": "share",
+                  "state": "done",
+                  "why": "The top ask in the survey: people look after plants together.",
+                  "doneWhen": "The screens to invite someone and share the watering are drawn and agreed."
+                },
+                {
+                  "name": "Sharing build",
+                  "split": [
+                    {
+                      "name": "Code",
+                      "items": [
+                        {
+                          "id": "sharing-server",
+                          "name": "Sharing server",
+                          "icon": "server",
+                          "state": "done",
+                          "why": "Two phones must see the same plants.",
+                          "doneWhen": "A plant watered on one phone shows as watered on the other within 5 seconds."
+                        },
+                        {
+                          "name": "Invite screens",
+                          "split": [
+                            {
+                              "name": "Phone",
+                              "items": [
+                                {
+                                  "id": "phone-invite",
+                                  "name": "Phone invite",
+                                  "icon": "device-mobile",
+                                  "state": "in-progress",
+                                  "start": "2026-10-12",
+                                  "end": "2026-10-23",
+                                  "why": "Most people invite someone from their phone.",
+                                  "doneWhen": "A user invites a housemate, who sees the plants after one tap."
+                                }
+                              ]
+                            },
+                            {
+                              "name": "Web",
+                              "items": [
+                                {
+                                  "id": "web-invite",
+                                  "name": "Web invite",
+                                  "icon": "world-www",
+                                  "state": "todo",
+                                  "why": "Some people plan their plants on a computer.",
+                                  "doneWhen": "The same invite works on the website."
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "name": "Tests",
+                      "items": [
+                        {
+                          "id": "sharing-tests",
+                          "name": "Sharing tests",
+                          "icon": "test-pipe",
+                          "state": "in-progress",
+                          "why": "Sharing breaks in quiet ways, like two people watering the same plant.",
+                          "doneWhen": "The tests for invites and shared watering run on each change and pass."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "Photo ID",
+              "holds": "Take a photo of a plant, and the app says what it is.",
+              "items": [
+                {
+                  "private": true,
+                  "split": [
+                    {
+                      "name": "Plan B",
+                      "ends": true,
+                      "items": [
+                        {
+                          "id": "own-plant-photos",
+                          "name": "Own plant photos",
+                          "icon": "photo",
+                          "state": "in-progress",
+                          "why": "A way out if the plant data deal falls through.",
+                          "doneWhen": "We have our own photos of the 200 most common house plants."
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "supplier-signs",
+                  "name": "Supplier signs",
+                  "icon": "writing-sign",
+                  "state": "in-progress",
+                  "private": true,
+                  "why": "The plant photo supplier must sign the license before we can.",
+                  "doneWhen": "The supplier has signed the license."
+                },
+                {
+                  "id": "plant-data-deal",
+                  "name": "Plant data deal",
+                  "icon": "signature",
+                  "private": true,
+                  "why": "Photo ID learns from the supplier's plant photos.",
+                  "doneWhen": "The license is signed by both sides."
+                },
+                {
+                  "id": "photo-id",
+                  "name": "Photo ID",
+                  "icon": "camera",
+                  "state": "tbd",
+                  "why": "The second ask in the survey: what is this plant?"
+                }
+              ]
+            },
+            {
+              "name": "Dark mode",
+              "items": [
+                {
+                  "id": "dark-mode",
+                  "name": "Dark mode",
+                  "icon": "moon",
+                  "state": "canceled",
+                  "why": "Dropped: few users asked for it in the survey."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Beta test",
+          "split": [
+            {
+              "items": [
+                {
+                  "id": "invite-testers",
+                  "name": "Invite testers",
+                  "icon": "user-plus",
+                  "state": "tbd",
+                  "why": "Real homes find what we miss."
+                },
+                {
+                  "id": "fix-top-bugs",
+                  "name": "Fix top bugs",
+                  "icon": "bug",
+                  "state": "tbd",
+                  "why": "Testers hit bugs we never saw."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "release-v2",
+          "name": "Release V2",
+          "icon": "rocket",
+          "milestone": true,
+          "deadline": "2026-12-01",
+          "why": "Sharing and Photo ID reach every user before the holidays.",
+          "doneWhen": "V2 is in the app stores."
+        }
+      ]
+    },
+    {
+      "name": "V3",
+      "holds": "Care past watering: tips for each plant, and a watch app to try.",
+      "items": [
+        {
+          "id": "user-survey-2",
+          "name": "User survey",
+          "icon": "message-question",
+          "state": "tbd",
+          "why": "Ask V2 users which of these they want.",
+          "waitsFor": ["release-v2"]
+        },
+        {
+          "branching": true,
+          "split": [
+            {
+              "name": "Care tips",
+              "items": [
+                {
+                  "id": "care-tips",
+                  "name": "Care tips",
+                  "icon": "bulb",
+                  "state": "tbd",
+                  "why": "Light, food and new pots, for each kind of plant."
+                }
+              ]
+            },
+            {
+              "name": "Plant shop",
+              "private": true,
+              "items": [
+                {
+                  "id": "plant-shop",
+                  "name": "Plant shop",
+                  "icon": "shopping-cart",
+                  "state": "tbd",
+                  "why": "Sell pots and plant food in the app, with a garden store."
+                }
+              ]
+            },
+            {
+              "name": "Watch app",
+              "ends": true,
+              "items": [
+                {
+                  "id": "watch-app",
+                  "name": "Watch app",
+                  "icon": "device-watch",
+                  "state": "tbd",
+                  "why": "A try. It may stay a side app."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "release-v3",
+          "name": "Release V3",
+          "icon": "rocket",
+          "state": "tbd",
+          "milestone": true
+        }
+      ]
+    }
+  ]
+}

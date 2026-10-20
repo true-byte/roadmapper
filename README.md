@@ -1,0 +1,69 @@
+# Roadmapper
+
+This doc covers what Roadmapper is, how to install and start it, and where the other docs are.
+
+Roadmapper draws a roadmap as a tree, which the docs call the plan. The roadmap is kept in one JSON file, the roadmap file. At the level 'Main steps', anyone can read the plan, even a child in 3rd grade. The next levels, 'Tracks' and 'Every step', show more detail.
+
+<picture>
+  <source media="(prefers-color-scheme: light)" srcset="docs/images/roadmap-light.png">
+  <img alt="The sample roadmap file, 'Plant care app', at the level 'Main steps'" src="docs/images/roadmap.png">
+</picture>
+
+## Install
+
+Build Roadmapper's package in a clone, then install the package in your project. [docs/install.md](docs/install.md) gives the Node version that Roadmapper needs, and each step in detail.
+
+Run these commands in the folder that holds your project's folder, so that the clone sits next to your project. `your-project` stands for the name of your project's folder.
+
+```sh
+git clone https://github.com/true-byte/roadmapper
+cd roadmapper
+npm install
+npm run package
+cd ../your-project
+npm install ../roadmapper/dist/roadmapper-*.tgz
+```
+
+## Quick start
+
+Run these commands in your project's folder. The first command copies the sample roadmap file, 'Plant care app', to `roadmap.json`. The second command serves the app, which shows `roadmap.json`.
+
+```sh
+cp node_modules/roadmapper/data/sample.roadmap.json roadmap.json
+npx roadmapper dev
+```
+
+Open the address that `npx roadmapper dev` prints. The page redraws the plan each time you save `roadmap.json`.
+
+To show the roadmap in a React app, use the component `Roadmap`:
+
+```jsx
+import { Roadmap } from 'roadmapper/react';
+import roadmap from './roadmap.json';
+
+<Roadmap roadmap={roadmap} style={{ height: 720 }} />
+```
+
+[docs/embed.md](docs/embed.md) gives each prop of `Roadmap`, and the tag `<roadmapper-view>` for a page without React.
+
+## Claude Code skill
+
+The `roadmapper` skill tells Claude how to write and keep a roadmap file. With it, Claude puts each step right after the steps that it needs. To install the skill, run this command in your project's folder:
+
+```sh
+npx skills add https://github.com/true-byte/roadmapper --skill roadmapper -a claude-code --copy
+```
+
+[docs/skill.md](docs/skill.md) says what to ask Claude, and how to update the skill.
+
+## Docs
+
+[docs/README.md](docs/README.md) says what Roadmapper is for, and lists each doc.
+
+## Contributing
+
+[CONTRIBUTING.md](https://github.com/true-byte/roadmapper/blob/main/CONTRIBUTING.md) says how to set up a clone, run the tests and add a theme. It also gives the rules for code and docs, and where each part of the code is.
+
+## License
+
+Roadmapper is under the MIT License. [LICENSE](LICENSE) holds its text.

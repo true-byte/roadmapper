@@ -1,0 +1,33 @@
+/* The default theme: every color and font of the view, the web fonts and the icon set it draws with, as CSS variables, which view.css reads.
+   They are set on the app's page, and on the root of the view in a box or on the export's page, inside a shadow root, where :root matches nothing.
+   It comes after view.css, so its color-scheme wins over the `all: initial` of the root of a view in a box. */
+
+:root, .roadmap.box, .roadmap.page {
+  --bg: #0a1224;
+  --ink: #e8eef9;
+  --muted: #8494b2;
+  --name: #e8b84a;
+  --line: #56cfe1;
+  --stop: #ff7a7a;
+  --hair: #24314f;
+  --display: "Chakra Petch", "Trebuchet MS", sans-serif;
+  --body: "Atkinson Hyperlegible", "Segoe UI", Arial, sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  /* a panel that lies on the page, such as the error list */
+  --panel: color-mix(in srgb, var(--bg) 88%, var(--ink));
+  /* the shadow under a panel that lies over the plan, and the one under the tip */
+  --shadow: 0 8px 28px rgb(0 0 0 / 0.35);
+  --tip-shadow: 0 8px 24px rgb(0 0 0 / 0.4);
+  /* the set the icons of the steps come from, by its name in src/icons/sets.ts */
+  --icon-set: tabler;
+  /* the style sheet of the web fonts above */
+  --fonts: "https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Chakra+Petch:wght@500;600&display=swap";
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root, .roadmap.box, .roadmap.page {
+    --bg: #f4f6fb; --ink: #101b33; --muted: #5a6885;
+    --name: #9a6b00; --line: #0b7a8c; --stop: #c2362f; --hair: #d3dae8; --panel: #ffffff;
+    color-scheme: light;
+  }
+}
