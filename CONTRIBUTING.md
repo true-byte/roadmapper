@@ -142,7 +142,7 @@ To add an icon set, put it into `src/icons/`, and add a loader by its name to `s
 
 ## Send a change
 
-`main` holds the release with the highest version. The work for each release is on its release branch, which is named `release/` followed by the version, such as `release/1.0.0`. Each pull request goes into a release branch, never into `main`.
+`main` holds the release with the highest version. The work for each release is on its release branch, which is named `release/` followed by the version, such as `release/1.0.0`. Each change is made on a branch of its own and goes into a release branch by a pull request. Only a finished release goes into `main`, by a pull request from its release branch, as [Finish a release](#finish-a-release) says.
 
 1. If you have no write access to `true-byte/roadmapper`, fork it on GitHub. Then add your fork as the remote `fork` of your clone, where `<you>` is your GitHub user name:
 
@@ -160,7 +160,7 @@ To add an icon set, put it into `src/icons/`, and add a loader by its name to `s
 
    If no release branch fits the change, open an issue at https://github.com/true-byte/roadmapper/issues that says which release the change is for. Go on to step 3 when the command lists the release branch.
 
-3. From that release branch, make a branch for one change. `<version>` is the version of that release branch, and `<branch>` is the name of the new branch:
+3. From that release branch, make a branch for one change. `<version>` is the version of that release branch, and `<branch>` is the name of the new branch. Name a fix `fix/` followed by a short name, such as `fix/npm-audit`. Name any other change `feature/` followed by a short name, such as `feature/links`.
 
    ```sh
    git fetch origin
@@ -205,7 +205,7 @@ A person with write access to `true-byte/roadmapper` reviews each pull request a
 
 ## Make a release
 
-These steps need the admin role of `true-byte/roadmapper`. The rules of the repo let only an admin push to `main` or to a release branch without a pull request, and make a tag whose name starts with `v`.
+These steps need the admin role of `true-byte/roadmapper`. The rules of the repo let only an admin delete a release branch and make a tag whose name starts with `v`.
 
 Each release has a tag. The name of the tag is `v` followed by the `version` in `package.json`, such as `v1.0.0-beta`. The tag keeps the commits of the release after its release branch is deleted.
 
@@ -224,29 +224,31 @@ git push -u origin release/<version>
 
 ### Finish a release
 
-1. On the release branch, set the version in `package.json` and `package-lock.json`:
+1. Set the version in `package.json` and `package-lock.json`, on the branch `feature/version-<version>`:
 
    ```sh
    git fetch origin
-   git switch release/<version>
-   git pull origin release/<version>
+   git switch -c feature/version-<version> origin/release/<version>
    npm version <version> --no-git-tag-version
    git add package.json package-lock.json
    git commit -m "Set the version to <version>"
+   git push -u origin feature/version-<version>
    ```
 
-2. Merge the release branch into `main`, tag `main`, and push `main` and the tag:
+   Open `https://github.com/true-byte/roadmapper/compare/release/<version>...feature/version-<version>?expand=1`, and click 'Create pull request'. Merge the pull request when the check 'All tests' passes.
+
+2. Open `https://github.com/true-byte/roadmapper/compare/main...release/<version>?expand=1`, and click 'Create pull request'. When the check 'All tests' passes, merge the pull request with 'Create a merge commit', so that `main` keeps the commits of the release.
+3. Tag `main`, and push the tag:
 
    ```sh
    git switch main
    git pull origin main
-   git merge release/<version>
    git tag -a v<version> -m v<version>
-   git push origin main v<version>
+   git push origin v<version>
    ```
 
-3. Move each open pull request into `release/<version>` to the release branch of the next version. GitHub closes each pull request whose base branch is deleted. If the next version has no release branch yet, make it first, as [Start a release](#start-a-release) says. To move a pull request, open it, click 'Edit title', pick the new branch in the base branch menu, and click 'Change base'.
-4. Delete the release branch:
+4. Move each open pull request into `release/<version>` to the release branch of the next version. GitHub closes each pull request whose base branch is deleted. If the next version has no release branch yet, make it first, as [Start a release](#start-a-release) says. To move a pull request, open it, click 'Edit title', pick the new branch in the base branch menu, and click 'Change base'.
+5. Delete the release branch:
 
    ```sh
    git push origin --delete release/<version>
@@ -268,20 +270,17 @@ A patch fixes a release with a lower version than the release that `main` holds.
    A plain `git fetch` gets no tag of a past patch, because the commits of a past patch are on no branch. `--tags` gets every tag, so `<release>` can be a past patch.
 
 2. Send each pull request of the patch into `release/<patch>`, as [Send a change](#send-a-change) says, with `<patch>` as `<version>`.
-3. When the patch is done, set its version, tag the release branch, and push the tag:
+3. When the patch is done, set its version, as step 1 of [Finish a release](#finish-a-release) says, with `<patch>` as `<version>`. Then tag the release branch, and push the tag:
 
    ```sh
    git fetch origin
    git switch release/<patch>
    git pull origin release/<patch>
-   npm version <patch> --no-git-tag-version
-   git add package.json package-lock.json
-   git commit -m "Set the version to <patch>"
    git tag -a v<patch> -m v<patch>
    git push origin v<patch>
    ```
 
-4. If pull requests into `release/<patch>` are still open, make the release branch of the next patch from the tag `v<patch>`, as step 1 says. For example, make `release/1.1.2` from `v1.1.1`. Then move each of those pull requests to it, as step 3 of [Finish a release](#finish-a-release) says.
+4. If pull requests into `release/<patch>` are still open, make the release branch of the next patch from the tag `v<patch>`, as step 1 says. For example, make `release/1.1.2` from `v1.1.1`. Then move each of those pull requests to it, as step 4 of [Finish a release](#finish-a-release) says.
 5. Delete the release branch of the patch:
 
    ```sh
@@ -292,7 +291,7 @@ A patch fixes a release with a lower version than the release that `main` holds.
 
    The branch never merges into `main`, so `git branch -d` refuses to delete it. `-D` deletes it, and the tag keeps its commits.
 
-6. If the release branch with the highest version needs the fix too, copy the fix into a new branch from it. `<newest>` is the highest version that step 2 of [Send a change](#send-a-change) lists, such as `2.1.0`. If no listed version is higher than the release that `main` holds, start the next release first, as [Start a release](#start-a-release) says. `<branch>` is the name of the new branch.
+6. If the release branch with the highest version needs the fix too, copy the fix into a new branch from it. `<newest>` is the highest version that step 2 of [Send a change](#send-a-change) lists, such as `2.1.0`. If no listed version is higher than the release that `main` holds, start the next release first, as [Start a release](#start-a-release) says. `<branch>` is the name of the new branch, named as step 3 of [Send a change](#send-a-change) says.
 
    ```sh
    git fetch --tags origin
