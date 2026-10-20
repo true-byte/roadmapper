@@ -1,7 +1,8 @@
 // What the builds of the test pages share. Each page is an HTML file with its script in a file next to it, opened from disk, so each is kept light.
+// The configs of the test pages load this file, so this file and each file that it imports name each import with its `.ts`, as Node needs to load them.
 import { icons as tabler } from '@iconify-json/tabler';
 import type { Plugin } from 'vite';
-import { nodesOf, plans } from './plans';
+import { nodesOf, plans } from './plans.ts';
 
 /** The script stays out of the page, as the browser then need not read the script as a part of the page.
  * It is a plain script, not a module, since a module does not load from disk; it runs in strict mode, as a module does. */

@@ -684,6 +684,7 @@
           "id": "release-v1",
           "name": "Release v1.0.0-beta",
           "icon": "rocket",
+          "state": "done",
           "why": "v1.0.0-beta is out when an export is ready to upload to a landing page, and each feature of v1.0.0-beta is designed, built and tested.",
           "doneWhen": "An export of his roadmap is ready to upload, and Alex says v1.0.0-beta is out."
         }
@@ -698,6 +699,7 @@
           "id": "start-v1-0-0",
           "name": "Start v1.0.0",
           "icon": "flag",
+          "state": "done",
           "why": "v1.0.0 waits for Release v1.0.0-beta.",
           "doneWhen": "Release v1.0.0-beta is done, and Alex says v1.0.0 starts.",
           "waitsFor": [
@@ -714,8 +716,8 @@
                   "id": "edit-on-page",
                   "name": "Edit on page design",
                   "icon": "pencil",
-                  "state": "tbd",
-                  "why": "Alex changes the roadmap on the page, not in a file."
+                  "why": "Alex changes the roadmap on the page, not in a file.",
+                  "doneWhen": "On a mock of his roadmap, Alex says yes to how he changes the roadmap on the page."
                 },
                 {
                   "name": "Edit on page build",
@@ -727,8 +729,8 @@
                           "id": "edit-on-page-build",
                           "name": "Edit on page code",
                           "icon": "pencil",
-                          "state": "tbd",
-                          "why": "Edit on page works in the app as designed."
+                          "why": "Edit on page works in the app as designed.",
+                          "doneWhen": "On his own roadmap, Alex changes the roadmap on the page, and roadmap.json holds the change."
                         }
                       ]
                     },
@@ -739,8 +741,8 @@
                           "id": "edit-on-page-tests",
                           "name": "Edit on page tests",
                           "icon": "pencil",
-                          "state": "tbd",
-                          "why": "Tests in a real browser for Edit on page, so a change cannot break it unseen."
+                          "why": "Tests in a real browser for Edit on page, so a change cannot break it unseen.",
+                          "doneWhen": "npm test checks Edit on page, as designed."
                         }
                       ]
                     }
@@ -791,8 +793,8 @@
                   "id": "themes",
                   "name": "Themes design",
                   "icon": "palette",
-                  "state": "tbd",
-                  "why": "A button of its own opens a picker of themes, like the picker of branches: it has a search, and each row shows a small picture of its theme, light and dark among them. Each theme is a folder of its own in themes/, so no theme depends on another. We add a new theme easily; users do not make their own."
+                  "why": "A button of its own opens a picker of themes, like the picker of branches: it has a search, and each row shows a small picture of its theme, light and dark among them. Each theme is a folder of its own in themes/, so no theme depends on another. We add a new theme easily; users do not make their own.",
+                  "doneWhen": "On a mock of his roadmap, Alex says yes to the picker of themes."
                 },
                 {
                   "name": "Themes build",
@@ -804,8 +806,8 @@
                           "id": "themes-build",
                           "name": "Themes code",
                           "icon": "palette",
-                          "state": "tbd",
-                          "why": "The picker of themes picks the theme in the app, the lib and the export, as designed."
+                          "why": "The picker of themes picks the theme in the app, the lib and the export, as designed.",
+                          "doneWhen": "On his own roadmap, Alex picks a theme in the picker, and the page draws in that theme."
                         }
                       ]
                     },
@@ -816,8 +818,8 @@
                           "id": "themes-tests",
                           "name": "Themes tests",
                           "icon": "palette",
-                          "state": "tbd",
-                          "why": "Tests in a real browser for Themes, so a change cannot break it unseen."
+                          "why": "Tests in a real browser for Themes, so a change cannot break it unseen.",
+                          "doneWhen": "npm test checks the picker of themes, as designed."
                         }
                       ]
                     }
@@ -873,8 +875,9 @@
                   "id": "links",
                   "name": "Links design",
                   "icon": "link",
-                  "state": "tbd",
-                  "why": "A step links to what it produced, like the approved mock, a doc or a demo. The 'Links' section of the side bar opens and closes."
+                  "state": "done",
+                  "why": "A step links to what it produced, like the approved mock, a doc or a demo. The 'Links' section of the side bar opens and closes.",
+                  "doneWhen": "On a mock of his roadmap, Alex says yes to the 'Links' part of the side bar."
                 },
                 {
                   "name": "Links build",
@@ -886,8 +889,8 @@
                           "id": "links-build",
                           "name": "Links code",
                           "icon": "link",
-                          "state": "tbd",
-                          "why": "Links works in the app as designed."
+                          "why": "Links works in the app as designed.",
+                          "doneWhen": "On his own roadmap, Alex clicks a link in the 'Links' part of the side bar, and it opens in a new tab."
                         }
                       ]
                     },
@@ -898,8 +901,8 @@
                           "id": "links-tests",
                           "name": "Links tests",
                           "icon": "link",
-                          "state": "tbd",
-                          "why": "Tests in a real browser for Links, so a change cannot break it unseen."
+                          "why": "Tests in a real browser for Links, so a change cannot break it unseen.",
+                          "doneWhen": "npm test checks Links, as designed."
                         }
                       ]
                     }
@@ -914,8 +917,9 @@
                   "id": "export-in-the-app",
                   "name": "Export in the app design",
                   "icon": "download",
-                  "state": "tbd",
-                  "why": "'Export' in (i) downloads the export, with private items left out unless 'Include private items' is on."
+                  "state": "done",
+                  "why": "'Export' in (i) downloads the export, with private items left out unless 'Include private items' is on.",
+                  "doneWhen": "On a mock of his roadmap, Alex says yes to 'Export' in (i)."
                 },
                 {
                   "name": "Export in the app build",
@@ -927,8 +931,8 @@
                           "id": "export-in-the-app-build",
                           "name": "Export in the app code",
                           "icon": "download",
-                          "state": "tbd",
-                          "why": "Export in the app works in the app as designed."
+                          "why": "Export in the app works in the app as designed.",
+                          "doneWhen": "On his own roadmap, Alex clicks 'Export' in (i), and opens the export that it saves."
                         }
                       ]
                     },
@@ -939,8 +943,8 @@
                           "id": "export-in-the-app-tests",
                           "name": "Export in the app tests",
                           "icon": "download",
-                          "state": "tbd",
-                          "why": "Tests in a real browser for Export in the app, so a change cannot break it unseen."
+                          "why": "Tests in a real browser for Export in the app, so a change cannot break it unseen.",
+                          "doneWhen": "npm test checks Export in the app, as designed."
                         }
                       ]
                     }
@@ -955,8 +959,8 @@
                   "id": "timeline",
                   "name": "Timeline design",
                   "icon": "timeline",
-                  "state": "tbd",
-                  "why": "A layout to turn on, over a range (today, this week, this month, custom): what is going on now, what is late (past its end) and what is missed (past its deadline). Late and missed show only with it on. An export has it only when the owner asks, as with private items; then strangers can turn it on."
+                  "why": "A layout to turn on, over a range (today, this week, this month, custom): what is going on now, what is late (past its end) and what is missed (past its deadline). Late and missed show only with it on. An export has it only when the owner asks, as with private items; then strangers can turn it on.",
+                  "doneWhen": "On a mock of his roadmap, Alex says yes to the timeline."
                 },
                 {
                   "name": "Timeline build",
@@ -968,8 +972,8 @@
                           "id": "timeline-build",
                           "name": "Timeline code",
                           "icon": "timeline",
-                          "state": "tbd",
-                          "why": "The timeline works in the app, the lib and the export, as designed."
+                          "why": "The timeline works in the app, the lib and the export, as designed.",
+                          "doneWhen": "On his own roadmap, Alex turns on the timeline, and says yes."
                         }
                       ]
                     },
@@ -980,8 +984,8 @@
                           "id": "timeline-tests",
                           "name": "Timeline tests",
                           "icon": "timeline",
-                          "state": "tbd",
-                          "why": "Tests in a real browser for the timeline, so a change cannot break it unseen."
+                          "why": "Tests in a real browser for the timeline, so a change cannot break it unseen.",
+                          "doneWhen": "npm test checks the timeline, as designed."
                         }
                       ]
                     }
@@ -996,8 +1000,8 @@
                   "id": "remember-the-view",
                   "name": "Remember the view design",
                   "icon": "device-floppy",
-                  "state": "tbd",
-                  "why": "The browser keeps every change the user makes to the view, so a reload or a new visit shows the page as the user left it."
+                  "why": "The browser keeps every change the user makes to the view, so a reload or a new visit shows the page as the user left it.",
+                  "doneWhen": "On a mock of his roadmap, Alex says yes to how the page keeps his view through a reload."
                 },
                 {
                   "name": "Remember the view build",
@@ -1009,8 +1013,8 @@
                           "id": "remember-the-view-code",
                           "name": "Remember the view code",
                           "icon": "device-floppy",
-                          "state": "tbd",
-                          "why": "Remember the view works in the app as designed."
+                          "why": "Remember the view works in the app as designed.",
+                          "doneWhen": "On his own roadmap, Alex changes the view, reloads the page, and sees the view as he left it."
                         }
                       ]
                     },
@@ -1021,8 +1025,8 @@
                           "id": "remember-the-view-tests",
                           "name": "Remember the view tests",
                           "icon": "device-floppy",
-                          "state": "tbd",
-                          "why": "Tests in a real browser for Remember the view, so a change cannot break it unseen."
+                          "why": "Tests in a real browser for Remember the view, so a change cannot break it unseen.",
+                          "doneWhen": "npm test checks Remember the view, as designed."
                         }
                       ]
                     }
@@ -1037,8 +1041,8 @@
                   "id": "long-text",
                   "name": "Long text design",
                   "icon": "text-wrap",
-                  "state": "tbd",
-                  "why": "Long names, long links and long lists of items, links among them, fit everywhere on the page."
+                  "why": "Long names, long links and long lists of items, links among them, fit everywhere on the page.",
+                  "doneWhen": "On a mock of his roadmap, Alex says yes to how long names, long links and long lists fit on the page."
                 },
                 {
                   "name": "Long text build",
@@ -1050,8 +1054,8 @@
                           "id": "long-text-code",
                           "name": "Long text code",
                           "icon": "text-wrap",
-                          "state": "tbd",
-                          "why": "Long text works in the app as designed."
+                          "why": "Long text works in the app as designed.",
+                          "doneWhen": "On his own roadmap, Alex sees long names, long links and long lists fit everywhere on the page."
                         }
                       ]
                     },
@@ -1062,8 +1066,8 @@
                           "id": "long-text-tests",
                           "name": "Long text tests",
                           "icon": "text-wrap",
-                          "state": "tbd",
-                          "why": "Tests in a real browser for Long text, so a change cannot break it unseen."
+                          "why": "Tests in a real browser for Long text, so a change cannot break it unseen.",
+                          "doneWhen": "npm test checks Long text, as designed."
                         }
                       ]
                     }
@@ -1078,8 +1082,8 @@
                   "id": "tools-button",
                   "name": "Tools button design",
                   "icon": "tool",
-                  "state": "tbd",
-                  "why": "(i) becomes a tools button, with sections that open and close, such as the key, themes and export."
+                  "why": "(i) becomes a tools button, with sections that open and close, such as the key, themes and export.",
+                  "doneWhen": "On a mock of his roadmap, Alex says yes to the tools button and its sections."
                 },
                 {
                   "name": "Tools button build",
@@ -1091,8 +1095,8 @@
                           "id": "tools-button-code",
                           "name": "Tools button code",
                           "icon": "tool",
-                          "state": "tbd",
-                          "why": "Tools button works in the app as designed."
+                          "why": "Tools button works in the app as designed.",
+                          "doneWhen": "On his own roadmap, Alex opens and closes each section of the tools button."
                         }
                       ]
                     },
@@ -1103,8 +1107,8 @@
                           "id": "tools-button-tests",
                           "name": "Tools button tests",
                           "icon": "tool",
-                          "state": "tbd",
-                          "why": "Tests in a real browser for Tools button, so a change cannot break it unseen."
+                          "why": "Tests in a real browser for Tools button, so a change cannot break it unseen.",
+                          "doneWhen": "npm test checks the tools button, as designed."
                         }
                       ]
                     }

@@ -1,5 +1,5 @@
 // The plans the tests draw. Each passes parseRoadmap().
-import type { Branch, Item, RoadNode, Roadmap, Split } from '../src/roadmap/types';
+import type { Branch, Item, RoadNode, Roadmap, Split } from '../src/roadmap/types.ts';
 
 /** Every piece the view draws: groups two and three deep, a group of steps in a row, a branching that comes back together and one that ends apart,
  * known, alias and unknown icons, milestones, every state (blocked by waitsFor), why and doneWhen, days, waitsFor, private items, and the track 'Quad' with 1 of 4 done. */

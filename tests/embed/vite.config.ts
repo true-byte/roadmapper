@@ -1,5 +1,5 @@
 import { defineConfig } from 'vite';
-import { fewIcons, plainScript } from '../build';
+import { fewIcons, plainScript } from '../build.ts';
 
 // The embed page, built as the test page is: a plain script out of the page, and only the icons the test plans name (tests/build.ts).
 // The box loads its icon set as a part apart, which a plain script puts into itself. The loader of such a part asks import.meta, which a plain script

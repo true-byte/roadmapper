@@ -28,6 +28,8 @@ npx skills add https://github.com/true-byte/roadmapper --skill roadmapper -a cla
 | `-a claude-code` | Installs the skill for Claude Code. |
 | `--copy` | Writes the files themselves, not links to them, so that you can commit them in your project. |
 
+The command also writes `skills-lock.json` in your project's folder, which says where the skill comes from. Commit it with the skill: `npx skills update` reads it to find the skill.
+
 Install Roadmapper in your project too, as [install.md](install.md) says. Claude needs Roadmapper, because Claude checks the roadmap file with `npx roadmapper validate` before it answers you.
 
 ## What to ask Claude
