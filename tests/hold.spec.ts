@@ -342,6 +342,9 @@ test.describe('on a phone', () => {
   test('with the popup open, a double tap on the plan shuts it and does nothing else: no sheet and no zoom', async ({ page }) => {
     await openPlan(page, full, { store: null });
     await zoomTo(page, 'Tracks');
+    // the plan scrolled down to its top, so that the room over the popup holds its first steps
+    await page.locator('.roadmap .stage').evaluate(s => { s.scrollTop = 0; });
+    await settle(page);
     await keyButton(page).tap();
     await expect(popup(page)).toBeVisible();
     // a step, a group step or a pill in the room, over the popup

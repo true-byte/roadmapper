@@ -1,4 +1,4 @@
-// 'Layout tests': the head on one row; the popup at the end of the zoom control, with the key, the switches 'Hide node icons' and 'Hide labels' and the pair of layouts,
+// 'Layout tests': the head on one row; the popup at the end of the zoom control, with the key, the switches 'Hide node icons' and 'Hide labels', the mode and the pair of layouts,
 // each of which acts on its own and leaves the popup open; the layout a view first draws, across or down, by its size; the pick of the pair, which holds for the visit and which the app keeps;
 // 'Hide labels', which draws no word but the names of the versions, plays as a move and is kept; a pinch on a phone, which scales the plan and not the page;
 // and in both layouts, with the labels shown and hidden, no line crosses another, runs through a name, and no name touches another.
@@ -16,7 +16,8 @@ type Box = { x: number; y: number; width: number; height: number };
 const boxOf = async (page: Page, css: string): Promise<Box> => (await page.locator(css).first().boundingBox())!;
 const stageScroll = (page: Page): Promise<[number, number]> => page.locator('.roadmap .stage').evaluate(s => [s.scrollLeft, s.scrollTop]);
 /** The radio of the pair that is chosen. */
-const chosen = (page: Page): Promise<string | null> => popup(page).getByRole('radio', { checked: true, includeHidden: true }).getAttribute('aria-label');
+const chosen = (page: Page): Promise<string | null> =>
+  popup(page).getByRole('radiogroup', { name: 'Layout', includeHidden: true }).getByRole('radio', { checked: true, includeHidden: true }).getAttribute('aria-label');
 /** Is the step on the stage, whole? */
 async function inSight(page: Page, id: string): Promise<boolean> {
   const s = (await step(page, id).boundingBox())!, r = await boxOf(page, '.roadmap .stage');
@@ -107,7 +108,7 @@ test.describe('the head and the popup', () => {
     expect(Math.abs(bar.y - (pop.y + pop.height) - 30), 'over the control, clear of the grip').toBeLessThan(1);
   });
 
-  test("with icons the popup is the key, a hairline and two rows of 44 px: 'Hide node icons' over 'Hide labels' at the left, and the pair right of both, in the middle of the two rows. With a key of six it is 235 px high, and at 320 px wide the rows still fit", async ({ page }) => {
+  test("with icons the popup is the key, a hairline, 'Hide node icons' over 'Hide labels', each a row of 44 px, and a row under them: the mode at the left and the pair at the right. With a key of six it is 291 px high, and at 320 px wide the rows still fit", async ({ page }) => {
     for (const [width, height] of [[1440, 900], [844, 390], [390, 664], [360, 640], [320, 568]]) {
       const at = `${width}x${height}`;
       await page.setViewportSize({ width, height });
@@ -116,33 +117,35 @@ test.describe('the head and the popup', () => {
       await expect(popup(page).locator('.key li')).toHaveCount(6);
       const b = await popup(page).evaluate(p => {
         const box = (e: Element): { l: number; r: number; t: number; b: number } => { const r = e.getBoundingClientRect(); return { l: r.left, r: r.right, t: r.top, b: r.bottom }; };
-        const opts = p.querySelector('.opts')!, [hide, hideL] = [...opts.querySelectorAll('.switch')];
+        const opts = p.querySelector('.opts')!, [hide, hideL] = [...opts.querySelectorAll('.switch')], group = (name: string): Element => p.querySelector(`[role="radiogroup"][aria-label="${name}"]`)!;
         return {
-          pop: box(p), opts: box(opts), hide: box(hide), hideL: box(hideL), seg: box(p.querySelector('.seg')!),
-          over: Math.max(p.scrollWidth - p.clientWidth, opts.scrollWidth - opts.clientWidth),
+          pop: box(p), opts: box(opts), hide: box(hide), hideL: box(hideL), mode: box(group('Mode')), pair: box(group('Layout')),
+          over: Math.max(p.scrollWidth - p.clientWidth, opts.scrollWidth - opts.clientWidth), whole: p.scrollHeight + (p as HTMLElement).offsetHeight - p.clientHeight,
         };
       });
-      expect(b.pop.b - b.pop.t, `${at}: high`).toBeCloseTo(235, 0);
-      expect(b.opts.b - b.opts.t, `${at}: two rows`).toBeCloseTo(88, 0);
+      expect(b.whole, `${at}: high, where a short view scrolls it too`).toBeCloseTo(291, 0);
       expect(b.hide.b - b.hide.t, at).toBeCloseTo(44, 0);
       expect(b.hideL.b - b.hideL.t, at).toBeCloseTo(44, 0);
       expect(b.hide.t, `${at}: 'Hide node icons' on the first row`).toBeCloseTo(b.opts.t, 0);
       expect(b.hideL.t, `${at}: 'Hide labels' under it`).toBeCloseTo(b.hide.b, 0);
       expect(b.hide.l, `${at}: at the left`).toBeCloseTo(b.opts.l, 0);
       expect(b.hideL.l, `${at}: at the left`).toBeCloseTo(b.opts.l, 0);
-      expect(b.seg.l, `${at}: the pair right of both switches`).toBeGreaterThanOrEqual(Math.max(b.hide.r, b.hideL.r));
-      expect(Math.abs((b.seg.t + b.seg.b) / 2 - (b.opts.t + b.opts.b) / 2), `${at}: the pair in the middle of the rows`).toBeLessThanOrEqual(1);
-      expect(b.seg.r, `${at}: the pair in the popup`).toBeLessThanOrEqual(b.opts.r + 0.5);
+      expect(b.mode.t, `${at}: the mode under 'Hide labels'`).toBeGreaterThanOrEqual(b.hideL.b);
+      expect(b.mode.l, `${at}: the mode at the left`).toBeCloseTo(b.opts.l, 0);
+      expect(b.pair.r, `${at}: the pair at the right`).toBeCloseTo(b.opts.r, 0);
+      expect(Math.abs((b.mode.t + b.mode.b) / 2 - (b.pair.t + b.pair.b) / 2), `${at}: the mode and the pair on one row`).toBeLessThanOrEqual(1);
+      expect(b.mode.r, `${at}: the mode left of the pair`).toBeLessThan(b.pair.l);
+      expect(b.pair.b, `${at}: the row in the popup`).toBeLessThanOrEqual(b.opts.b + 0.5);
       expect(b.over, `${at}: nothing runs over`).toBeLessThanOrEqual(0);
       expect(b.pop.l, `${at}: in the window`).toBeGreaterThanOrEqual(0);
       expect(b.pop.r, `${at}: in the window`).toBeLessThanOrEqual(width);
     }
   });
 
-  test("on a plan with no icons 'Hide labels' is the only switch, on one row with the pair, so the popup is 38 px lower; the keyboard opens the popup on it", async ({ page }) => {
-    const rowOf = async (): Promise<{ high: number; mid: number; pair: number }> => popup(page).evaluate(p => {
-      const mid = (e: Element): number => { const r = e.getBoundingClientRect(); return (r.top + r.bottom) / 2; };
-      return { high: p.getBoundingClientRect().height, mid: mid(p.querySelector('.opts .switch:not([hidden])')!), pair: mid(p.querySelector('.seg')!) };
+  test("on a plan with no icons 'Hide labels' is the only switch, with the mode and the pair under it, so the popup is 44 px lower; the keyboard opens the popup on it", async ({ page }) => {
+    const rowOf = async (): Promise<{ high: number; under: number; row: number }> => popup(page).evaluate(p => {
+      const r = (e: Element): DOMRect => e.getBoundingClientRect(), last = r([...p.querySelectorAll('.opts .switch:not([hidden])')].at(-1)!), row = r(p.querySelector('.looks')!);
+      return { high: r(p).height, under: last.bottom, row: row.top };
     });
     // 'plain' with an icon on its first step: the same key, and both switches
     await openPlan(page, edit(plain, p => { nodeOf(p, 'p-1').icon = 'rocket'; }), { store: null });
@@ -153,8 +156,8 @@ test.describe('the head and the popup', () => {
     await expect(popup(page).getByRole('switch')).toHaveText(['Hide labels']);
     await expect(iconsSwitch(page)).toBeHidden();
     const one = await rowOf();
-    expect(two.high - one.high).toBeCloseTo(38, 0);
-    expect(Math.abs(one.pair - one.mid), 'the pair on the row of the switch').toBeLessThanOrEqual(1);
+    expect(two.high - one.high).toBeCloseTo(44, 0);
+    expect(one.row - one.under, 'the mode and the pair under the switch').toBeCloseTo(two.row - two.under, 0);
     await page.keyboard.press('Escape');
     await expect(popup(page)).toBeHidden();
     await keyButton(page).press('Enter');
@@ -211,10 +214,11 @@ test.describe('the head and the popup', () => {
 
     await zoomTo(page, 'Every step');
     await openKey(page);
-    const before = await stageScroll(page), r = await boxOf(page, '.roadmap .stage');
-    await page.mouse.move(r.x + r.width / 2, r.y + r.height / 2);
+    // from the middle of the stage between its left edge and the popup
+    const before = await stageScroll(page), r = await boxOf(page, '.roadmap .stage'), x = (r.x + (await boxOf(page, '.roadmap .popup')).x) / 2;
+    await page.mouse.move(x, r.y + r.height / 2);
     await page.mouse.down();
-    for (let i = 1; i <= 10; i++) await page.mouse.move(r.x + r.width / 2 - 20 * i, r.y + r.height / 2);
+    for (let i = 1; i <= 10; i++) await page.mouse.move(x - 20 * i, r.y + r.height / 2);
     await page.mouse.up();
     await settle(page);
     await expect(popup(page)).toBeHidden();
@@ -242,6 +246,8 @@ test.describe('the head and the popup', () => {
     await expect(popup(page).getByRole('switch', { name: 'Hide node icons' })).toBeFocused();
     await page.keyboard.press('Tab');
     await expect(labelsSwitch(page)).toBeFocused();
+    await page.keyboard.press('Tab');
+    await expect(popup(page).getByRole('radio', { name: 'Device' }), 'the chosen one of the mode').toBeFocused();
     await page.keyboard.press('Tab');
     await expect(popup(page).getByRole('radio', { name: 'Horizontal' }), 'the chosen one of the pair').toBeFocused();
     await page.keyboard.press('Escape');
@@ -274,17 +280,19 @@ test.describe("the switches in the popup, 'Hide node icons' and 'Hide labels', a
     await expect(labelsSwitch(page)).toBeFocused();
     await pressed(page, 'labels', () => page.keyboard.press('Enter'));
     await page.keyboard.press('Tab');
+    await expect(radio(page, 'Device')).toBeFocused();
+    await page.keyboard.press('Tab');
     await expect(radio(page, 'Horizontal')).toBeFocused();
     await pressed(page, 'flow', () => page.keyboard.press('ArrowRight'));
     await expect(radio(page, 'Vertical')).toBeFocused();
+    await page.keyboard.press('Shift+Tab');
     await page.keyboard.press('Shift+Tab');
     await expect(labelsSwitch(page)).toBeFocused();
     await pressed(page, 'labels', () => page.keyboard.press('Space'));
     await page.keyboard.press('Shift+Tab');
     await expect(iconsSwitch(page)).toBeFocused();
     await pressed(page, 'icons', () => page.keyboard.press('Enter'));
-    await page.keyboard.press('Tab');
-    await page.keyboard.press('Tab');
+    for (let i = 0; i < 3; i++) await page.keyboard.press('Tab');
     await expect(radio(page, 'Vertical'), 'the chosen one of the pair').toBeFocused();
     await pressed(page, 'flow', () => page.keyboard.press('ArrowLeft'));
   });
@@ -573,6 +581,9 @@ test.describe("'Hide labels'", () => {
       await iconsSwitch(page).click();
       await settle(page);
       await keyButton(page).click();
+      // the tidy after each switch keeps the plan clear of the open popup: the top of the plan comes back into sight
+      await page.locator('.roadmap .stage').evaluate(s => { s.scrollTop = 0; });
+      await settle(page);
       await expect(popup(page)).toBeHidden();
       const m = (await step(page, 'plan').locator('.st').boundingBox())!, [x, y] = await markAt(page, 'plan');
       expect(m.width / 2, 'the mark is less than 17 px across from its middle').toBeLessThan(17);

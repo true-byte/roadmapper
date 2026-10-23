@@ -19,7 +19,15 @@ html, body { height: 100%; margin: 0; }
 body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.5; }
 /* the element the view is put into: every layer of the view stands in it */
 /* its own size, not the window's, picks the layout of the head, the zoom control and the side bar: see Sizes at the end */
-.roadmap { container-type: size; position: relative; overflow: clip; height: 100%; display: flex; flex-direction: column; touch-action: pan-x pan-y; -webkit-tap-highlight-color: transparent; }
+.roadmap { container-type: size; position: relative; overflow: clip; height: 100%; display: flex; flex-direction: column; touch-action: pan-x pan-y; -webkit-tap-highlight-color: transparent;
+  background: var(--bg); color: var(--ink); }
+/* The mode: each color of the theme is light-dark(), and the color-scheme of the root of the view picks its light or its dark value. The browser's scroll bars and fields follow it.
+   It follows the device, until 'Light' or 'Dark' in the popup sets data-mode. :root is the app's page, before the view is put on it */
+:root, .roadmap, .roadmap.box, .roadmap.page { color-scheme: light dark; }
+.roadmap[data-mode="light"] { color-scheme: light; }
+.roadmap[data-mode="dark"] { color-scheme: dark; }
+/* while a pick turns the view to its mode: no color fades, see setMode() */
+.roadmap[data-turning] * { transition: none !important; }
 
 /* the head: the roadmap's name, then how many of its steps are done, on one row at every size */
 .head { display: flex; flex-wrap: nowrap; align-items: baseline; gap: 20px; padding: 20px 24px 0; }
@@ -147,7 +155,8 @@ body { background: var(--bg); color: var(--ink); font-family: var(--body); font-
 .zoom .info:hover { color: var(--ink); }
 .zoom .info[aria-expanded="true"] { background: var(--hair); color: var(--ink); }
 
-/* The popup: the key, a hairline, then two rows: the switch between marks and icons over the switch that hides the labels, and the pair of layouts right of both. It lies over the plan, 8 px over the end of the control. */
+/* The popup: the key, a hairline, then the switch between marks and icons over the switch that hides the labels, and a row under them: the mode at the left and the pair of layouts at the right.
+   In the app, Export comes last. It lies over the plan, 8 px over the end of the control. */
 .popup { position: absolute; z-index: 3; box-sizing: border-box; width: 320px; min-width: min-content; padding: 14px 16px 16px; border: 1px solid var(--hair); border-radius: 16px;
   background: color-mix(in srgb, var(--bg) 88%, var(--ink)); box-shadow: var(--shadow); color: var(--ink); font-size: 14.4px; touch-action: manipulation; overflow-y: auto; }
 .popup[hidden], .popup [hidden], .popup .switch[hidden] { display: none; }
@@ -162,20 +171,20 @@ body { background: var(--bg); color: var(--ink); font-family: var(--body); font-
 .key li { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
 .key .mark { width: 18px; height: 18px; }
 .popup hr { height: 1px; margin: 12px 0; border: 0; background: var(--muted); opacity: 0.4; }
-.opts { display: grid; grid-template-columns: 1fr auto; grid-auto-rows: minmax(44px, auto); align-items: center; column-gap: 4px; }
+.opts { display: grid; grid-auto-rows: minmax(44px, auto); align-items: center; }
 /* the switches, one over the other at the left. On: the icons are hidden; the labels are hidden */
-.popup .switch { grid-column: 1; justify-self: start; display: flex; align-items: center; gap: 10px; height: 44px; white-space: nowrap; }
+.popup .switch { justify-self: start; display: flex; align-items: center; gap: 10px; height: 44px; white-space: nowrap; }
 .switch::before { content: ""; flex: none; box-sizing: border-box; width: 34px; height: 20px; border: 2px solid var(--muted); border-radius: 10px;
   background: radial-gradient(circle at 8px 50%, var(--muted) 5px, transparent 5.5px); }
 .switch[aria-checked="true"]::before { border-color: var(--name); background: radial-gradient(circle at 22px 50%, var(--name) 5px, transparent 5.5px); }
-/* the pair of layouts: the one chosen is gold, as the knob. It sits across both rows, or on the one row of a plan that names no icon */
-.seg { grid-column: 2; grid-row: 1 / span 2; display: flex; padding: 2px; border: 1px solid color-mix(in srgb, var(--hair) 60%, var(--muted)); border-radius: 14px; }
-.opts:has(> .switch[hidden]) > .seg { grid-row: 1; }
-.popup .flow { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 12px; color: var(--muted); }
-.flow svg { display: block; }
+/* the mode and the pair of layouts: each a box of icon buttons, on one row under the switches. The one chosen is gold, as the knob */
+.looks { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 6px; }
+.seg { display: flex; padding: 2px; border: 1px solid color-mix(in srgb, var(--hair) 60%, var(--muted)); border-radius: 14px; }
+.popup .opt { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 12px; color: var(--muted); font-size: 20px; }
+.popup .opt svg { display: block; }
 .flow.v svg { transform: rotate(90deg); }
-.popup .flow:hover { color: var(--ink); }
-.popup .flow[aria-checked="true"] { color: var(--name); background: color-mix(in srgb, var(--name) 16%, transparent); }
+.popup .opt:hover { color: var(--ink); }
+.popup .opt[aria-checked="true"] { color: var(--name); background: color-mix(in srgb, var(--name) 16%, transparent); }
 /* Export, in the app only, after a hairline: the switch that keeps the private items, then the button that saves the export, as wide as the popup.
    Pressed, the button says 'Saved' in gold; an export that cannot be made shows the mark of a blocked step and its error in red, as the error list does. */
 .exporting { display: flex; flex-direction: column; gap: 6px; }

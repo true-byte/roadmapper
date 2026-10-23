@@ -1,13 +1,14 @@
-// The zoom control: its buttons, the popup by its end with the key, the switches, the pair of layouts and in the app Export, and the grip that hides it.
+// The zoom control: its buttons, the popup by its end with the key, the switches, the mode, the pair of layouts and in the app Export, and the grip that hides it.
 import { GRIP } from '../icons/icons.js';
 import type { ViewContext } from './context.js';
+import type { Mode } from './dom.js';
 import { r2 } from './math.js';
 
 /** How far over the zoom control the popup and the list lie: clear of the grip on its top edge. */
 export const OVER = 30;
 
 export function toolbarPart(ctx: ViewContext) {
-  const { fit, flows, glyph, grip, hide, hideL, host, info, into, keepPrivate, layers, names, out, picker, popup, rule, seg, stops, zoom } = ctx;
+  const { fit, flows, glyph, grip, hide, hideL, host, info, into, keepPrivate, layers, modeSeg, modes, names, out, picker, popup, rule, seg, stops, zoom } = ctx;
 
   /** Writes the level, the view, the labels, the layout and what is open on the zoom control and the popup, for the keyboard and for the theme. */
   function controls(): void {
@@ -58,6 +59,24 @@ export function toolbarPart(ctx: ViewContext) {
     // a short view: it scrolls, and never runs off the top
     popup.style.maxHeight = `${r2(Math.max(0, z.top - h.top - OVER - 8))}px`;
   }
+  /** Draws the whole view in a mode: light, dark, or as the device is set, for anything else. By it, view.css sets the color-scheme of the root, which picks the light or the dark value of each color of the theme. */
+  function setMode(to: unknown): void {
+    const was = host.dataset.mode;
+    ctx.mode = to === 'light' || to === 'dark' ? to : 'device';
+    host.dataset.mode = ctx.mode;
+    // the whole view turns at once: with its transitions off while the new colors are worked out, no part of it fades from the colors of the mode before
+    if (was && was !== ctx.mode) {
+      host.dataset.turning = '';
+      void host.offsetWidth;
+      delete host.dataset.turning;
+    }
+    // the mode that is chosen is the one the keyboard comes to in the box
+    modes.forEach(b => {
+      const on = b.dataset.mode === ctx.mode;
+      b.setAttribute('aria-checked', String(on));
+      b.tabIndex = on ? 0 : -1;
+    });
+  }
 
   // ---- the grip: it hides the zoom control down to the grip alone, and brings it back. The keys of the control still work. ----
 
@@ -88,23 +107,26 @@ export function toolbarPart(ctx: ViewContext) {
   hideL.addEventListener('click', () => ctx.setLabels(!ctx.labels));
   // a press from the keyboard has no pointer: the focus goes into the popup
   info.addEventListener('click', e => setPopup(popup.hidden === true, e.detail === 0));
-  for (const b of flows) b.addEventListener('click', e => {
-    ctx.setFlow(b.dataset.flow as 'h' | 'v');
-    // a press of the pointer leaves the focus on the button of the popup, not on the pair: the arrows that come next move the plan, and do not turn it back
-    if (e.detail > 0 && (host.getRootNode() as Document | ShadowRoot).activeElement === b) info.focus({ preventScroll: true });
-  });
-  // the arrows move between the two layouts, and choose: they do not move the plan
-  seg.addEventListener('keydown', e => {
-    const by = ({ ArrowLeft: -1, ArrowUp: -1, ArrowRight: 1, ArrowDown: 1 } as Record<string, number | undefined>)[e.key];
-    if (!by) return;
-    e.preventDefault();
-    e.stopPropagation();
-    const to = flows[(flows.indexOf(e.target as HTMLButtonElement) + by + flows.length) % flows.length];
-    to.focus();
-    ctx.setFlow(to.dataset.flow as 'h' | 'v');
-  });
+  const pickMode = (b: HTMLButtonElement): void => { setMode(b.dataset.mode as Mode); ctx.save(); };
+  // the pair of layouts and the mode: a click chooses, and the arrows move between the buttons of the box and choose. They do not move the plan
+  for (const [box, buttons, choose] of [[seg, flows, (b: HTMLButtonElement) => ctx.setFlow(b.dataset.flow as 'h' | 'v')], [modeSeg, modes, pickMode]] as const) {
+    for (const b of buttons) b.addEventListener('click', e => {
+      choose(b);
+      // a press of the pointer leaves the focus on the button of the popup, not on the box: the arrows that come next move the plan, and do not choose again
+      if (e.detail > 0 && (host.getRootNode() as Document | ShadowRoot).activeElement === b) info.focus({ preventScroll: true });
+    });
+    box.addEventListener('keydown', e => {
+      const by = ({ ArrowLeft: -1, ArrowUp: -1, ArrowRight: 1, ArrowDown: 1 } as Record<string, number | undefined>)[e.key];
+      if (!by) return;
+      e.preventDefault();
+      e.stopPropagation();
+      const to = buttons[(buttons.indexOf(e.target as HTMLButtonElement) + by + buttons.length) % buttons.length];
+      to.focus();
+      choose(to);
+    });
+  }
 
-  return { controls, setPopup, placePopup, setTucked };
+  return { controls, setPopup, placePopup, setTucked, setMode };
 }
 
 export type ToolbarPart = ReturnType<typeof toolbarPart>;

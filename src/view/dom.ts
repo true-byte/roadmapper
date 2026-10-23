@@ -1,7 +1,7 @@
 // The page of a view, made once by mountRoadmap(): the head, the stage with the plan, the zoom control, the popup with Export in the app, the list of branches, the grip,
 // the tip, the side bar, the aim, the names of 'Show only blockers' and the error list. What it shows is drawn again on each good show().
 // Also what the view reads of the theme and of the browser: the icon set, the padding of the stage, where the side bar goes, the layout, and how thick a scroll bar is.
-import { ARROW, BRANCHES, INFO, iconSet } from '../icons/icons.js';
+import { ARROW, BRANCHES, INFO, MODE, iconSet } from '../icons/icons.js';
 import { fontsOf } from './fonts.js';
 import { SVG_NS } from './svg.js';
 import type { ViewOptions } from './view.js';
@@ -11,6 +11,12 @@ export const HELD = {
   tracks: '<g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M3 12h5c4.5 0 4-6.5 8.5-6.5H21M8 12c4.5 0 4 6.5 8.5 6.5H21"/></g>',
   row: '<g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M7.5 12h2m5 0h2"/><circle cx="5" cy="12" r="2.5"/><circle cx="12" cy="12" r="2.5"/><circle cx="19" cy="12" r="2.5"/></g>',
 };
+
+/** The modes the view draws in, as the popup names them: as the device is set, light, or dark. */
+export const MODES = { device: 'Device', light: 'Light', dark: 'Dark' } as const;
+/** The sign of each mode where the icon set has no icon for it. */
+const MODE_SIGN = { device: '▭', light: '☀', dark: '☾' };
+export type Mode = keyof typeof MODES;
 
 /** How many views were put on this page: each popup gets an id of its own. */
 let mounted = 0;
@@ -71,7 +77,8 @@ export function makeDom(host: HTMLElement, options: ViewOptions) {
   info.title = 'Key';
   info.setAttribute('aria-expanded', 'false');
   zoom.append(out, stops, into, rule, info);
-  // The popup: what the marks mean, then the switch between the two views and the pair of layouts. It lies over the plan by the end of the zoom control, and the plan stays live under it.
+  // The popup: what the marks mean, then the switch between the two views, the switch of the labels, the mode and the pair of layouts, and in the app Export.
+  // It lies over the plan by the end of the zoom control, and the plan stays live under it.
   const popup = html('div', 'popup');
   popup.id = `roadmapper-key-${++mounted}`;
   popup.setAttribute('role', 'dialog');
@@ -91,7 +98,7 @@ export function makeDom(host: HTMLElement, options: ViewOptions) {
   seg.setAttribute('role', 'radiogroup');
   seg.setAttribute('aria-label', 'Layout');
   const flows = (['h', 'v'] as const).map(f => {
-    const b = html('button', `flow ${f}`), name = f === 'h' ? 'Horizontal' : 'Vertical', g = document.createElementNS(SVG_NS, 'svg');
+    const b = html('button', `opt flow ${f}`), name = f === 'h' ? 'Horizontal' : 'Vertical', g = document.createElementNS(SVG_NS, 'svg');
     b.setAttribute('role', 'radio');
     b.setAttribute('aria-label', name);
     b.title = name;
@@ -110,9 +117,25 @@ export function makeDom(host: HTMLElement, options: ViewOptions) {
   hideL.setAttribute('role', 'switch');
   hideL.setAttribute('aria-label', 'Hide labels');
   hideL.title = 'Hide labels';
-  // the two switches one over the other at the left, and the pair at the right of both
+  // the mode: as the device is set, light or dark, as three icons in a box, as the pair of layouts
+  const modeSeg = html('div', 'seg');
+  modeSeg.setAttribute('role', 'radiogroup');
+  modeSeg.setAttribute('aria-label', 'Mode');
+  const modes = (Object.keys(MODES) as Mode[]).map(m => {
+    const b = html('button', 'opt mode'), name = MODES[m];
+    b.setAttribute('role', 'radio');
+    b.setAttribute('aria-label', name);
+    b.title = name;
+    b.dataset.mode = m;
+    b.append(glyph(MODE[m], 22, MODE_SIGN[m]));
+    return b;
+  });
+  modeSeg.append(...modes);
+  // the two switches one over the other, and under them the mode at the left and the pair at the right
+  const looks = html('div', 'looks');
+  looks.append(modeSeg, seg);
   const opts = html('div', 'opts');
-  opts.append(hide, hideL, seg);
+  opts.append(hide, hideL, looks);
   // Export, only where the page makes the export (options.exportFile), after a hairline: the switch that keeps the private items in it, then the button that saves it,
   // as wide as the popup. The button's face is drawn by the export part (export.ts).
   const keepPrivate = html('button', 'switch');
@@ -199,7 +222,7 @@ export function makeDom(host: HTMLElement, options: ViewOptions) {
     return n;
   })();
 
-  return { icons, ICON_BOX, art, glyph, head, stage, sheet, svg, zoom, out, into, stops, knob, rule, info, popup, keyList, hide, seg, flows, hideL, keepPrivate, exportButton, layers, picker, find, branchList, grip, tip, side, errorList, aimLayer, ring, arrow, names, showAll, PAD, fit, readFit, BAR };
+  return { icons, ICON_BOX, art, glyph, head, stage, sheet, svg, zoom, out, into, stops, knob, rule, info, popup, keyList, hide, seg, flows, hideL, modeSeg, modes, keepPrivate, exportButton, layers, picker, find, branchList, grip, tip, side, errorList, aimLayer, ring, arrow, names, showAll, PAD, fit, readFit, BAR };
 }
 
 /** The page of a view, and what the view reads of the theme and of the browser. */

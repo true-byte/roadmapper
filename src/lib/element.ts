@@ -6,7 +6,7 @@
 // With the attribute `page`, the tag is the whole page, as the app is: the HTML export. Then the wheel and the keys are the view's, with no click first.
 // The icons come from a <script type="application/json" data-icons> inside the tag, when the page holds them, or else from a set the lib loads,
 // or else, for the export's lib, which holds no set, from the file at src, or the copy of it inside the tag, which the export writes with the icons it names.
-// the view's own CSS, then the theme's variables: the theme comes last, so its color-scheme wins over the view's `all: initial`
+// the view's own CSS, then the theme's variables: the theme comes last, as it does on the app's page
 import viewCss from '../view/view.css?inline';
 import themeCss from '../themes/theme.css?inline';
 import { iconSet, useIconSet, type IconSet } from '../icons/icons.js';

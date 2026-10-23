@@ -84,10 +84,11 @@ When either rule stops the plan, the point that should keep its place moves.
 
 | Do this | What happens |
 |---|---|
-| Click the (i) button at the right end of the zoom control. Its tip says 'Key'. | The popup opens. It holds the legend of the marks, and the switches 'Hide node icons', 'Hide labels', 'Horizontal' and 'Vertical'. Under them are the switch 'Include private items' and the button 'Export'. A click on a switch changes only that setting, and the popup stays open. |
+| Click the (i) button at the right end of the zoom control. Its tip says 'Key'. | The popup opens. It holds the legend of the marks, and the switches 'Hide node icons', 'Hide labels', 'Device', 'Light', 'Dark', 'Horizontal' and 'Vertical'. Under them are the switch 'Include private items' and the button 'Export'. A click on a switch changes only that setting, and the popup stays open. |
 | Click outside the popup and the zoom control. | The popup closes. That click does nothing else on the plan, and neither does a double click or double tap that starts with it. |
 | Click 'Hide node icons'. | The steps switch between their icons and the marks of their states. The switch shows only when a step names an icon that is in the icon set. |
 | Click 'Hide labels'. | The plan hides every word except the names of the top-level branches, and the steps move closer together. The tip and the side bar still show every name. |
+| Click 'Device', 'Light' or 'Dark'. | 'Light' draws the whole page light, and 'Dark' draws it dark, whatever the device is set to. 'Device' draws the page light or dark as the device is set, and follows a change of that setting. |
 | Click 'Horizontal' or 'Vertical'. | 'Horizontal' makes the plan run across, with each name over its step. 'Vertical' makes the plan run down, with each name to the right of its step. The choice stays when the page changes size. |
 | Click 'Include private items'. | The switch turns on or off. With it on, 'Export' saves the whole roadmap, with its private items. |
 | Click 'Export'. | The browser saves `roadmap.zip`, the HTML export of the roadmap, as [export.md, section "Export from the app"](export.md#export-from-the-app) says. The button shows a check and 'Saved' for 2 seconds. |
@@ -154,6 +155,7 @@ The app remembers these settings, and opens with them the next time:
 - whether the zoom control is hidden
 - whether the links in the side bar are hidden
 - whether 'Include private items' is on
+- 'Device', 'Light' or 'Dark'
 
 The app keeps them in the browser's local storage, under the same name for every roadmap file. So every app page on the same site shares the same settings.
 
@@ -166,6 +168,7 @@ The first time, the app opens this way:
 | Icons and labels | Shown |
 | Links in the side bar | Shown |
 | 'Include private items' | Off |
+| Light or dark | 'Device' |
 | Top-level branches | Shown, except each one whose steps are all done or canceled |
 | Place | Around the first step in progress, or, with no step in progress, around the first step that can start. The name of its branch shows in full. |
 

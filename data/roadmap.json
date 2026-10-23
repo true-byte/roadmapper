@@ -883,6 +883,7 @@
                           "id": "dark-and-light-code",
                           "name": "Dark and light code",
                           "icon": "sun-moon",
+                          "state": "done",
                           "why": "The switch works in the app, the lib and the export, as designed.",
                           "doneWhen": "On Roadmapper's own roadmap, the page draws in each of dark, light and the device, as picked in the switch."
                         }
@@ -895,6 +896,7 @@
                           "id": "dark-and-light-tests",
                           "name": "Dark and light tests",
                           "icon": "sun-moon",
+                          "state": "done",
                           "why": "Tests in a real browser for Dark and light, so a change cannot break it unseen.",
                           "doneWhen": "npm test checks the switch between dark, light and the device, as designed."
                         }

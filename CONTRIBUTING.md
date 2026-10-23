@@ -135,7 +135,7 @@ A theme is one file, `theme.css`, in a folder of its own in `src/themes/`. It se
 
 1. Copy `src/themes/default/` to `src/themes/<name>/`, where `<name>` is the name of the new theme.
 2. Set each variable in the new `theme.css`. `--fonts` is the address of the style sheet of the web fonts. `--icon-set` is the name of an icon set in `src/icons/sets.ts`.
-3. Set the light colors under `@media (prefers-color-scheme: light)`, as the default theme does.
+3. Write each color in the rule for `:root, .roadmap` as `light-dark()`: its light value, then its dark value, as in the default theme. Then 'Device', 'Light' and 'Dark' in the popup each draw the new theme.
 4. Name the new folder in the `@import` of `src/themes/theme.css`. The app page, the lib and the export then draw in the new theme.
 
 To add an icon set, put it into `src/icons/`, and add a loader by its name to `src/icons/sets.ts`. Keep the license of the icon set with its drawings, so that the license ships with them.

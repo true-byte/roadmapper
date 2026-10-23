@@ -3,7 +3,7 @@
 import type { AimPart } from './aim.js';
 import type { BlockersPart } from './blockers.js';
 import type { BranchesPart } from './branches.js';
-import type { Dom } from './dom.js';
+import type { Dom, Mode } from './dom.js';
 import type { DrawPart, NodeEls, PodEls } from './draw.js';
 import type { ErrorListPart } from './error-list.js';
 import type { ExportPart } from './export.js';
@@ -120,6 +120,8 @@ export interface State {
   /** Does the user want the labels shown; and how far the page is on its way from them shown, 0, to them hidden, 1. */
   labels: boolean;
   w: number;
+  /** The mode the view is drawn in: light, dark, or as the device is set. */
+  mode: Mode;
   /** Where the switches in the popup left the plan since the user last moved it: at a level and a scale, the step they hold it by, and where that step was in the room in each mix of
    * the labels, the view and the layout the plan was in. A switch back to one of those mixes puts the plan back where it was in it, so any way back comes back to the same place.
    * The user's scroll, a new size, a pick or a redraw lets them go. */
@@ -213,7 +215,7 @@ export function initialState(): State {
     stopEls: [], pieceEls: new Map(), hitEls: new Map(), haloEls: new Map(), nodeEls: new Map(), podEls: new Map(), partsOf: new Map(),
     turnLines: null, shown: '', measured: '',
     z: 0, target: 0, raf: 0, scale: 1, wide: 0, tall: 0,
-    asked: 0, askedLast: false, view: 0, u: 0, flow: 'h', t: 0, pickFlow: null, prefer: true, labels: true, w: 0, been: null,
+    asked: 0, askedLast: false, view: 0, u: 0, flow: 'h', t: 0, pickFlow: null, prefer: true, labels: true, w: 0, mode: 'device', been: null,
     anchor: null, pin: null, beyond: { near: [0, 0], far: [0, 0] }, mine: [0, 0], heard: [0, 0], sheetFrom: null, stageSize: null,
     cur: new Map(), laid: { fits: true, right: 0, bottom: 0 }, opened: null, stageWas: [0, 0], roomWas: [1, 1],
     mag: 1, floor: null, only: null,
@@ -236,7 +238,7 @@ export interface ViewContext extends Fixed, State {
   // opening.ts
   middle: OpeningPart['middle']; firstView: OpeningPart['firstView']; firstReach: OpeningPart['firstReach']; columnOf: OpeningPart['columnOf']; untouched: OpeningPart['untouched'];
   // toolbar.ts
-  controls: ToolbarPart['controls']; setPopup: ToolbarPart['setPopup']; placePopup: ToolbarPart['placePopup']; setTucked: ToolbarPart['setTucked'];
+  controls: ToolbarPart['controls']; setPopup: ToolbarPart['setPopup']; placePopup: ToolbarPart['placePopup']; setTucked: ToolbarPart['setTucked']; setMode: ToolbarPart['setMode'];
   // branches.ts
   fillBranches: BranchesPart['fillBranches']; setBranches: BranchesPart['setBranches']; placeBranches: BranchesPart['placeBranches'];
   // moves.ts

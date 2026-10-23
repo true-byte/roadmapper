@@ -86,6 +86,8 @@ export function mountRoadmap(host: HTMLElement, options: ViewOptions = {}): Road
   // The context of this view. It is whole once each part is in it: no part calls another before that.
   const ctx = { host, options, off, once, keys, ...dom, frozen, frozenU, frozenT, frozenW, still, calm, ...initialState() } as ViewContext;
   for (const part of PARTS) Object.assign(ctx, part(ctx));
+  // the mode the user picked, or else the device's, from the first paint on: before the first draw, and also under the error list of a broken file
+  ctx.setMode(still ? null : ctx.kept()?.mode);
 
   function destroy(): void {
     if (off.signal.aborted) return;
