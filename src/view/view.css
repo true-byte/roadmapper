@@ -176,6 +176,16 @@ body { background: var(--bg); color: var(--ink); font-family: var(--body); font-
 .flow.v svg { transform: rotate(90deg); }
 .popup .flow:hover { color: var(--ink); }
 .popup .flow[aria-checked="true"] { color: var(--name); background: color-mix(in srgb, var(--name) 16%, transparent); }
+/* Export, in the app only, after a hairline: the switch that keeps the private items, then the button that saves the export, as wide as the popup.
+   Pressed, the button says 'Saved' in gold; an export that cannot be made shows the mark of a blocked step and its error in red, as the error list does. */
+.exporting { display: flex; flex-direction: column; gap: 6px; }
+.exporting .switch { align-self: flex-start; }
+.popup .export { display: flex; align-items: center; justify-content: center; gap: 8px; height: 44px; border: 1px solid var(--line); border-radius: 12px; color: var(--line); font-weight: 700; }
+.popup .export:hover { background: var(--hair); }
+.popup .export svg { display: block; }
+.popup .export .mark { width: 18px; height: 18px; }
+.popup .export.saved { border-color: var(--name); color: var(--name); }
+.popup .export.failed { border-color: var(--stop); color: var(--stop); }
 
 /* The list of top-level branches: the button left of (i), as (i), and the list over the zoom control, as the popup: a search, then one row for each branch,
    with a box that is gold while the branch shows, the mark of its state, its name on up to 2 lines and how many of its steps are done. */

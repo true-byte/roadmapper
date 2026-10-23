@@ -14,7 +14,8 @@
   <body>
     <label>A note <input id="field"></label>
     <div class="pair">
-      <roadmapper-view>
+      <!-- from disk, the browser does not let the page read garden.json, so the box draws the JSON inside it -->
+      <roadmapper-view src="garden.json">
         <script type="application/json">
           {
             "title": "Garden plan",

@@ -34,6 +34,8 @@ export interface Kept {
   tucked?: boolean;
   /** Is the 'Links' part of the side bar open? Not there in what an older page kept: that page opens it. */
   links?: boolean;
+  /** Is 'Include private items' on? */
+  private?: boolean;
   id: string;
   fx: number;
   fy: number;
@@ -77,11 +79,13 @@ export interface Open {
   clock?: boolean;
 }
 
-/** Opens the test page on a plan, an object or the text of a file. `store` is the name it keeps its level, view and place under; null keeps nothing. */
-export async function openPlan(page: Page, plan: Roadmap | string, o: Open & { store?: string | null } = {}): Promise<void> {
+/** Opens the test page on a plan, an object or the text of a file. `store` is the name it keeps its level, view and place under; null keeps nothing.
+ * With `exporting`, its popup has 'Export', as the app's has, with a stand-in for the zip (tests/page/page.ts). */
+export async function openPlan(page: Page, plan: Roadmap | string, o: Open & { store?: string | null; exporting?: boolean } = {}): Promise<void> {
   const store = o.store === undefined ? STORE : o.store;
   const q = new URLSearchParams({ plan: typeof plan === 'string' ? plan : JSON.stringify(plan) });
   if (store) q.set('store', store);
+  if (o.exporting) q.set('export', '');
   await open(page, `${PAGE}?${q}`, store, o);
 }
 

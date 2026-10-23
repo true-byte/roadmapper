@@ -22,6 +22,8 @@ export interface Kept {
   tucked?: boolean;
   /** Is the 'Links' part of the side bar open? Not there in what an older page kept: that page opens it. */
   links?: boolean;
+  /** Is 'Include private items' on? Not there in what an older page kept, nor where the view has no Export: there it is off. */
+  private?: boolean;
   /** How far past its ends the first view put the plan (see beyond). Not there in what an older page kept. */
   past?: Past;
   id: string;
@@ -37,7 +39,7 @@ export function storePart(ctx: ViewContext) {
     if (still || !options.store || !ctx.all.length || ctx.only) return;
     const r = stage.getBoundingClientRect(), n = ctx.nearest(ctx.all, r.left + r.width / 2, r.top + r.height / 2), [x, y] = ctx.at(n.node.id);
     try {
-      localStorage.setItem(options.store, JSON.stringify({ level: ctx.asked, last: ctx.askedLast, icons: ctx.prefer, labels: ctx.labels, flow: ctx.pickFlow, scale: Math.round(ctx.mag * 1000) / 1000, id: n.node.id, fx: (x - r.left) / r.width, fy: (y - r.top) / r.height, branches: Object.fromEntries(ctx.choices), tucked: ctx.tucked, links: ctx.linksOpen, past: ctx.beyond }));
+      localStorage.setItem(options.store, JSON.stringify({ level: ctx.asked, last: ctx.askedLast, icons: ctx.prefer, labels: ctx.labels, flow: ctx.pickFlow, scale: Math.round(ctx.mag * 1000) / 1000, id: n.node.id, fx: (x - r.left) / r.width, fy: (y - r.top) / r.height, branches: Object.fromEntries(ctx.choices), tucked: ctx.tucked, links: ctx.linksOpen, private: ctx.withPrivate, past: ctx.beyond }));
     } catch {
       // no storage: the level, the view, the scale and the place are not kept
     }
@@ -74,6 +76,7 @@ export function storePart(ctx: ViewContext) {
     ctx.mag = typeof was?.scale === 'number' && Number.isFinite(was.scale) ? clamp(was.scale, MAG.LO, MAG.HI) : 1;
     ctx.setTucked(was?.tucked === true);
     ctx.linksOpen = was?.links !== false;
+    ctx.withPrivate = was?.private === true;
     ctx.size();
     ctx.frame();
     ctx.controls();

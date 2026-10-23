@@ -1,13 +1,13 @@
 // The HTML export: roadmap.html, roadmap.json and roadmapper.js side by side, as `npm run export` writes them and a landing page serves them.
-// npm test exports tests/export/plan.json into dist/tests/export. The page reads roadmap.json, which a page opened from disk cannot,
-// so the tests open it from a made-up host that answers from those files.
+// npm test exports tests/export/plan.json into dist/tests/export. The page reads roadmap.json as a site serves it, so the tests open it
+// from a made-up host that answers from those files. Opened from disk, where the browser does not let it read roadmap.json, it draws the copy it holds.
 /// <reference types="node" />
 import { execFile } from 'node:child_process';
 import { copyFileSync, existsSync, linkSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { Locator, Page } from '@playwright/test';
-import { errorRows, expect, flowOf, labelsSwitch, level, nameOf, pickLayout, popup, settle, showLabels, side, step, test } from './helpers';
+import { errorList, expect, flowOf, labelsSwitch, level, nameOf, pickLayout, popup, settle, showLabels, side, step, test } from './helpers';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const DIR = fileURLToPath(new URL('../dist/tests/export/', import.meta.url));
@@ -22,6 +22,14 @@ const DAYS = ['"start"', '"end"', '"deadline"', '2026-01-05', '2026-01-09', '202
 
 /** The line the page shows until the lib runs, or when it does not. */
 const waitLine = (page: Page): Locator => page.locator('#roadmapper-wait');
+
+/** The roadmap that the page of an export holds, as roadmap.json has it, from the text of the page. */
+const heldIn = (html: string): unknown => JSON.parse(/<script type="application\/json">([^<]*)<\/script>/.exec(html)![1]);
+
+/** Drops the one error the browser logs for a page opened from disk: it does not let the page read roadmap.json. The lib itself logs none. */
+const fromDisk = (errors: string[]): void => {
+  errors.splice(0, errors.length, ...errors.filter(e => !/^Fetch API cannot load file:.*\/roadmap\.json\. URL scheme "file" is not supported\.$/.test(e)));
+};
 
 /** Waits until the plan is drawn and at rest. */
 async function drawn(page: Page): Promise<void> {
@@ -90,6 +98,16 @@ test('the page is the whole window, with the title in its head and the about lin
   await drawn(page);
   await expect(labelsSwitch(page)).toHaveAttribute('aria-checked', 'false');
   await expect(nameOf(page, ID.idea).first()).toBeVisible();
+});
+
+test("the popup ends with the layouts: the page has no hairline after them, no switch 'Include private items' and no button 'Export'", async ({ page }) => {
+  await openExport(page);
+  await page.locator('.zoom .info').click();
+  await expect(popup(page)).toBeVisible();
+  await expect(popup(page).locator('hr')).toHaveCount(1);
+  await expect(popup(page).getByRole('switch', { name: 'Include private items', includeHidden: true })).toHaveCount(0);
+  await expect(popup(page).locator('button.export')).toHaveCount(0);
+  await expect(popup(page).getByRole('button', { name: 'Export', includeHidden: true })).toHaveCount(0);
 });
 
 test('the keys and the wheel are the view\'s, with no click first, and the window itself never scrolls', async ({ page }) => {
@@ -216,9 +234,10 @@ test('with --private the export keeps the whole roadmap as written, each private
   const kept = await runExport(['plan.json', 'out', '--private'], dir);
   expect(kept.code, kept.said).toBe(0);
   const out = join(dir, 'out');
-  for (const f of ['roadmap.html', 'roadmapper.js']) expect(readFileSync(join(out, f), 'utf8'), f).toBe(readFileSync(join(DIR, f), 'utf8'));
+  expect(readFileSync(join(out, 'roadmapper.js'), 'utf8')).toBe(readFileSync(join(DIR, 'roadmapper.js'), 'utf8'));
   const roadmap = readFileSync(join(out, 'roadmap.json'), 'utf8');
   for (const word of [...PRIVATE, ...DAYS]) expect(roadmap, word).toContain(word);
+  expect(heldIn(readFileSync(join(out, 'roadmap.html'), 'utf8')), 'the page holds the whole roadmap too').toEqual(JSON.parse(roadmap));
   expect(Object.keys(JSON.parse(roadmap).icons.icons)).toEqual(expect.arrayContaining(['cash', 'coin', 'ghost', 'receipt']));
   // `npm run export --private`, with no `--`: npm keeps the option and says so in the env
   const kept2 = await runExport(['plan.json', 'out2'], dir, { npm_config_private: 'true' });
@@ -263,13 +282,16 @@ test('a shown step that waits for private work not done is blocked, and its side
   await expect(nameOf(page, ID.release)).toHaveClass(/\btodo\b/);
 });
 
-test('the page takes its title from roadmap.json', async ({ page }) => {
+test('on a site, roadmap.json wins over the copy the page holds: a new roadmap.json alone shows the new roadmap, with its title', async ({ page }) => {
   const roadmap = JSON.parse(readFileSync(join(DIR, 'roadmap.json'), 'utf8'));
+  roadmap.branches[0].items[0].name = 'A new idea';
+  expect(readFileSync(join(DIR, 'roadmap.html'), 'utf8'), 'the copy is the roadmap before').not.toContain('A new');
   await landing(page, '/', { files: { 'roadmap.json': JSON.stringify({ ...roadmap, title: 'A new title' }) } });
   await page.goto('https://landing.test/roadmap.html');
   await drawn(page);
   await expect(page.locator('.roadmap .title')).toHaveText(/A new title/i);
   expect(await page.title()).toBe('A new title · roadmap');
+  expect((await nameOf(page, ID.idea).allTextContents()).join(' ')).toBe('A new idea');
 });
 
 test('with its lib not next to it, the page says that the roadmap could not load', async ({ page, errors }) => {
@@ -280,11 +302,43 @@ test('with its lib not next to it, the page says that the roadmap could not load
   errors.splice(0, errors.length, ...errors.filter(e => !e.includes('404')));
 });
 
-test('opened from disk, the page cannot read roadmap.json, and its error list says so', async ({ page, errors }) => {
-  await page.goto(new URL('../dist/tests/export/roadmap.html', import.meta.url).href);
-  await expect(page.locator('.roadmap .errors .file')).toHaveText('roadmap.json');
-  expect(await errorRows(page)).toEqual(['      Unreadable file  roadmap.json']);
-  errors.splice(0, errors.length, ...errors.filter(e => !e.includes('roadmap.json')));
+test('opened from disk, where the browser does not let it read roadmap.json, the page draws the copy it holds, with its icons, and shows no error', async ({ page, errors }) => {
+  expect(heldIn(readFileSync(join(DIR, 'roadmap.html'), 'utf8')), 'the copy is roadmap.json').toEqual(JSON.parse(readFileSync(join(DIR, 'roadmap.json'), 'utf8')));
+  await page.goto(pathToFileURL(join(DIR, 'roadmap.html')).href);
+  // the lib comes as the page loads it from disk: a plain script with src
+  await drawn(page);
+  await expect(waitLine(page)).toBeHidden();
+  await expect(errorList(page)).toBeHidden();
+  expect(await page.title()).toBe('Launch &amp; </title> <Grow> · roadmap');
+  await page.keyboard.press('+');
+  await page.keyboard.press('+');
+  await settle(page);
+  for (const id of [ID.idea, ID.tricky, ID['code-1'], ID['tests-1'], ID.release]) await expect(step(page, id).locator('.coin'), id).toBeVisible();
+  expect((await nameOf(page, ID.tricky).allTextContents()).join(' ')).toBe('Ends </script><!-- here');
+  fromDisk(errors);
+});
+
+test('no text of the roadmap can end the copy the page holds: a title and names with </script>, <!--<script> and </roadmapper-view> in them are drawn whole, and run nothing', async ({ page, errors }) => {
+  const dir = test.info().outputPath('typed-here');
+  mkdirSync(dir, { recursive: true });
+  const title = '</script><script>window.ran = 1</script>';
+  const names = ['Ends </SCRIPT > here', 'Opens <!--<script> here', 'Ends </roadmapper-view> here'];
+  writeFileSync(join(dir, 'tricky.json'), JSON.stringify({ title, branches: [{ name: 'Main', items: names.map((name, i) => ({ id: `n${i}`, name })) }] }));
+  const made = await runExport(['tricky.json', 'out'], dir);
+  expect(made.code, made.said).toBe(0);
+  const out = join(dir, 'out');
+  await page.goto(pathToFileURL(join(out, 'roadmap.html')).href);
+  await drawn(page);
+  // the tag holds the copy whole, and what comes after it
+  const held = await page.locator('roadmapper-view > script[type="application/json"]').evaluateAll(s => s.map(e => JSON.parse(e.textContent!)));
+  expect(held).toEqual([JSON.parse(readFileSync(join(out, 'roadmap.json'), 'utf8'))]);
+  await expect(page.locator('roadmapper-view > #roadmapper-wait')).toHaveCount(1);
+  expect(await page.evaluate(() => (window as { ran?: number }).ran)).toBeUndefined();
+  expect(await page.title()).toBe(`${title} · roadmap`);
+  // the export gives the steps new ids, s1 and on; a long word of a name may break over two lines
+  const bare = (s: string): string => s.replace(/\s/g, '');
+  for (const [i, name] of names.entries()) expect(bare((await nameOf(page, `s${i + 1}`).allTextContents()).join(''))).toBe(bare(name));
+  fromDisk(errors);
 });
 
 test('it draws at /roadmap.html and at /roadmap, at the root of the site and in a folder', async ({ page }) => {

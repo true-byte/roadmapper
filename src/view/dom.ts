@@ -1,4 +1,4 @@
-// The page of a view, made once by mountRoadmap(): the head, the stage with the plan, the zoom control, the popup, the list of branches, the grip,
+// The page of a view, made once by mountRoadmap(): the head, the stage with the plan, the zoom control, the popup with Export in the app, the list of branches, the grip,
 // the tip, the side bar, the aim, the names of 'Show only blockers' and the error list. What it shows is drawn again on each good show().
 // Also what the view reads of the theme and of the browser: the icon set, the padding of the stage, where the side bar goes, the layout, and how thick a scroll bar is.
 import { ARROW, BRANCHES, INFO, iconSet } from '../icons/icons.js';
@@ -113,7 +113,17 @@ export function makeDom(host: HTMLElement, options: ViewOptions) {
   // the two switches one over the other at the left, and the pair at the right of both
   const opts = html('div', 'opts');
   opts.append(hide, hideL, seg);
-  popup.append(keyList, html('hr', ''), opts);
+  // Export, only where the page makes the export (options.exportFile), after a hairline: the switch that keeps the private items in it, then the button that saves it,
+  // as wide as the popup. The button's face is drawn by the export part (export.ts).
+  const keepPrivate = html('button', 'switch');
+  keepPrivate.append(html('span', 'word', 'Include private items'));
+  keepPrivate.setAttribute('role', 'switch');
+  keepPrivate.setAttribute('aria-label', 'Include private items');
+  keepPrivate.title = 'Include private items';
+  const exportButton = html('button', 'export');
+  const exporting = html('div', 'exporting');
+  exporting.append(keepPrivate, exportButton);
+  popup.append(keyList, html('hr', ''), opts, ...(options.exportFile ? [html('hr', ''), exporting] : []));
 
   // The list of top-level branches: the button left of (i) opens it over the zoom control, as the popup. Each row shows or hides its branch, and the search finds rows by their names.
   const layers = html('button', 'layers');
@@ -189,7 +199,7 @@ export function makeDom(host: HTMLElement, options: ViewOptions) {
     return n;
   })();
 
-  return { icons, ICON_BOX, art, glyph, head, stage, sheet, svg, zoom, out, into, stops, knob, rule, info, popup, keyList, hide, seg, flows, hideL, layers, picker, find, branchList, grip, tip, side, errorList, aimLayer, ring, arrow, names, showAll, PAD, fit, readFit, BAR };
+  return { icons, ICON_BOX, art, glyph, head, stage, sheet, svg, zoom, out, into, stops, knob, rule, info, popup, keyList, hide, seg, flows, hideL, keepPrivate, exportButton, layers, picker, find, branchList, grip, tip, side, errorList, aimLayer, ring, arrow, names, showAll, PAD, fit, readFit, BAR };
 }
 
 /** The page of a view, and what the view reads of the theme and of the browser. */

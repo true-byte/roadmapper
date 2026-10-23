@@ -83,6 +83,8 @@ export function paintPart(ctx: ViewContext) {
       if (kb && typeof kb === 'object') ctx.choices = new Map(Object.entries(kb).filter((e): e is [string, boolean] => typeof e[1] === 'boolean'));
     }
     const next = readPlan(roadmap, art, fonts, (tag, over) => ctx.choices.get(tag) ?? !over);
+    // 'Saved', or an export that could not be made, was about the text before
+    if (source !== ctx.shown) ctx.resetExport();
     ctx.shown = source;
 
     const first = !ctx.plan;

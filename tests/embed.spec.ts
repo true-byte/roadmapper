@@ -228,6 +228,17 @@ test.describe('<Roadmap> in a React app', () => {
     await expect(view.locator('.zoom')).toHaveCSS('position', 'absolute');
   });
 
+  test("the popup of the box ends with the layouts: it has no hairline after them, no switch 'Include private items' and no button 'Export'", async ({ page }) => {
+    await openEmbed(page, { plan: full });
+    await press(page, theBox(page).locator('.zoom .info'));
+    const key = theBox(page).getByRole('dialog', { name: 'Key' });
+    await expect(key).toBeVisible();
+    await expect(key.locator('hr')).toHaveCount(1);
+    await expect(key.getByRole('switch', { name: 'Include private items', includeHidden: true })).toHaveCount(0);
+    await expect(key.locator('button.export')).toHaveCount(0);
+    await expect(key.getByRole('button', { name: 'Export', includeHidden: true })).toHaveCount(0);
+  });
+
   test("scrolled under the page's header and past, nothing of the box shows: not the side bar, the tip or the zoom control", async ({ page }) => {
     await openEmbed(page, { plan: full });
     await press(page, step(page, 'plan'));
@@ -389,14 +400,17 @@ test.describe('<Roadmap> in a React app', () => {
 });
 
 test.describe('<roadmapper-view> on a page with no bundler', () => {
-  test('both boxes draw the JSON inside them, with their icons, and the keys go only to the box with the focus', async ({ page }) => {
+  test('both boxes draw the JSON inside them, with their icons, also the box with a src it cannot read from disk, and the keys go only to the box with the focus', async ({ page, errors }) => {
     await page.goto(PLAIN);
     await boxesDrawn(page);
+    // the browser says it does not let the page read garden.json; the box says nothing
+    errors.splice(0, errors.length, ...errors.filter(e => !/^Fetch API cannot load file:.*\/garden\.json\./.test(e)));
     const garden = page.locator('roadmapper-view').nth(0), kitchen = page.locator('roadmapper-view').nth(1), field = page.locator('#field');
     await expect(garden).toHaveAttribute('aria-label', 'Roadmap: Garden plan');
     await expect(kitchen).toHaveAttribute('aria-label', 'Roadmap: Kitchen plan');
     await expect(garden.locator('.roadmap .title')).toHaveText('Garden plan');
     await expect(kitchen.locator('.roadmap .title')).toHaveText('Kitchen plan');
+    await expect(garden.locator('.roadmap .errors')).toBeHidden();
     // the script holds the whole icon set
     await expect(step(page, 'dig').locator('.ic .art')).toBeVisible();
     await expect(step(page, 'eat').locator('.ic .art')).toBeVisible();
