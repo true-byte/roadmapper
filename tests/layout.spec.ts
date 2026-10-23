@@ -700,15 +700,21 @@ async function faults(page: Page): Promise<string[]> {
       const dx = b[0] - a[0], dy = b[1] - a[1], t = Math.max(0, Math.min(1, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / (dx * dx + dy * dy || 1)));
       return Math.hypot(p[0] - a[0] - t * dx, p[1] - a[1] - t * dy);
     };
-    // the points of P near its i-th all lie on Q
-    const lies = (P: number[][], i: number, Q: number[][]): boolean => {
-      for (let m = Math.max(0, i - 3); m <= Math.min(P.length - 1, i + 4); m++) {
+    /** Do the points of P from its `from`-th to its `to`-th all lie on Q? */
+    const along = (P: number[][], from: number, to: number, Q: number[][]): boolean => {
+      for (let m = Math.max(0, from); m <= Math.min(P.length - 1, to); m++) {
         let best = Infinity;
         for (let q = 0; q + 1 < Q.length; q++) best = Math.min(best, far(P[m], Q[q], Q[q + 1]));
         if (best > 0.8) return false;
       }
       return true;
     };
+    // the points of P near its i-th all lie on Q
+    const lies = (P: number[][], i: number, Q: number[][]): boolean => along(P, i - 3, i + 4, Q);
+    // where a line comes onto another and runs on along it, or leaves it, the two only touch: on one side of the point the two are one line.
+    // The point every 2 px cuts the curve that comes onto the other line, so the piece between two points seems to cross it there
+    const touch = (A: number[][], a: number, B: number[][], b: number): boolean =>
+      (along(A, a + 1, a + 4, B) && along(B, b + 1, b + 4, A)) || (along(A, a - 3, a, B) && along(B, b - 3, b, A));
     lines.forEach((A, i) => {
       for (const B of lines.slice(i + 1)) {
         let hit = false;
@@ -716,7 +722,7 @@ async function faults(page: Page): Promise<string[]> {
           if (A.pts[a][2] < end || A.pts[a + 1][2] > A.n - end) continue;
           for (let b = 0; b + 1 < B.pts.length && !hit; b++) {
             if (B.pts[b][2] < end || B.pts[b + 1][2] > B.n - end) continue;
-            if (cross(A.pts[a], A.pts[a + 1], B.pts[b], B.pts[b + 1]) > 10 && !(lies(A.pts, a, B.pts) && lies(B.pts, b, A.pts))) hit = true;
+            if (cross(A.pts[a], A.pts[a + 1], B.pts[b], B.pts[b + 1]) > 10 && !(lies(A.pts, a, B.pts) && lies(B.pts, b, A.pts)) && !touch(A.pts, a, B.pts, b)) hit = true;
           }
         }
         if (hit) out.push(`${A.k} crosses ${B.k}`);
@@ -785,6 +791,8 @@ for (const [name, plan] of Object.entries(plans)) {
 
   test(`'${name}': with the labels hidden, in both layouts, at every level and in both views, the plan draws no word but the names of its versions that show, and no line crosses another or runs through one`, async ({ page }) => {
     const versions = shownAtFirst(plan).sort();
+    // a long name of a version is written on one line, cut with "…": it stands for the name it starts
+    const whole = (w: string): string => versions.find(v => v === w || (w.endsWith('…') && v.startsWith(w.slice(0, -1)))) ?? w;
     await openPlan(page, plan, { store: null });
     await showLabels(page, false);
     for (const flow of ['Vertical', 'Horizontal'] as const) {
@@ -798,7 +806,7 @@ for (const [name, plan] of Object.entries(plans)) {
         }
         for (const at of await levels(page)) {
           await zoomTo(page, at);
-          expect((await words(page)).sort(), `${flow}, ${view}, '${at}'`).toEqual(versions);
+          expect((await words(page)).map(whole).sort(), `${flow}, ${view}, '${at}'`).toEqual(versions);
           expect(await faults(page), `${flow}, ${view}, '${at}'`).toEqual([]);
         }
         if (view === 'marks') {

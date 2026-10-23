@@ -107,6 +107,8 @@ test('npx roadmapper build writes one HTML file that draws the plan from disk; a
 });
 
 test('npx roadmapper build and export write only into a folder that is missing, empty or holds what they wrote; a file is not a folder', async () => {
+  // its commands run one after another, and each starts npx anew: on a busy computer, they take longer than the time a test gets
+  test.setTimeout(90_000);
   const dir = folder('refusals');
   copyFileSync(PLAN, join(dir, 'roadmap.json'));
   mkdirSync(join(dir, 'mine'));

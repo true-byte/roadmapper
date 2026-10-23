@@ -274,21 +274,27 @@ body { background: var(--bg); color: var(--ink); font-family: var(--body); font-
 
 /* The tip: short, over what is pointed at. It never takes the pointer. */
 .tip { position: absolute; z-index: 4; box-sizing: border-box; max-width: 280px; padding: 10px 12px; border: 1px solid var(--hair); border-radius: 12px;
-  background: color-mix(in srgb, var(--bg) 84%, var(--ink)); box-shadow: var(--tip-shadow); pointer-events: none; font-size: 13.6px; }
+  background: color-mix(in srgb, var(--bg) 84%, var(--ink)); box-shadow: var(--tip-shadow); pointer-events: none; font-size: 13.6px; overflow-wrap: anywhere; }
 .tip[hidden], .side[hidden] { display: none; }
 .tip p { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; margin: 8px 0 0; line-height: 1.35; }
 
 /* The side bar: all that the plan says about what is picked. It lies over the page and stops above the zoom control. */
 .side { position: absolute; z-index: 2; top: 16px; right: 16px; bottom: 112px; width: 320px; box-sizing: border-box; padding: 18px 18px 20px; overflow-y: auto;
   border: 1px solid var(--hair); border-radius: 18px; background: color-mix(in srgb, var(--bg) 88%, var(--ink)); box-shadow: var(--shadow);
-  touch-action: pan-y; overscroll-behavior: contain; }
+  touch-action: pan-y; overscroll-behavior: contain; overflow-wrap: anywhere; }
+/* a row says its name on 2 lines at most, cut with "…", as the list of branches does. A click on the row shows the whole name in the side bar */
+.side .row .nm { flex: 0 1 auto; min-width: 0; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; line-height: 1.35; }
+.side .row .nm.branch { line-height: 1.5; }
 .side button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; text-align: left; }
 .side button:focus-visible { outline: 2px solid var(--line); outline-offset: 2px; border-radius: 6px; }
 .side .close { position: absolute; top: 10px; right: 10px; width: 32px; height: 32px; border-radius: 8px; color: var(--muted); font-size: 22px; line-height: 1; text-align: center; }
 .side .close:hover { background: var(--hair); color: var(--ink); }
-.path { display: flex; flex-wrap: wrap; margin: 0 36px 12px 0; font-size: 11.52px; }
-.side .crumb { color: var(--name); font-family: var(--display); font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; }
-.crumb + .crumb::before { content: "›"; margin: 0 6px; color: var(--muted); }
+/* the path wraps as one text: a long name of a branch breaks between its words, never a crumb alone on a line */
+.path { display: block; margin: 0 36px 12px 0; font-size: 11.52px; line-height: 1.5; }
+.side .crumb { cursor: pointer; color: var(--name); font-family: var(--display); font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; }
+.side .crumb:focus-visible { outline: 2px solid var(--line); outline-offset: 2px; border-radius: 6px; }
+/* the mark between two crumbs is not a part of the name a screen reader says. A browser that knows no text for a screen reader keeps the first content */
+.crumb + .crumb::before { content: "›"; content: "›" / ""; margin: 0 6px; color: var(--muted); }
 .crumb:hover { text-decoration: underline; }
 .side .name { gap: 12px; margin-right: 36px; }
 .side h2 { margin: 0; font-size: 20px; line-height: 1.2; }
@@ -297,12 +303,14 @@ body { background: var(--bg); color: var(--ink); font-family: var(--body); font-
 .part { margin-top: 18px; }
 .part h3 { margin: 0 0 6px; color: var(--muted); font-family: var(--display); font-size: 11.2px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; }
 .part p { margin: 0; line-height: 1.45; }
-.side .row { display: flex; align-items: center; gap: 8px; width: calc(100% + 16px); margin: 0 -8px; padding: 6px 8px; border-radius: 8px; }
+.side .row { display: flex; align-items: center; gap: 8px; box-sizing: border-box; width: calc(100% + 16px); margin: 0 -8px; padding: 6px 8px; border-radius: 8px; }
 /* a step in a hidden branch: not on the plan, so it answers no pointer. The pill says which branch it is in, and that it is hidden */
 .side .row.off { cursor: default; }
 .side .row.off:hover { background: none; }
-.gone { display: inline-flex; flex: none; align-items: center; gap: 5px; margin-left: auto; padding: 3px 9px; border: 1px solid var(--muted); border-radius: 999px; color: var(--ink); font-size: 13.6px; line-height: 1; white-space: nowrap; }
-.gone svg { display: block; }
+/* the name in the pill is on one line, cut with "…", and the pill takes at most half the row */
+.gone { display: inline-flex; flex: none; align-items: center; gap: 5px; max-width: 50%; margin-left: auto; padding: 3px 9px; border: 1px solid var(--muted); border-radius: 999px; box-sizing: border-box; color: var(--ink); font-size: 13.6px; line-height: 1; white-space: nowrap; }
+.gone svg { display: block; flex: none; }
+.gone .cut { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .side .row:hover { background: var(--hair); }
 .row .strong { font-weight: 700; }
 .row .branch { color: var(--name); font-family: var(--display); font-size: 12.48px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; }
@@ -310,10 +318,11 @@ body { background: var(--bg); color: var(--ink); font-family: var(--body); font-
 
 /* 'Links': a link is a row, as those of 'In it', that opens its page in a new tab: its icon, its name in bold, and the arrow right after the name.
    Its heading closes and opens it: a chevron after the word, turned while it is closed. */
-.side a.row { box-sizing: border-box; color: inherit; text-decoration: none; }
+.side a.row { color: inherit; text-decoration: none; }
 .side a.row:focus-visible { outline: 2px solid var(--line); outline-offset: 2px; }
 .side a.row svg { display: block; flex: none; }
-.side a.row .strong { min-width: 0; overflow-wrap: anywhere; }
+/* a link says its name on one line, cut with "…", and the arrow comes right after the name or the "…" */
+.side a.row .nm { display: block; white-space: nowrap; text-overflow: ellipsis; }
 .side a.row .go { display: flex; flex: none; color: var(--muted); }
 .side a.row:hover .go { color: var(--line); }
 .side .fold { display: flex; align-items: center; gap: 4px; margin: 0 0 6px; color: var(--muted); }
@@ -324,10 +333,18 @@ body { background: var(--bg); color: var(--ink); font-family: var(--body); font-
 @media (prefers-reduced-motion: no-preference) {
   .side .fold svg { transition: transform 0.15s; }
 }
+/* where nothing points without a touch, as on a phone, the browser shows no tip: a link and a step in a hidden branch say their whole names on as many lines as they need.
+   The pill stays at most half the row, and its corners round less once it holds more than one line */
+@media (hover: none) {
+  .side .row.off .nm { display: block; -webkit-line-clamp: none; }
+  .gone { white-space: normal; border-radius: 13px; }
+  .gone .cut { line-height: 1.25; }
+  .side a.row .nm { white-space: normal; }
+}
 
 /* Back: top left of the side bar, across from the close button, before the branches around what is picked. */
 .side .top { display: flex; align-items: center; gap: 6px; margin: -8px 36px 10px -8px; }
-.side .top .path { margin: 0; }
+.side .top .path { flex: 1; min-width: 0; margin: 0; }
 .side .back { flex: none; width: 32px; height: 32px; display: grid; place-items: center; border-radius: 8px; color: var(--muted); text-align: center; }
 .side .back:hover { background: var(--hair); color: var(--ink); }
 
@@ -357,7 +374,9 @@ body { background: var(--bg); color: var(--ink); font-family: var(--body); font-
 .roadmap.only .plan .label.keep { opacity: 0; }
 .names { position: absolute; z-index: 1; inset: 0; pointer-events: none; }
 .names[hidden], .names [hidden], .show-all[hidden] { display: none; }
-.names div { position: absolute; max-width: 130px; color: var(--ink); font-size: calc(13px * 1.2); line-height: 1.25; text-align: center; }
+/* a name takes 3 lines at most, cut with "…", as on the plan */
+.names div { position: absolute; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; overflow-wrap: anywhere; max-width: 130px;
+  color: var(--ink); font-size: calc(13px * 1.2); line-height: 1.25; text-align: center; }
 .names .picked { color: var(--name); }
 /* down, each name is right of its step */
 .names.down div { text-align: left; }

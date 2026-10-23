@@ -1,7 +1,7 @@
 // Names: a name wraps by how wide the theme's font draws it, to 3 lines at most, none wider than the room between two steps.
 // Only a longer name is cut. No name touches another name, a step, a pill, a frame or a caption.
 import type { Page } from '@playwright/test';
-import { expect, labels, level, levels, nameOf, nameSize, openApp, openPlan, settle, side, step, test, tip, zoomTo } from './helpers';
+import { clashes, everywhere, expect, labels, level, nameOf, nameSize, openApp, openPlan, settle, side, step, test, tip } from './helpers';
 import { full, nodeOf, nodesOf, wordy } from './plans';
 
 /** How wide a line of a name may be, in the units of the plan: the room between two steps, less a gap. */
@@ -9,48 +9,6 @@ const NAME_W = 100;
 
 /** The lines of the name of a step, as drawn. */
 const linesOf = (page: Page, id: string): Promise<string[]> => nameOf(page, id).allTextContents();
-
-/** What lies on what on the plan, as drawn: the name of each step and group step, all its lines as one box; each caption, group name and count; each step and pill.
- * A name or a caption may lie inside a frame, but not across its edge. Each clash is told as its two parts. */
-async function clashes(page: Page): Promise<string[]> {
-  return page.evaluate(() => {
-    const seen = (e: Element): boolean => getComputedStyle(e).display !== 'none' && Number(e.getAttribute('opacity') ?? 1) > 0.5 && e.getBoundingClientRect().width > 0;
-    type B = { k: string; l: number; r: number; t: number; b: number };
-    const of = (k: string, rs: DOMRect[]): B => ({ k, l: Math.min(...rs.map(r => r.left)), r: Math.max(...rs.map(r => r.right)), t: Math.min(...rs.map(r => r.top)), b: Math.max(...rs.map(r => r.bottom)) });
-    const names = new Map<string, DOMRect[]>();
-    for (const t of document.querySelectorAll<SVGTextElement>('svg.plan text.label')) {
-      if (!seen(t)) continue;
-      const k = t.dataset.id ? `the name of ${t.dataset.id}` : `the name of the group ${t.textContent}`;
-      names.set(k, [...(names.get(k) ?? []), t.getBoundingClientRect()]);
-    }
-    const parts: B[] = [...names].map(([k, rs]) => of(k, rs));
-    for (const t of document.querySelectorAll('svg.plan text.cap, svg.plan text.gname, svg.plan text.count')) if (seen(t)) parts.push(of(`${t.getAttribute('class')} '${t.textContent}'`, [t.getBoundingClientRect()]));
-    for (const g of document.querySelectorAll<SVGGElement>('svg.plan g.zn, svg.plan g.tally')) if (seen(g)) parts.push(of(`the step ${g.dataset.id ?? g.dataset.pod ?? g.dataset.bar}`, [g.getBoundingClientRect()]));
-    const frames = [...document.querySelectorAll('svg.plan rect.group')].filter(seen).map(f => of('a frame', [f.getBoundingClientRect()]));
-    const on = (a: B, b: B): boolean => a.l < b.r - 0.5 && b.l < a.r - 0.5 && a.t < b.b - 0.5 && b.t < a.b - 0.5;
-    const within = (a: B, f: B): boolean => a.l >= f.l - 0.5 && a.r <= f.r + 0.5 && a.t >= f.t - 0.5 && a.b <= f.b + 0.5;
-    const out: string[] = [];
-    parts.forEach((a, i) => {
-      for (const b of parts.slice(i + 1)) if (on(a, b)) out.push(`${a.k} on ${b.k}`);
-      for (const f of frames) if (on(a, f) && !within(a, f)) out.push(`${a.k} across the edge of a frame`);
-    });
-    return out;
-  });
-}
-
-/** At every level, in both views: the check. */
-async function everywhere(page: Page, check: (where: string) => Promise<void>): Promise<void> {
-  for (const view of ['icons', 'marks']) {
-    if (view === 'marks') {
-      await page.keyboard.press('i');
-      await settle(page);
-    }
-    for (const name of await levels(page)) {
-      await zoomTo(page, name);
-      await check(`${view}, '${name}'`);
-    }
-  }
-}
 
 /** The lines of the name of each step, and how wide each line is drawn in the units of the plan: all read at once, in the page. */
 const allLines = (page: Page, ids: string[]): Promise<Record<string, { text: string; w: number }[]>> =>

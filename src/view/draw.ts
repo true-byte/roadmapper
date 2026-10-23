@@ -137,11 +137,11 @@ export function drawPart(ctx: ViewContext) {
         markOf(g, sum(b));
         el(g, 'text', { x: r2(PILL.IN + 2 * r + PILL.GAP + tallyW(b) / 2 - w / 2), y: 4 }, tally(b));
         ctx.pieceEls.set(k, g);
-      } else if (p.t === 'cap') ctx.pieceEls.set(k, el(gText, 'text', { class: 'cap', 'data-bar': b.key }, b.name));
+      } else if (p.t === 'cap') ctx.pieceEls.set(k, el(gText, 'text', { class: 'cap', 'data-bar': b.key }, b.cap));
       else if (p.t === 'txt') ctx.pieceEls.set(k, el(gText, 'text', { class: 'count', 'data-bar': b.key }, count(b)));
       else if (p.t === 'frame') ctx.pieceEls.set(k, el(gFrames, 'rect', { class: 'group' }));
       // the name of an open group answers the pointer for the group, where the group is one that can be picked
-      else if (p.t === 'gname') ctx.pieceEls.set(k, el(gText, 'text', { class: 'gname', ...(ctx.byPod.has(p.sp!.key) ? { 'data-pod': p.sp!.key } : {}) }, p.sp!.name));
+      else if (p.t === 'gname') ctx.pieceEls.set(k, el(gText, 'text', { class: 'gname', ...(ctx.byPod.has(p.sp!.key) ? { 'data-pod': p.sp!.key } : {}) }, p.sp!.gname));
       else {
         ctx.pieceEls.set(k, el(gLines, 'path', { class: 'lane' }));
         ctx.hitEls.set(k, el(gHits, 'path', { class: 'hit', 'data-bar': b.key }));
