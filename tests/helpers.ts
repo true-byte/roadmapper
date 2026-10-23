@@ -11,6 +11,8 @@ export const PAGE = new URL('../dist/tests/page/index.html', import.meta.url).hr
 export const EMBED = new URL('../dist/tests/embed/index.html', import.meta.url).href;
 /** A page with no bundler, with two <roadmapper-view> tags and the lib as one plain script: `npm run build:lib`. */
 export const PLAIN = new URL('./embed/plain.html', import.meta.url).href;
+/** A page with nothing on it, where `kept` is written. */
+const BLANK = new URL('./blank.html', import.meta.url).href;
 /** The name the app page keeps its level, its view and its place under. */
 export const APP_STORE = 'roadmapper.app';
 /** The name the test page keeps them under, unless a test says otherwise. */
@@ -73,7 +75,7 @@ export { expect };
 export interface Open {
   /** The end of the address, such as 'z=1.5' or '#u=0.5': it holds the page still at that point. */
   hash?: string;
-  /** What localStorage holds under the page's store before the page starts: an object is written as JSON, a text as it is. Only on the first load of this tab. */
+  /** What localStorage holds under the page's store before the page starts: an object is written as JSON, a text as it is. It is written once, before the page opens. */
   kept?: unknown;
   /** Motion: every move plays as it does for a user. Without it, the tests run with reduced motion, and every move ends in one frame. */
   motion?: boolean;
@@ -101,12 +103,10 @@ async function open(page: Page, url: string, store: string | null, o: Open): Pro
   if (o.clock) await page.clock.install();
   if (o.kept !== undefined) {
     if (!store) throw new Error('kept needs a store');
-    const value = typeof o.kept === 'string' ? o.kept : JSON.stringify(o.kept), once = `seeded ${Math.random()}`;
-    await page.addInitScript(([store, value, once]) => {
-      if (sessionStorage.getItem(once)) return;
-      sessionStorage.setItem(once, '1');
-      localStorage.setItem(store, value);
-    }, [store, value, once]);
+    // written from a page that has loaded, not by an init script: a script that touches localStorage or sessionStorage as a page starts can come before
+    // Chromium has taken in the new page, and Chromium then binds no storage to that page, which finds it empty
+    await page.goto(BLANK);
+    await page.evaluate(([store, value]) => localStorage.setItem(store, value), [store, typeof o.kept === 'string' ? o.kept : JSON.stringify(o.kept)]);
   }
   await page.goto(o.hash ? `${url}#${o.hash.replace(/^#/, '')}` : url);
   // drawn, or else the error list says why not
