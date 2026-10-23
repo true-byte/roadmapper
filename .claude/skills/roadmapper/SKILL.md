@@ -212,6 +212,7 @@ No line joins two top-level branches. So `waitsFor` is the only way to show that
 | `milestone` | Write `true` only for the few big moments, such as 'Opening day'. |
 | `start`, `end`, `deadline` | Write a day only when the owner has set that day. When the owner names only a month, a season or a span, such as "next June" or "in three months", write no day. Write what the owner named in the `why` of the step that it is for. Write a month with its year, such as 'June 2027', in place of "next June". The month of the goal is for the milestone of the goal. So for "we open next June", the `why` of 'Opening day' says 'The bakery opens in June 2027.' Write a span of the whole plan in `about`, and a span of a top-level branch in its `holds`. |
 | `icon` | Write only a name that is in the icon set, such as `bread`. [format.md, section "Icons"](format.md#icons) names the set, and says how to check a name. The `validate` command does not find a wrong name, so leave `icon` out when you are not sure. |
+| `links` | Write a link only to a page that you know exists, such as the signed lease at the address that the owner gave. Never guess an address. Copy it in full, from `https://` or `http://`. Pick its `icon` as for the `icon` of a step, such as `file-text` for a doc. |
 
 Write each `why` and `doneWhen` as a plain fact in the third person, such as 'The town sends the signed permit.'
 

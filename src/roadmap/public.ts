@@ -7,7 +7,7 @@ import { RoadmapError } from './errors.js';
 import type { Branch, Item, RoadNode, Roadmap, Split, State } from './types.js';
 
 /** The keys of a step that a stranger may read: not its days. A key the file check does not know is never copied. */
-const NODE_KEYS = ['id', 'name', 'state', 'why', 'doneWhen', 'icon', 'milestone'] as const;
+const NODE_KEYS = ['id', 'name', 'state', 'why', 'doneWhen', 'icon', 'milestone', 'links'] as const;
 
 const isPrivate = (x: { private?: unknown }): boolean => x.private === true;
 const over = (s: State | undefined): boolean => s === 'done' || s === 'canceled';

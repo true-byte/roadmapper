@@ -32,6 +32,8 @@ export interface Kept {
   branches?: Record<string, boolean>;
   /** Is the zoom control hidden down to its grip? */
   tucked?: boolean;
+  /** Is the 'Links' part of the side bar open? Not there in what an older page kept: that page opens it. */
+  links?: boolean;
   id: string;
   fx: number;
   fy: number;

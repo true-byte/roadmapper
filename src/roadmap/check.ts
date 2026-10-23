@@ -11,8 +11,11 @@ function isDay(s: string): boolean {
   return !Number.isNaN(d.getTime()) && d.getFullYear() === Number(s.slice(0, 4)) && d.getMonth() + 1 === Number(s.slice(5, 7)) && d.getDate() === Number(s.slice(8));
 }
 
+/** Is this the address of a page on the web: one that starts with https:// or http://, and that a browser can read? */
+const isUrl = (s: string): boolean => /^https?:\/\/./.test(s) && URL.canParse(s);
+
 /** What a key holds. */
-type Kind = 'text' | 'flag' | 'day' | 'state' | 'list' | 'ids' | 'object';
+type Kind = 'text' | 'flag' | 'day' | 'url' | 'state' | 'list' | 'ids' | 'object';
 /** The keys each piece of the file may have, and what each holds. */
 const PIECES = {
   roadmap: { title: 'text', about: 'text', branches: 'list', icons: 'object' },
@@ -20,12 +23,13 @@ const PIECES = {
   split: { split: 'list', name: 'text', branching: 'flag', private: 'flag' },
   node: {
     id: 'text', name: 'text', state: 'state', why: 'text', doneWhen: 'text', icon: 'text', milestone: 'flag', private: 'flag',
-    start: 'day', end: 'day', deadline: 'day', waitsFor: 'ids', waitsForPrivate: 'flag',
+    start: 'day', end: 'day', deadline: 'day', waitsFor: 'ids', waitsForPrivate: 'flag', links: 'list',
   },
+  link: { name: 'text', url: 'url', icon: 'text' },
 } satisfies Record<string, Record<string, Kind>>;
 type Piece = keyof typeof PIECES;
 /** The keys each piece must have, each a text that is not empty or a list. */
-const NEEDS: Record<Piece, string[]> = { roadmap: ['title', 'branches'], branch: ['items'], split: [], node: ['id', 'name'] };
+const NEEDS: Record<Piece, string[]> = { roadmap: ['title', 'branches'], branch: ['items'], split: [], node: ['id', 'name'], link: ['name', 'url'] };
 const WRITTEN: readonly string[] = STATES.filter(s => s !== 'blocked');
 
 /** The error of a value of a key, if it has one. */
@@ -34,6 +38,7 @@ function wrong(kind: Kind, v: unknown): ErrorName | undefined {
     case 'text': return typeof v === 'string' ? undefined : 'Wrong type';
     case 'flag': return typeof v === 'boolean' ? undefined : 'Wrong type';
     case 'day': return typeof v !== 'string' ? 'Wrong type' : isDay(v) ? undefined : 'Invalid date';
+    case 'url': return typeof v !== 'string' ? 'Wrong type' : isUrl(v) ? undefined : 'Invalid URL';
     case 'state': return typeof v !== 'string' ? 'Wrong type' : WRITTEN.includes(v) ? undefined : 'Invalid value';
     case 'list': case 'ids': return Array.isArray(v) ? undefined : 'Wrong type';
     case 'object': return isObject(v) ? undefined : 'Wrong type';
@@ -94,6 +99,13 @@ function check(data: unknown, lineOf: (at: At) => number): FileError[] {
     keys(it, 'node', at, here);
     if (id) ids.set(id, [...(ids.get(id) ?? []), { at: [...at, 'id'], where: here }]);
     if (Array.isArray(it.waitsFor)) waits.push({ at: [...at, 'waitsFor'], where: here, id, on: it.waitsFor });
+    if (Array.isArray(it.links)) it.links.forEach((l, j) => link(l, [...at, 'links', j], here));
+  }
+
+  /** A link of a step: its path goes on to its name, where it has one. */
+  function link(l: unknown, at: At, where: string[]): void {
+    if (!isObject(l)) return add(at, where, '', 'Wrong type', l);
+    keys(l, 'link', at, named(l.name) ? [...where, l.name] : where);
   }
 
   if (!isObject(data)) {

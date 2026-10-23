@@ -205,7 +205,25 @@ export const versions: Roadmap = {
   ],
 };
 
-export const plans = { full, flat, plain, wordy, nested, versions };
+/** Steps with links: one with three, the first with an icon, the next with none and the last with an icon the set has not; one with a link; one with an empty list; one with none.
+ * No group, so it opens at 'Every step', where each step is drawn. */
+export const links: Roadmap = {
+  title: 'Links plan',
+  branches: [
+    { name: 'Main', items: [
+      { id: 'spec', name: 'Spec', state: 'done', why: 'The build needs a spec.', links: [
+        { name: 'Spec doc', url: 'https://example.com/spec', icon: 'file-text' },
+        { name: 'Demo', url: 'http://example.com/demo' },
+        { name: 'Mock', url: 'https://example.com/mock?v=2#top', icon: 'no-such-icon' },
+      ] },
+      { id: 'build', name: 'Build', state: 'in-progress', links: [{ name: 'Branch', url: 'https://example.com/branch' }] },
+      { id: 'ship', name: 'Ship', why: 'People get it.', links: [] },
+      { id: 'party', name: 'Party' },
+    ] },
+  ],
+};
+
+export const plans = { full, flat, plain, wordy, nested, versions, links };
 
 /** A long first branch, then four branches side by side, each a design step and a build of two tracks, with icons; `busy` is the step in progress.
  * At 'Tracks' and 'Every step' one column fits a phone, two do not. A step in progress in a build is drawn far out as its group, and at 'Tracks' as the pill of its track. */

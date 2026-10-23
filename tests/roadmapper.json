@@ -11,15 +11,15 @@
           "name": "Ideas",
           "icon": "bulb",
           "state": "done",
-          "why": "What Alex wants from a roadmap tool: the tree shape, the states, picking a node, what a node waits for, the lib and the export."
+          "why": "A roadmap tool must have the tree shape, the states, picking a node, what a node waits for, the lib and the export."
         },
         {
           "id": "live-view",
           "name": "Live view",
           "icon": "live-view",
           "state": "done",
-          "why": "The tree must grow in front of Alex, so the view is built before anything else.",
-          "doneWhen": "A node added to the roadmap file shows on his open page within seconds, with no click."
+          "why": "The tree must grow live on the open page, so the view is built before anything else.",
+          "doneWhen": "On Roadmapper's own roadmap, a node added to the roadmap file shows on the open page within seconds, with no click."
         },
         {
           "id": "node-states",
@@ -36,7 +36,7 @@
           "private": true,
           "state": "done",
           "why": "The roadmap cannot be judged until it is clear what Roadmapper is, who it is for and what each version holds.",
-          "doneWhen": "Claude interviews Alex, one question at a time. The description is written from his answers, and he says it is right."
+          "doneWhen": "The description is written from an interview, one question at a time, and is reviewed and approved."
         },
         {
           "id": "real-roadmap",
@@ -44,7 +44,7 @@
           "icon": "route",
           "state": "done",
           "why": "The roadmap listed features only. The versions, design, docs and e2e tests were not on it. The plan can be judged only against the solution description, so it comes after it.",
-          "doneWhen": "The tree shows V0, V1 and V2 as separate branches, one under the other, with design, build, tests and docs. Alex says the plan is right."
+          "doneWhen": "The tree shows V0, V1 and V2 as separate branches, one under the other, with design, build, tests and docs. The plan is reviewed and approved."
         }
       ]
     },
@@ -58,7 +58,7 @@
           "icon": "zoom-in",
           "state": "done",
           "why": "A full tree dumps everything at once. Three levels, each with more detail: 'Main steps', where each group is one step; 'Tracks', where each track of a group is one pill with how many of its steps are done; 'Every step'. A group and a branching are told apart.",
-          "doneWhen": "On the mock of the example plan, Alex said yes to the three levels and their names."
+          "doneWhen": "A mock of the three levels and their names, on the example plan, is reviewed and approved."
         },
         {
           "name": "Zoom build",
@@ -71,8 +71,8 @@
                   "name": "Zoom code",
                   "icon": "zoom-in",
                   "state": "done",
-                  "why": "His own page zooms through the three levels of the design.",
-                  "doneWhen": "On his own page (npm run dev), Alex zooms his roadmap through 'Main steps', 'Tracks' and 'Every step', and a save to the file still redraws it."
+                  "why": "The page of Roadmapper's own roadmap zooms through the three levels of the design.",
+                  "doneWhen": "On Roadmapper's own roadmap (npm run dev), the page zooms through 'Main steps', 'Tracks' and 'Every step', and a file save still redraws it."
                 }
               ]
             },
@@ -86,7 +86,7 @@
                   "icon": "zoom-in",
                   "state": "done",
                   "why": "Tests in a real browser for Zoom, so a change cannot break it unseen.",
-                  "doneWhen": "Alex runs one command, and the zoom tests run in a real browser on the built page and pass."
+                  "doneWhen": "One command runs the zoom tests in a real browser on the built page, and they pass."
                 }
               ]
             }
@@ -98,7 +98,7 @@
           "icon": "icons",
           "state": "done",
           "why": "The marks say the state of a step and nothing about the step. A step gets an icon that fits what it is about, set in the file and open to change, and one switch hides the icons.",
-          "doneWhen": "On the mock of the example plan, Alex turns \"hide node icons\" off and each step shows the icon set for it in the file, with its state small at the bottom right. Zoomed all the way out, only the milestones show their icons, so the plan is not crowded. Turned on, the view is as before. He says the icons read right."
+          "doneWhen": "A mock of the icons, on the example plan, is reviewed and approved. With \"hide node icons\" off, each step shows the icon set for it in the file, with its state small at the bottom right. When the plan is zoomed all the way out, only the milestones show their icons, so it is not crowded. With \"hide node icons\" on, the view is as before."
         },
         {
           "name": "Icons build",
@@ -112,7 +112,7 @@
                   "icon": "icons",
                   "state": "done",
                   "why": "A step shows the icon set for it in the file, as a coin where its name shows, and one switch brings back the marks.",
-                  "doneWhen": "On his own page, each step shows its icon, and 'Hide node icons' turns every step into its mark and back."
+                  "doneWhen": "On Roadmapper's own roadmap, each step shows its icon, and 'Hide node icons' turns every step into its mark and back."
                 }
               ]
             },
@@ -125,7 +125,7 @@
                   "icon": "icons",
                   "state": "done",
                   "why": "Tests in a real browser for Icons, so a change cannot break it unseen.",
-                  "doneWhen": "Alex runs one command, and the icons tests run in a real browser on the built page and pass."
+                  "doneWhen": "One command runs the icons tests in a real browser on the built page, and they pass."
                 }
               ]
             }
@@ -137,7 +137,7 @@
           "icon": "pointer",
           "state": "done",
           "why": "The hover tip is plain text and hard to read, a branch shows nothing, and nothing reacts to the pointer. A short tip on hover and a side bar with the data on a click, for a branch as for a step. Zooming and picking one step must never be taken for each other.",
-          "doneWhen": "On the mock of the example plan, Alex points at a step and at a branch, and each shows that it is pointed at and gives a short tip. He clicks each: it stays lit and a side bar shows its data, and a click on empty space closes it. No click zooms. He says it reads right."
+          "doneWhen": "A mock of hover and click, on the example plan, is reviewed and approved. On the mock, a step and a branch each show that the pointer is on them and give a short tip. A click on either keeps it lit and opens a side bar with its data. A click on empty space closes the side bar. No click zooms."
         },
         {
           "name": "Hover and click build",
@@ -151,7 +151,7 @@
                   "icon": "pointer",
                   "state": "done",
                   "why": "A hover lights what is under the pointer and shows a short tip. A click picks it, and the side bar shows its data.",
-                  "doneWhen": "On his own page, Alex points at a step and at a branch, and each lights and shows a tip. A click keeps it lit in gold and opens the side bar, and a click on empty space closes it. No click zooms."
+                  "doneWhen": "On Roadmapper's own roadmap, a step and a branch each light up and show a tip under the pointer. A click on either keeps it lit in gold and opens the side bar. A click on empty space closes the side bar. No click zooms."
                 }
               ]
             },
@@ -164,7 +164,7 @@
                   "icon": "pointer",
                   "state": "done",
                   "why": "Tests in a real browser for Hover and click, so a change cannot break it unseen.",
-                  "doneWhen": "Alex runs one command, and the hover and click tests run in a real browser on the built page and pass."
+                  "doneWhen": "One command runs the hover and click tests in a real browser on the built page, and they pass."
                 }
               ]
             }
@@ -176,7 +176,7 @@
           "icon": "hourglass",
           "state": "done",
           "why": "A step can wait for steps on other branches, and no line may cross branches. A blocked step lists what blocks it, and one button blurs all but it and its blockers.",
-          "doneWhen": "On a mock, Alex picks a blocked step, presses 'Show only blockers', and says yes to how its blockers stand out."
+          "doneWhen": "A mock of how a blocked step's blockers stand out, on Roadmapper's own roadmap, is reviewed and approved. The mock shows the step picked, with 'Show only blockers' pressed."
         },
         {
           "name": "Waits on others build",
@@ -190,7 +190,7 @@
                   "icon": "hourglass",
                   "state": "done",
                   "why": "A step that waits for one not done is blocked by itself. Its side bar lists what blocks it, and 'Show only blockers' blurs all but it and them.",
-                  "doneWhen": "On his roadmap, Alex clicks 'Edit on page design', presses 'Show only blockers', points at 'Release v1' in the side bar, and goes back with the back arrow."
+                  "doneWhen": "On Roadmapper's own roadmap, 'Show only blockers' in the side bar of 'Edit on page design' fades all but the step and its blockers. Pointing at 'Release v1' in that side bar works as designed. The back arrow then shows what the side bar showed before."
                 }
               ]
             },
@@ -221,7 +221,7 @@
                   "icon": "file-code",
                   "state": "done",
                   "why": "How a roadmap is written: one file holds it all, as today. A new id is the name in kebab-case, with -2 or -3 when taken. Files are not kept with the roadmap; in V2 a step links to what it produced.",
-                  "doneWhen": "Alex says yes to how a roadmap is written."
+                  "doneWhen": "How a roadmap is written is reviewed and approved."
                 },
                 {
                   "name": "Roadmap spec build",
@@ -258,7 +258,7 @@
                   "icon": "package",
                   "state": "done",
                   "why": "Another project shows a roadmap with one short piece of code: a React app with one component, any page with one tag. The page sets only the size, and the box leaves the page alone. The lib reads the roadmap as the spec says, so it comes after the spec.",
-                  "doneWhen": "On a mock, Alex says yes to how another project puts a roadmap on its own page."
+                  "doneWhen": "A mock of how another project puts a roadmap on its own page, on Roadmapper's own roadmap, is reviewed and approved."
                 },
                 {
                   "name": "Embeddable lib build",
@@ -272,7 +272,7 @@
                           "icon": "package",
                           "state": "done",
                           "why": "A React app shows a roadmap in a box on its page with one component, and any page with one tag, without running this app.",
-                          "doneWhen": "On a React page that installs the lib, Alex sees his roadmap in a box that leaves the page alone, and README.md says how."
+                          "doneWhen": "On a React page that installs the lib, Roadmapper's own roadmap shows in a box that leaves the page alone, and README.md says how."
                         }
                       ]
                     },
@@ -297,7 +297,7 @@
                   "icon": "file-export",
                   "state": "done",
                   "why": "The export is two files side by side: roadmap.html holds the roadmap and its icons, and the lib file, named by its content, holds the code. So the page stays light, and an old export keeps its own lib.",
-                  "doneWhen": "On a mock, Alex says yes to the HTML file he would upload to a landing page."
+                  "doneWhen": "A mock of the HTML file to upload to a landing page, on Roadmapper's own roadmap, is reviewed and approved."
                 },
                 {
                   "name": "HTML export build",
@@ -311,7 +311,7 @@
                           "icon": "file-export",
                           "state": "done",
                           "why": "npm run export writes roadmap.html and its lib file, ready to upload to a landing page, and README.md says how to make and upload them.",
-                          "doneWhen": "Alex runs npm run export and opens the roadmap.html it writes: his roadmap, as on the mock he said yes to."
+                          "doneWhen": "On Roadmapper's own roadmap, npm run export writes roadmap.html, a page that matches the approved mock."
                         }
                       ]
                     },
@@ -336,7 +336,7 @@
                   "icon": "lock",
                   "state": "done",
                   "why": "The export leaves out every private item, with no gap, lock or count. The one trace: a shown step that waits on unfinished private work is drawn blocked, without naming what blocks it.",
-                  "doneWhen": "On a mock of the export of his roadmap, Alex says yes to what a stranger sees where an item is private."
+                  "doneWhen": "A mock of what a stranger sees where an item is private, on the export of Roadmapper's own roadmap, is reviewed and approved."
                 },
                 {
                   "name": "Private items build",
@@ -350,7 +350,7 @@
                           "icon": "lock",
                           "state": "done",
                           "why": "npm run export writes roadmap.json with every private item and all inside it left out, roadmapper.js that reads it, and roadmap.html, the whole page. README.md says how a page shows it.",
-                          "doneWhen": "Alex marks items private in his roadmap, runs npm run export, and the page shows what the mock he said yes to showed."
+                          "doneWhen": "On Roadmapper's own roadmap, with items marked private, npm run export writes a page that matches the approved mock."
                         }
                       ]
                     },
@@ -379,7 +379,7 @@
                   "name": "Focus design",
                   "icon": "focus-2",
                   "state": "canceled",
-                  "why": "Dropped: Alex said the current look is fine, and that 'Main steps' is the view with no noise he meant."
+                  "why": "This step is canceled. The current look is fine, and 'Main steps' is already the view with no noise that this step was meant to give."
                 },
                 {
                   "name": "Focus build",
@@ -421,7 +421,7 @@
                   "icon": "eye",
                   "state": "done",
                   "why": "Finished top-level branches start hidden. A layers button in the zoom control, left of (i), opens a list with a search to show or hide any of them. A blocker in a hidden branch has a pill with its branch name in the side bar. A tab on the zoom control hides it.",
-                  "doneWhen": "On a mock of his roadmap at phone and laptop size, Alex says yes to the picker and to how a blocker in a hidden branch shows."
+                  "doneWhen": "A mock of the picker and of how a blocker in a hidden branch shows, on Roadmapper's own roadmap, is reviewed and approved. The mock is at phone and laptop size."
                 },
                 {
                   "name": "Show and hide build",
@@ -434,8 +434,8 @@
                           "name": "Show and hide code",
                           "icon": "eye",
                           "state": "done",
-                          "why": "Build the design he said yes to: the hidden default, the layers button and its list, the pill of a hidden blocker, and the tab that hides the zoom control.",
-                          "doneWhen": "On his own roadmap at phone and laptop size, Alex hides and shows branches and the zoom control, and says yes."
+                          "why": "The page draws the approved design: the hidden default, the layers button and its list, and the pill of a hidden blocker. It also draws the tab that hides the zoom control.",
+                          "doneWhen": "On Roadmapper's own roadmap at phone and laptop size, how branches and the zoom control hide and show is reviewed and approved."
                         }
                       ]
                     },
@@ -465,7 +465,7 @@
                   "icon": "layout",
                   "state": "done",
                   "why": "A phone draws the tree top to bottom and a laptop left to right, with a switch between them. An (i) at the end of the bar opens the key, 'Hide node icons', 'Hide labels' and that switch; with labels hidden the tree packs tight. Branches join right after their last step, the first view opens on the step in progress, and a pinch scales the plan, not the page.",
-                  "doneWhen": "On a mock of his export at phone and laptop size, Alex says yes to how the tree is laid out and read, and to how the zoom control fits."
+                  "doneWhen": "A mock of how the tree is laid out and read, on the export of Roadmapper's own roadmap, is reviewed and approved. The mock is at phone and laptop size and also shows how the zoom control fits."
                 },
                 {
                   "name": "Layout build",
@@ -478,8 +478,8 @@
                           "name": "Layout code",
                           "icon": "layout",
                           "state": "done",
-                          "why": "The app, the lib and the export draw the layout of the mock he said yes to.",
-                          "doneWhen": "On his own roadmap at phone and laptop size, Alex sees the layout of the mock, and each switch in (i) works on its own and leaves the popup open."
+                          "why": "The app, the lib and the export draw the layout of the approved mock.",
+                          "doneWhen": "On Roadmapper's own roadmap at phone and laptop size, the page has the layout of the mock. Each switch in (i) works on its own and leaves the popup open."
                         }
                       ]
                     },
@@ -510,7 +510,7 @@
                   "private": true,
                   "state": "done",
                   "why": "The sizes stay. Parallel lanes get more room between them, so each name reads as its own step's, not the one over it.",
-                  "doneWhen": "On a mock of his roadmap, Alex says yes to the sizes and to how each step and state look."
+                  "doneWhen": "A mock of the sizes and of how each step and state look, on Roadmapper's own roadmap, is reviewed and approved."
                 },
                 {
                   "name": "Looks build",
@@ -524,7 +524,7 @@
                           "icon": "typography",
                           "state": "done",
                           "why": "More room between parallel lanes where the names are written.",
-                          "doneWhen": "On his page at V2, the name of each step reads as its own, not the step's over it."
+                          "doneWhen": "On Roadmapper's own roadmap at V2, the name of each step reads as its own, not the step's over it."
                         }
                       ]
                     },
@@ -554,7 +554,7 @@
                   "icon": "calendar",
                   "state": "done",
                   "why": "The export for strangers shows no days: it leaves out each step's start, end and deadline.",
-                  "doneWhen": "On a mock of his roadmap, Alex says yes to where the dates show, or he moves dates out of V1."
+                  "doneWhen": "A mock of where the dates show, on Roadmapper's own roadmap, is reviewed and approved. Otherwise, dates move out of V1."
                 },
                 {
                   "name": "Dates build",
@@ -598,8 +598,8 @@
                   "name": "Viewer level design",
                   "icon": "eye",
                   "state": "done",
-                  "why": "The stranger sets their own level with the zoom: Alex said \"fine\" to them going down to every step. The owner sets the rest: \"export must allow an option to include private items\".",
-                  "doneWhen": "On a mock of his export, Alex says yes to what a stranger sees at the level set for them, or he moves the viewer level out of V1."
+                  "why": "The stranger sets their own level with the zoom, and going down to every step is fine. The options of the export set the rest. The export must allow an option to include private items.",
+                  "doneWhen": "A mock of what a stranger sees at the level set for them, on the export of Roadmapper's own roadmap, is reviewed and approved. Otherwise, the viewer level moves out of V1."
                 },
                 {
                   "name": "Viewer level build",
@@ -613,7 +613,7 @@
                           "icon": "eye",
                           "state": "done",
                           "why": "An export can keep the private items, for those who may read the whole roadmap.",
-                          "doneWhen": "Alex runs npm run export -- --private and sees his private steps in npm run export:preview -- --private."
+                          "doneWhen": "On Roadmapper's own roadmap, npm run export -- --private keeps the private steps, and npm run export:preview -- --private shows them."
                         }
                       ]
                     },
@@ -642,7 +642,7 @@
           "icon": "rocket",
           "state": "done",
           "why": "V1 is out when an export is ready to upload to a landing page, and each feature of V1 is designed, built and tested.",
-          "doneWhen": "An export of his roadmap is ready to upload, and Alex says V1 is out."
+          "doneWhen": "An export of Roadmapper's own roadmap is ready to upload, and the release of V1 is reviewed and approved."
         }
       ]
     },
@@ -662,7 +662,7 @@
                   "name": "Edit on page design",
                   "icon": "pencil",
                   "state": "tbd",
-                  "why": "V2 waits for Release v1. Alex changes the roadmap on the page, not in a file.",
+                  "why": "V2 waits for Release v1. The roadmap is changed on the page, not in a file.",
                   "waitsFor": [
                     "release-v1"
                   ]
@@ -926,7 +926,7 @@
                   "name": "Timeline design",
                   "icon": "timeline",
                   "state": "tbd",
-                  "why": "A layout to turn on, over a range (today, this week, this month, custom): what is going on now, what is late (past its end) and what is missed (past its deadline). Late and missed show only with it on. An export has it only when the owner asks, as with private items; then strangers can turn it on.",
+                  "why": "The timeline is a layout to turn on over a range: today, this week, this month or custom. It shows what is going on now, what is late (past its end) and what is missed (past its deadline). Late and missed show only with the timeline on. An export has the timeline only when an option includes it, as with private items. Strangers can then turn it on.",
                   "waitsFor": [
                     "release-v1"
                   ]

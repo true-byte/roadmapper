@@ -21,11 +21,16 @@
             ] },
             { "name": "Docs", "items": [ { "id": "docs", "name": "Docs" } ] },
             { "name": "Pricing track", "private": true, "items": [
-              { "id": "secret-price", "name": "Secret price", "icon": "coin", "why": "Only the owner reads this." }
+              { "id": "secret-price", "name": "Secret price", "icon": "coin", "why": "Only the owner reads this.", "links": [
+                { "name": "Price sheet", "url": "https://example.com/price-sheet", "icon": "receipt" }
+              ] }
             ] }
           ]
         },
-        { "id": "release", "name": "Release", "milestone": true, "icon": "rocket" }
+        { "id": "release", "name": "Release", "milestone": true, "icon": "rocket", "links": [
+          { "name": "Release notes", "url": "https://example.com/notes", "icon": "book" },
+          { "name": "Tag", "url": "https://example.com/tag" }
+        ] }
       ]
     },
     {
