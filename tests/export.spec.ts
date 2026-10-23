@@ -7,7 +7,7 @@ import { copyFileSync, existsSync, linkSync, mkdirSync, readdirSync, readFileSyn
 import { join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { Locator, Page } from '@playwright/test';
-import { errorList, expect, flowOf, labelsSwitch, level, nameOf, pickLayout, popup, settle, showLabels, side, step, test } from './helpers';
+import { errorList, expect, flowOf, labelsSwitch, level, nameOf, openKey, pickLayout, popup, settle, showLabels, side, step, test } from './helpers';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const DIR = fileURLToPath(new URL('../dist/tests/export/', import.meta.url));
@@ -100,14 +100,36 @@ test('the page is the whole window, with the title in its head and the about lin
   await expect(nameOf(page, ID.idea).first()).toBeVisible();
 });
 
-test("the popup ends with the layouts: the page has no hairline after them, no switch 'Include private items' and no button 'Export'", async ({ page }) => {
+test("the popup ends with the mode and the layouts: the page has no hairline after them, no switch 'Include private items' and no button 'Export'", async ({ page }) => {
   await openExport(page);
   await page.locator('.zoom .info').click();
   await expect(popup(page)).toBeVisible();
   await expect(popup(page).locator('hr')).toHaveCount(1);
+  await expect(popup(page).getByRole('radiogroup', { name: 'Mode' })).toBeVisible();
   await expect(popup(page).getByRole('switch', { name: 'Include private items', includeHidden: true })).toHaveCount(0);
   await expect(popup(page).locator('button.export')).toHaveCount(0);
   await expect(popup(page).getByRole('button', { name: 'Export', includeHidden: true })).toHaveCount(0);
+});
+
+test("'Light' and 'Dark' draw the whole page in that mode, whatever the device is set to, and a visit after starts as the device is set", async ({ page }) => {
+  const view = page.locator('.roadmap'), mode = (name: string): Locator => popup(page).getByRole('radio', { name, includeHidden: true });
+  await openExport(page);
+  await expect(view).toHaveCSS('background-color', 'rgb(10, 18, 36)');
+  await openKey(page);
+  await mode('Light').click();
+  await expect(view).toHaveCSS('background-color', 'rgb(244, 246, 251)');
+  await expect(view).toHaveCSS('color-scheme', 'light');
+  await expect(view.locator('svg.plan .lane').first()).toHaveCSS('stroke', 'rgb(11, 122, 140)');
+  await expect(popup(page)).toHaveCSS('color', 'rgb(16, 27, 51)');
+  await page.emulateMedia({ colorScheme: 'light' });
+  await mode('Dark').click();
+  await expect(view).toHaveCSS('background-color', 'rgb(10, 18, 36)');
+  await expect(view.locator('svg.plan .lane').first()).toHaveCSS('stroke', 'rgb(86, 207, 225)');
+  expect(await page.evaluate(() => localStorage.length)).toBe(0);
+  await page.reload();
+  await drawn(page);
+  await expect(view).toHaveCSS('background-color', 'rgb(244, 246, 251)');
+  await expect(mode('Device')).toHaveAttribute('aria-checked', 'true');
 });
 
 test('the keys and the wheel are the view\'s, with no click first, and the window itself never scrolls', async ({ page }) => {
@@ -160,10 +182,10 @@ test('a pinch, or Ctrl and the wheel, scales the plan, not the page; over a plan
 test('roadmap.json holds only the icons the roadmap a stranger sees names, with their license, and the steps draw them', async ({ page }) => {
   const own = JSON.parse(readFileSync(join(DIR, 'roadmap.json'), 'utf8')).icons;
   expect(own.set).toBe('tabler');
-  // with the glyphs the view draws itself: the arrows, the buttons of the popup and of the list of branches, its search, the pill of a hidden branch and the grip;
+  // with the glyphs the view draws itself: the arrows, the buttons of the popup and of the list of branches, its search, the pill of a hidden branch, the grip and the mode;
   // with those of the links of a shown step, and the icon of a link, the arrow and the chevron of 'Links'; and with none of the icons of a private step or of its links
-  expect(Object.keys(own.icons)).toEqual(['arrow-left', 'arrow-right', 'book', 'bulb', 'chevron-down', 'chevron-up', 'code', 'confetti', 'external-link', 'eye-off', 'info-circle', 'link',
-    'rocket', 'search', 'stack-2', 'test-pipe']);
+  expect(Object.keys(own.icons)).toEqual(['arrow-left', 'arrow-right', 'book', 'bulb', 'chevron-down', 'chevron-up', 'code', 'confetti', 'device-desktop', 'external-link', 'eye-off',
+    'info-circle', 'link', 'moon', 'rocket', 'search', 'stack-2', 'sun', 'test-pipe']);
   expect(own.license).toContain('Permission is hereby granted');
   expect(own.license).toContain('Paweł Kuna');
   await openExport(page);

@@ -12,8 +12,10 @@ export interface IconSet {
 
 /** The icons the view draws itself, from the set the theme names: the arrows of the side bar and of the edge of the page. */
 export const ARROW = { left: 'arrow-left', right: 'arrow-right' };
-/** The glyph of the button that opens the popup with the key, the 'Hide node icons' switch and the layout. */
+/** The glyph of the button that opens the popup with the key, the 'Hide node icons' switch, the mode and the layout. */
 export const INFO = { open: 'info-circle' };
+/** The glyphs of the mode in the popup: the device's setting, light and dark. */
+export const MODE = { device: 'device-desktop', light: 'sun', dark: 'moon' };
 /** The glyphs of the list of top-level branches: the button that opens it, its search, and the pill of a step in a hidden branch. */
 export const BRANCHES = { open: 'stack-2', search: 'search', hidden: 'eye-off' };
 /** The glyphs of the 'Links' part of the side bar: the icon of a link that names no icon of the set, the arrow that says a link opens in a new tab, and the chevron of its heading. */

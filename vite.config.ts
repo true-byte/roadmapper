@@ -58,9 +58,16 @@ const appPage: Plugin = {
   },
 };
 
+/** The page paints nothing before its script has run, so the view is in the mode the user kept from the first paint on, and never first in the device's mode.
+ * Vite writes the tag of the script itself, in the build and on the dev server, so the attribute goes in here, not in index.html. */
+const firstPaint: Plugin = {
+  name: 'first-paint',
+  transformIndexHtml: page => page.replaceAll('<script type="module"', '<script type="module" blocking="render"'),
+};
+
 export default defineConfig(({ command }) => ({
   root: 'src/app',
-  plugins: command === 'build' ? [viteSingleFile(), appPage, exportLib()] : [roadmapFile(file), exportLib()],
+  plugins: command === 'build' ? [viteSingleFile(), appPage, exportLib(), firstPaint] : [roadmapFile(file), exportLib(), firstPaint],
   resolve: command === 'build' ? { alias: { 'virtual:roadmap': fileURLToPath(new URL('src/app/slot.ts', import.meta.url)) } } : {},
   // the CLI's build (vite.cli.config.ts) empties dist/cli first, and this writes the page next to it
   build: { outDir: '../../dist/cli', emptyOutDir: false },

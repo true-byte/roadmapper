@@ -7,7 +7,7 @@
 // It gets the roadmap as text and does not know where the text comes from: the command `export` (src/cli/cli.ts) reads the file and writes the files,
 // and 'Export' in the app (src/app/export.ts) saves them in one zip file.
 import picked from '../themes/theme.css?raw';
-import { ARROW, BRANCHES, GRIP, INFO, LINKS, type IconSet } from '../icons/icons.js';
+import { ARROW, BRANCHES, GRIP, INFO, LINKS, MODE, type IconSet } from '../icons/icons.js';
 import { SET_LOADERS } from '../icons/sets.js';
 import type { OwnIcons } from '../lib/element.js';
 import { checkRoadmap } from '../roadmap/check.js';
@@ -37,7 +37,7 @@ export async function exportFiles(text: string, keep: { private?: boolean } = {}
 
   // the icons of the set the theme names, only those the roadmap names and those the view draws itself, with the license of the set;
   // those of the 'Links' part of the side bar only where a step has a link
-  const named = new Set<string>([ARROW, INFO, BRANCHES, GRIP].flatMap(o => Object.values(o)));
+  const named = new Set<string>([ARROW, INFO, MODE, BRANCHES, GRIP].flatMap(o => Object.values(o)));
   const walk = (b: Branch): void => {
     for (const item of b.items) {
       if ('split' in item) item.split.forEach(walk);

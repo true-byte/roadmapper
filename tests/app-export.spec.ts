@@ -180,6 +180,41 @@ test.describe("'Export' in the app", () => {
     errors.splice(0, errors.length, ...errors.filter(e => !e.startsWith('Fetch API cannot load file:')));
   });
 
+  test("unzipped, its page is in the device's mode from the first frame, before the lib draws, and 'Light' and 'Dark' draw it in the theme's values of that mode", async ({ page, errors }) => {
+    // the page is the one that `npx roadmapper export` writes, byte for byte (above), so this holds for that page too
+    const BG = { light: 'rgb(244, 246, 251)', dark: 'rgb(10, 18, 36)' }, LINE = { light: 'rgb(11, 122, 140)', dark: 'rgb(86, 207, 225)' };
+    await openApp(page);
+    await openKey(page);
+    const files = await filesOf(await save(page));
+    const unzipped = folder();
+    for (const f of files) writeFileSync(join(unzipped, f.name), f.data);
+    // at the first frame: the color of the text of the page, which the browser gives by the color-scheme of the page, and whether the plan is drawn yet
+    await page.addInitScript(() => {
+      requestAnimationFrame(() => {
+        (window as unknown as { first: string[] }).first = [getComputedStyle(document.documentElement).color,
+          String(!!document.querySelector('roadmapper-view')?.shadowRoot?.querySelector('svg.plan'))];
+      });
+    });
+    const view = page.locator('.roadmap'), mode = (name: string): Locator => popup(page).getByRole('radio', { name, includeHidden: true });
+    for (const [device, text] of [['light', 'rgb(0, 0, 0)'], ['dark', 'rgb(255, 255, 255)']] as const) {
+      await page.emulateMedia({ colorScheme: device });
+      await page.goto(pathToFileURL(join(unzipped, 'roadmap.html')).href);
+      await expect(page.locator('svg.plan')).toBeVisible();
+      expect(await page.evaluate(() => (window as unknown as { first: string[] }).first), device).toEqual([text, 'false']);
+      await expect(view, device).toHaveCSS('background-color', BG[device]);
+      await expect(view.locator('svg.plan .lane').first(), device).toHaveCSS('stroke', LINE[device]);
+      await settle(page);
+      await openKey(page);
+      await expect(mode('Device')).toHaveAttribute('aria-checked', 'true');
+      for (const [name, s] of [['Light', 'light'], ['Dark', 'dark']] as const) {
+        await mode(name).click();
+        await expect(view, `${device}: ${name}`).toHaveCSS('background-color', BG[s]);
+        await expect(view.locator('svg.plan .lane').first(), `${device}: ${name}`).toHaveCSS('stroke', LINE[s]);
+      }
+    }
+    errors.splice(0, errors.length, ...errors.filter(e => !e.startsWith('Fetch API cannot load file:')));
+  });
+
   test("the zip keeps the links of a shown step, with their icons, and none of a private step; unzipped, its page draws them under 'Links' from disk", async ({ page, errors }) => {
     const dir = folder();
     const { code, said } = await cli('build', [join(ROOT, 'tests/export/plan.json'), join(dir, 'app')]);

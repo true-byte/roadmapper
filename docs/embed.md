@@ -92,7 +92,7 @@ A page opened from disk cannot read a file by `src`. For such a page, put the te
 - With no size set, the box is 560 px high and as wide as the element that holds it.
 - The CSS of the page does not change the box, and the CSS of the box does not change the page.
 - The lib adds one `<link rel="stylesheet">` to the `<head>` of the page, for the web fonts of the theme from Google Fonts. It does this because a font that is named only inside the box does not load.
-- The colors and the fonts come from the theme. The box is light or dark, as the system of the person who views the page is set.
+- The colors and the fonts come from the theme. The box is light or dark as the device of the person who views the page is set. 'Light' or 'Dark' in the popup of the box changes only that box.
 
 ## In the box
 

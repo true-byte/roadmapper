@@ -36,6 +36,8 @@ export interface Kept {
   links?: boolean;
   /** Is 'Include private items' on? */
   private?: boolean;
+  /** The mode the user picked: 'light', 'dark', or 'device', as the device is set. */
+  mode?: 'device' | 'light' | 'dark';
   id: string;
   fx: number;
   fy: number;
@@ -214,7 +216,7 @@ export const labels = (more = ''): string =>
 export const nameOf = (page: Page, id: string): Locator => page.locator(labels(`[data-id="${id}"]`));
 /** The layout the plan is drawn in: 'h' across, 'v' down. */
 export const flowOf = (page: Page): Promise<string | null> => page.locator('.roadmap').first().getAttribute('data-flow');
-/** The button at the end of the zoom control that opens the popup with the key, the switches 'Hide node icons' and 'Hide labels', and the pair of layouts. */
+/** The button at the end of the zoom control that opens the popup with the key, the switches 'Hide node icons' and 'Hide labels', the mode and the pair of layouts. */
 export const keyButton = (page: Page): Locator => page.locator('.zoom').getByRole('button', { name: 'Key', exact: true });
 /** The popup that the button opens, found also while it is shut. */
 export const popup = (page: Page): Locator => page.getByRole('dialog', { name: 'Key', includeHidden: true });
