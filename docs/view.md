@@ -170,9 +170,11 @@ The first time, the app opens this way:
 | 'Include private items' | Off |
 | Light or dark | 'Device' |
 | Top-level branches | Shown, except each one whose steps are all done or canceled |
-| Place | Around the first step in progress, or, with no step in progress, around the first step that can start. The name of its branch shows in full. |
+| Place | Around the first step in progress, or, with no step in progress, around the first step that can start |
 
-When the page first opens, no name, step or pill is cut in two by an edge of the page. To do this near an end of the plan, the plan scrolls a little past that end.
+When the plan runs across, the name of that step's branch shows in full if the step is first on a top-level branch. It also shows in full if the step is on a branch of a branching.
+
+The plan can then move a short way. It moves to where the edges of the page and the zoom control cut the least of its names, steps and pills in two. The step stays whole in this move, and so does the name of its branch where that name shows in full. Near an end of the plan, this move can go a little past that end.
 
 ## Redraw on save
 

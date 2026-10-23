@@ -2,7 +2,8 @@
 // the switches in the popup, pressed and pressed back in any order, put the plan back where it was; a phone turned on its side and back keeps its place;
 // a new size while a move plays ends the move where it was going; 'Show only blockers' keeps the step and its blockers in the room, also as the phone turns;
 // a press that closes the popup eats its own click, and the second of a double click or tap, and nothing more; a picked pill glides clear of the sheet;
-// the zoom control keeps its height at 320 px; the first view keeps the count of its version whole; a picked step holds the plan when a switch goes back;
+// the zoom control keeps its height at 320 px; the first view keeps the count of its version whole, and on his file early in v1.0.0 the name 'V1.0.0' inside the stage;
+// a picked step holds the plan when a switch goes back;
 // a turn held by the address shows the plan on its way; at the end of the plan, the first view cuts nothing at an edge, and stays where it was put.
 import { readFileSync } from 'node:fs';
 import type { Locator, Page } from '@playwright/test';
@@ -165,6 +166,24 @@ test("on his page at 1440x900, the first view keeps the count of the version it 
     }).map(t => t.textContent);
   });
   expect(cut, 'cut at the right edge').toEqual([]);
+});
+
+/** His roadmap file as it was early in v1.0.0, with no step in progress: a copy, as the states in his file change as the work goes on. */
+const EARLY = JSON.parse(readFileSync(new URL('./roadmapper-v1.json', import.meta.url), 'utf8')) as Roadmap;
+
+test("on his roadmap file early in v1.0.0, across at 1440x900, the first view shows the name 'V1.0.0' of the top-level branch whole, inside the stage", async ({ page }) => {
+  await openPlan(page, EARLY, { store: null });
+  expect(await flowOf(page)).toBe('h');
+  const [cap, stage] = await page.evaluate(() => {
+    const st = document.querySelector('.roadmap .stage')!, s = st.getBoundingClientRect();
+    // the name 'V1.0.0', which the file writes 'v1.0.0'
+    const c = [...document.querySelectorAll('svg.plan text.cap')].find(t => t.textContent === 'v1.0.0')!.getBoundingClientRect();
+    return [[c.left, c.top, c.right, c.bottom], [s.left, s.top, s.left + st.clientWidth, s.top + st.clientHeight]];
+  });
+  expect(cap[0], 'its left edge').toBeGreaterThanOrEqual(stage[0] - 0.5);
+  expect(cap[1], 'its top edge').toBeGreaterThanOrEqual(stage[1] - 0.5);
+  expect(cap[2], 'its right edge').toBeLessThanOrEqual(stage[2] + 0.5);
+  expect(cap[3], 'its bottom edge').toBeLessThanOrEqual(stage[3] + 0.5);
 });
 
 /** What a stranger sees of his roadmap as V1 goes out: all done but 'Release v1', the last step of the plan, which the page opens on. The export gives each step a new id. */
