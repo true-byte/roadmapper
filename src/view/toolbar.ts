@@ -1,4 +1,4 @@
-// The zoom control: its buttons, the popup by its end with the key, the switches and the pair of layouts, and the grip that hides it.
+// The zoom control: its buttons, the popup by its end with the key, the switches, the pair of layouts and in the app Export, and the grip that hides it.
 import { GRIP } from '../icons/icons.js';
 import type { ViewContext } from './context.js';
 import { r2 } from './math.js';
@@ -7,7 +7,7 @@ import { r2 } from './math.js';
 export const OVER = 30;
 
 export function toolbarPart(ctx: ViewContext) {
-  const { fit, flows, glyph, grip, hide, hideL, host, info, into, layers, names, out, picker, popup, rule, seg, stops, zoom } = ctx;
+  const { fit, flows, glyph, grip, hide, hideL, host, info, into, keepPrivate, layers, names, out, picker, popup, rule, seg, stops, zoom } = ctx;
 
   /** Writes the level, the view, the labels, the layout and what is open on the zoom control and the popup, for the keyboard and for the theme. */
   function controls(): void {
@@ -17,6 +17,7 @@ export function toolbarPart(ctx: ViewContext) {
     ctx.stopEls.forEach((b, k) => b.setAttribute('aria-current', String(k === ctx.target)));
     hide.setAttribute('aria-checked', String(ctx.view === 0));
     hideL.setAttribute('aria-checked', String(!ctx.labels));
+    keepPrivate.setAttribute('aria-checked', String(ctx.withPrivate));
     info.setAttribute('aria-expanded', String(!popup.hidden));
     layers.setAttribute('aria-expanded', String(!picker.hidden));
     // the layout the plan is drawn in, for the theme and for what embeds the view
@@ -38,6 +39,8 @@ export function toolbarPart(ctx: ViewContext) {
     if (open && fit.bottom && ctx.picked) ctx.pick(null);
     popup.hidden = !open;
     if (open) ctx.setBranches(false);
+    // 'Saved', or an export that could not be made, is not shown again the next time the popup opens
+    else ctx.resetExport();
     placePopup();
     controls();
     if (focus) (open ? (ctx.hasIcons ? hide : hideL) : info).focus();

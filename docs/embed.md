@@ -53,7 +53,7 @@ When a project that imports the lib builds with Vite, Vite warns that a chunk is
 
 The page must use the UTF-8 encoding, as `<meta charset="utf-8">` sets it. Otherwise the symbols on the buttons show wrong.
 
-A page opened from disk cannot read a file by `src`. For such a page, put the text of the roadmap file inside the tag, in place of `src`:
+A page opened from disk cannot read a file by `src`. For such a page, put the text of the roadmap file inside the tag:
 
 ```html
 <roadmapper-view>
@@ -71,9 +71,9 @@ A page opened from disk cannot read a file by `src`. For such a page, put the te
 |---|---|
 | The `src` attribute | The address of a roadmap file. The box reads the file itself, and reads it again when the address changes. |
 | The `roadmap` property | The object of a roadmap file, or the text of the file. A new roadmap redraws the box in place. The same roadmap again leaves the box as it is. |
-| A `<script type="application/json">` inside the tag | The text of a roadmap file, for a page opened from disk. |
+| A `<script type="application/json">` inside the tag | The text of a roadmap file, for a page opened from disk. With `src` too, the box draws this text only when it cannot read the file at `src`. |
 
-- When the box cannot read the file at `src`, it shows the error list with `Unreadable file` and the address. The last good drawing stays under the error list.
+- When the box cannot read the file at `src` and the tag holds no text of a roadmap file, the box shows the error list with `Unreadable file` and the address. The last good drawing stays under the error list.
 - A roadmap given as an object, not as text, has no line numbers. So the rows of its error list show no 'Line'.
 - With the attribute `page`, the tag fills the whole page, as on the page of an HTML export. The wheel and the keys then work on the plan without a click first.
 - For a screen reader, the tag is a region. Its name is `Roadmap: ` followed by the `title` of the roadmap, such as `Roadmap: Plant care app`. An `aria-label` on the tag replaces that name.
@@ -107,6 +107,7 @@ A page opened from disk cannot read a file by `src`. For such a page, put the te
 - The plan in the box runs across at any size, because the page scrolls up and down. 'Vertical' still makes it run down.
 - Each visit opens the box the way the app opens the first time, as [view.md, section "What it remembers"](view.md#what-it-remembers) says.
 - The side bar, the tip, the zoom control and the popup stay inside the box.
+- The popup ends with 'Horizontal' and 'Vertical'. To export the roadmap, use the app, as [export.md, section "Export from the app"](export.md#export-from-the-app) says.
 
 ## Which roadmapper.js is which
 

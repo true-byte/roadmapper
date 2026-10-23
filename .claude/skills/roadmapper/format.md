@@ -211,4 +211,4 @@ The page does not draw a roadmap file that has errors. It shows the error list i
 | `Invalid URL` | A `url` is not an address: it does not start with `https://` or `http://`, or a browser cannot read it, such as `https://` alone. |
 | `Duplicate id` | More than one step has the same `id`. The error is on each line that holds that id. |
 | `Unknown id` | An id in `waitsFor` is the id of no step. |
-| `Unreadable file` | The roadmap file cannot be read. Either no file is at that path, or the page that draws the file is not allowed to read it. For example, a page opened from disk cannot read `roadmap.json`. |
+| `Unreadable file` | The roadmap file cannot be read. Either no file is at that path, or the page that draws the file is not allowed to read it. For example, a page opened from disk cannot read the file at the `src` of its `<roadmapper-view>`, and shows this error when the tag holds no text of a roadmap file. |

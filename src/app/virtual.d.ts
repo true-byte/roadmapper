@@ -6,3 +6,9 @@ declare module 'virtual:roadmap' {
   export const file: string;
   export const live: string | undefined;
 }
+
+// The export's lib, dist/lib/roadmapper-page.js, gzipped, in base64: vite.config.ts builds it from the source, and src/app/export.ts puts it into roadmap.zip.
+declare module 'virtual:export-lib' {
+  const gzipped: string;
+  export default gzipped;
+}

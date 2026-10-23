@@ -18,6 +18,8 @@ export const INFO = { open: 'info-circle' };
 export const BRANCHES = { open: 'stack-2', search: 'search', hidden: 'eye-off' };
 /** The glyphs of the 'Links' part of the side bar: the icon of a link that names no icon of the set, the arrow that says a link opens in a new tab, and the chevron of its heading. */
 export const LINKS = { link: 'link', open: 'external-link', fold: 'chevron-down' };
+/** The glyphs of the button 'Export' in the popup of the app: before a click, and for 2 s after, while it says 'Saved'. */
+export const EXPORT = { save: 'download', saved: 'check' };
 /** The glyphs of the grip that hides the zoom control and brings it back. */
 export const GRIP = { hide: 'chevron-down', show: 'chevron-up' };
 

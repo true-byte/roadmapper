@@ -12,6 +12,8 @@ useIconSet('tabler', tabler);
 const view = mountRoadmap(document.querySelector<HTMLDivElement>('#app')!, {
   // the level, the view and the place of this page are kept under this name
   store: 'roadmapper.app',
+  // 'Export' in the popup saves roadmap.zip, with the files of `npx roadmapper export` in it; the code that makes it loads at the first press
+  exportFile: async (text, keep) => (await import('./export.js')).exportZip(text, keep),
   onDraw: roadmap => {
     document.title = `${roadmap.title} · roadmap`;
   },

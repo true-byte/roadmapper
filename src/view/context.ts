@@ -6,6 +6,7 @@ import type { BranchesPart } from './branches.js';
 import type { Dom } from './dom.js';
 import type { DrawPart, NodeEls, PodEls } from './draw.js';
 import type { ErrorListPart } from './error-list.js';
+import type { ExportPart } from './export.js';
 import type { FactsPart } from './facts.js';
 import type { FontsPart } from './fonts.js';
 import type { FramePart } from './frame.js';
@@ -63,6 +64,8 @@ export interface State {
   tucked: boolean;
   /** Is the 'Links' part of the side bar open? */
   linksOpen: boolean;
+  /** Is 'Include private items' on? Then 'Export' saves the whole roadmap. */
+  withPrivate: boolean;
   /** Is the plan drawn again for a branch shown or hidden? Then it keeps its place, as after a save of the file. */
   toggling: boolean;
   /** The layouts with the labels shown, then with them hidden. */
@@ -205,7 +208,7 @@ export function initialState(): State {
   return {
     plan: null, all: [], K: 0, hasIcons: false,
     byId: new Map(), byKey: new Map(), byPod: new Map(), pods: [],
-    choices: new Map(), tucked: false, linksOpen: true, toggling: false,
+    choices: new Map(), tucked: false, linksOpen: true, withPrivate: false, toggling: false,
     setsBy, sets: setsBy[0], views: [],
     stopEls: [], pieceEls: new Map(), hitEls: new Map(), haloEls: new Map(), nodeEls: new Map(), podEls: new Map(), partsOf: new Map(),
     turnLines: null, shown: '', measured: '',
@@ -262,4 +265,6 @@ export interface ViewContext extends Fixed, State {
   list: ErrorListPart['list'];
   // fonts.ts
   measure: FontsPart['measure'];
+  // export.ts
+  resetExport: ExportPart['resetExport'];
 }

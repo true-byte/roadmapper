@@ -1010,6 +1010,7 @@
                           "id": "export-in-the-app-build",
                           "name": "Export in the app code",
                           "icon": "download",
+                          "state": "done",
                           "why": "Export in the app works in the app as designed.",
                           "doneWhen": "On Roadmapper's own roadmap, a click on 'Export' in (i) saves the export."
                         }
@@ -1022,6 +1023,7 @@
                           "id": "export-in-the-app-tests",
                           "name": "Export in the app tests",
                           "icon": "download",
+                          "state": "done",
                           "why": "Tests in a real browser for Export in the app, so a change cannot break it unseen.",
                           "doneWhen": "npm test checks Export in the app, as designed."
                         }
