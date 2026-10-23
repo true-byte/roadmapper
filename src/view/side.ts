@@ -1,6 +1,7 @@
 // The side bar: a click picks a step, a group or a branch; it stays lit, and the side bar shows what the plan says about it. A click never zooms.
 // What a thing is called across a redraw, so a pick and the way back outlive it.
-import { ARROW, BRANCHES } from '../icons/icons.js';
+import { ARROW, BRANCHES, LINKS } from '../icons/icons.js';
+import type { Link } from '../roadmap/types.js';
 import type { ViewContext } from './context.js';
 import { html } from './dom.js';
 import { drawn } from './draw.js';
@@ -32,7 +33,7 @@ function part(name: string, ...body: (Node | string)[]): HTMLElement {
 export const TAP = { MS: 300, PX: 30, HOLD: 500 };
 
 export function sidePart(ctx: ViewContext) {
-  const { fit, glyph, head, host, PAD, side, stage } = ctx;
+  const { art, fit, glyph, head, host, PAD, side, stage } = ctx;
 
   function thingOf(r: Ref): Thing | undefined {
     if (r.kind === 'step') return ctx.byId.get(r.key);
@@ -71,6 +72,35 @@ export function sidePart(ctx: ViewContext) {
     b.addEventListener('pointerenter', e => { if (e.pointerType === 'touch') return; ctx.rowHot = t; ctx.light(t, 'hot', true); ctx.aim(t); });
     b.addEventListener('pointerleave', e => { if (e.pointerType === 'touch') return; ctx.rowHot = null; ctx.light(t, 'hot', t === ctx.hot); ctx.aim(null); });
     return b;
+  }
+  /** The 'Links' part of a step: a row for each link, which opens its page in a new tab. Its heading closes and opens it, and the view keeps which. */
+  function linksPart(links: Link[]): HTMLElement {
+    const s = html('section', 'part'), fold = html('button', 'fold'), body = html('div', '');
+    fold.append(html('h3', '', 'Links'), glyph(LINKS.fold, 16, '▾'));
+    for (const l of links) {
+      const a = html('a', 'row'), go = html('span', 'go');
+      a.href = l.url; a.target = '_blank'; a.rel = 'noopener noreferrer';
+      go.append(glyph(LINKS.open, 16, '↗'));
+      a.append(glyph(l.icon && art(l.icon) ? l.icon : LINKS.link, 20, ''), html('span', 'strong', l.name), go);
+      a.addEventListener('click', e => { if (performance.now() < ctx.noClick) e.preventDefault(); });
+      body.append(a);
+    }
+    const shown = (): void => {
+      fold.setAttribute('aria-expanded', String(ctx.linksOpen));
+      body.hidden = !ctx.linksOpen;
+    };
+    fold.addEventListener('click', () => {
+      ctx.linksOpen = !ctx.linksOpen;
+      shown();
+      // where the side bar is a sheet at the bottom, its top moves: the second click of a double click, or of a double tap, lands on what moved under it, and does nothing there,
+      // and the picked thing stays clear of the sheet
+      if (fit.bottom) ctx.noClick = performance.now() + 500;
+      ctx.uncover();
+      ctx.save();
+    });
+    shown();
+    s.append(fold, body);
+    return s;
   }
   /** What is in a branch, in the order of the plan: its own steps, each group that is one step far out, and the branches of a branching or of a group inside a group. */
   const inIt = (b: TBranch): Thing[] => b.items.flatMap((it): Thing[] => (isKids(it) && !ctx.byPod.has(it.key) ? it.kids : [it]));
@@ -116,6 +146,7 @@ export function sidePart(ctx: ViewContext) {
         // 'Show only blockers' shows only those on the plan
         out.push(part('Blocked by', ...holds.map(row), ...(holds.some(h => !h.hidden) ? [button] : [])));
       }
+      if (d.links?.length) out.push(linksPart(d.links));
       if (d.why) out.push(part('Why', html('p', '', d.why)));
       if (d.doneWhen) out.push(part('Done when', html('p', '', d.doneWhen)));
       const start = day(d.start), end = day(d.end), due = day(d.deadline);

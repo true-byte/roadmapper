@@ -4,7 +4,7 @@
 // So a new roadmap is a new roadmap.json. The page changes only with the title or the about line, and the lib only with Roadmapper.
 // It gets the roadmap as text and does not know where the text comes from: the command `export` (src/cli/cli.ts) reads the file and writes the files.
 import picked from '../themes/theme.css?raw';
-import { ARROW, BRANCHES, GRIP, INFO, type IconSet } from '../icons/icons.js';
+import { ARROW, BRANCHES, GRIP, INFO, LINKS, type IconSet } from '../icons/icons.js';
 import { SET_LOADERS } from '../icons/sets.js';
 import type { OwnIcons } from '../lib/element.js';
 import { checkRoadmap } from '../roadmap/check.js';
@@ -32,12 +32,16 @@ export async function exportFiles(text: string, keep: { private?: boolean } = {}
   if (!whole) throw new Error(sayError(errors[0]));
   const roadmap = keep.private ? whole : publicRoadmap(whole);
 
-  // the icons of the set the theme names, only those the roadmap names and those the view draws itself, with the license of the set
+  // the icons of the set the theme names, only those the roadmap names and those the view draws itself, with the license of the set;
+  // those of the 'Links' part of the side bar only where a step has a link
   const named = new Set<string>([ARROW, INFO, BRANCHES, GRIP].flatMap(o => Object.values(o)));
   const walk = (b: Branch): void => {
     for (const item of b.items) {
       if ('split' in item) item.split.forEach(walk);
-      else if (item.icon) named.add(item.icon);
+      else {
+        if (item.icon) named.add(item.icon);
+        for (const l of item.links ?? []) [l.icon, ...Object.values(LINKS)].forEach(name => name && named.add(name));
+      }
     }
   };
   roadmap.branches.forEach(walk);

@@ -116,6 +116,8 @@ The legend lists only the states that are on the plan. It also lists the milesto
 | Click or tap empty space, or click '×'. | The side bar closes. |
 | Point at a name in the side bar. | A ring shows around the step, group or branch of that name on the plan. When that step, group or branch is out of sight, an arrow at the edge of the page points to it. A step in a hidden branch is not on the plan, so it gets no ring and no arrow. In the side bar, that step has a tag with the name of its top-level branch. |
 | Click the back arrow at the top left of the side bar. | The side bar shows what it showed before. When the side bar closes, it forgets what it showed. |
+| Click a link under 'Links' in the side bar. | The page of the link opens in a new tab. In 'Plant care app', 'User survey' has the link 'Survey results'. |
+| Click 'Links' in the side bar. | The links of every step hide, or show again. |
 
 ## Blockers
 
@@ -148,6 +150,7 @@ The app remembers these settings, and opens with them the next time:
 - the place of the plan
 - the top-level branches that you showed or hid in the list
 - whether the zoom control is hidden
+- whether the links in the side bar are hidden
 
 The app keeps them in the browser's local storage, under the same name for every roadmap file. So every app page on the same site shares the same settings.
 
@@ -158,6 +161,7 @@ The first time, the app opens this way:
 | Level | 'Main steps', or 'Every step' in a plan with no group |
 | Scale | Reading size |
 | Icons and labels | Shown |
+| Links in the side bar | Shown |
 | Top-level branches | Shown, except each one whose steps are all done or canceled |
 | Place | Around the first step in progress, or, with no step in progress, around the first step that can start. The name of its branch shows in full. |
 

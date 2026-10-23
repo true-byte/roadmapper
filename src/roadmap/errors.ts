@@ -4,7 +4,7 @@
  * a folder to write into that holds files the command did not write, a path to write into that is not a folder, an option the command does not take,
  * and a roadmap where every item is private, which the export for strangers cannot show. */
 export const ERRORS = [
-  'Invalid JSON', 'Unknown key', 'Missing key', 'Wrong type', 'Invalid value', 'Invalid date', 'Duplicate id', 'Unknown id', 'Unreadable file',
+  'Invalid JSON', 'Unknown key', 'Missing key', 'Wrong type', 'Invalid value', 'Invalid date', 'Invalid URL', 'Duplicate id', 'Unknown id', 'Unreadable file',
   'Folder not empty', 'Not a folder', 'Unknown option', 'Nothing public',
 ] as const;
 export type ErrorName = (typeof ERRORS)[number];

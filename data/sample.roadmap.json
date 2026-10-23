@@ -44,7 +44,8 @@
           "state": "done",
           "why": "Ask V1 users what they miss most.",
           "doneWhen": "50 users answered, and their top three asks are listed.",
-          "waitsFor": ["release-v1"]
+          "waitsFor": ["release-v1"],
+          "links": [{ "name": "Survey results", "url": "https://example.com/", "icon": "clipboard-list" }]
         },
         {
           "branching": true,

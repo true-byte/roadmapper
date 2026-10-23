@@ -61,6 +61,8 @@ export interface State {
   choices: Map<string, boolean>;
   /** Is the zoom control hidden down to its grip? */
   tucked: boolean;
+  /** Is the 'Links' part of the side bar open? */
+  linksOpen: boolean;
   /** Is the plan drawn again for a branch shown or hidden? Then it keeps its place, as after a save of the file. */
   toggling: boolean;
   /** The layouts with the labels shown, then with them hidden. */
@@ -203,7 +205,7 @@ export function initialState(): State {
   return {
     plan: null, all: [], K: 0, hasIcons: false,
     byId: new Map(), byKey: new Map(), byPod: new Map(), pods: [],
-    choices: new Map(), tucked: false, toggling: false,
+    choices: new Map(), tucked: false, linksOpen: true, toggling: false,
     setsBy, sets: setsBy[0], views: [],
     stopEls: [], pieceEls: new Map(), hitEls: new Map(), haloEls: new Map(), nodeEls: new Map(), podEls: new Map(), partsOf: new Map(),
     turnLines: null, shown: '', measured: '',

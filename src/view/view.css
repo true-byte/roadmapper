@@ -289,6 +289,23 @@ body { background: var(--bg); color: var(--ink); font-family: var(--body); font-
 .row .branch { color: var(--name); font-family: var(--display); font-size: 12.48px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; }
 .row .dim { margin-left: auto; color: var(--muted); font-size: 12.8px; white-space: nowrap; }
 
+/* 'Links': a link is a row, as those of 'In it', that opens its page in a new tab: its icon, its name in bold, and the arrow right after the name.
+   Its heading closes and opens it: a chevron after the word, turned while it is closed. */
+.side a.row { box-sizing: border-box; color: inherit; text-decoration: none; }
+.side a.row:focus-visible { outline: 2px solid var(--line); outline-offset: 2px; }
+.side a.row svg { display: block; flex: none; }
+.side a.row .strong { min-width: 0; overflow-wrap: anywhere; }
+.side a.row .go { display: flex; flex: none; color: var(--muted); }
+.side a.row:hover .go { color: var(--line); }
+.side .fold { display: flex; align-items: center; gap: 4px; margin: 0 0 6px; color: var(--muted); }
+.side .fold h3 { margin: 0; }
+.side .fold svg { display: block; }
+.side .fold[aria-expanded="false"] svg { transform: rotate(-90deg); }
+.side .fold:hover, .side .fold:hover h3 { color: var(--ink); }
+@media (prefers-reduced-motion: no-preference) {
+  .side .fold svg { transition: transform 0.15s; }
+}
+
 /* Back: top left of the side bar, across from the close button, before the branches around what is picked. */
 .side .top { display: flex; align-items: center; gap: 6px; margin: -8px 36px 10px -8px; }
 .side .top .path { margin: 0; }

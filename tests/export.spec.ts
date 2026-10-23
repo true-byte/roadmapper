@@ -14,8 +14,8 @@ const DIR = fileURLToPath(new URL('../dist/tests/export/', import.meta.url));
 const FAIL = 'The roadmap could not load: roadmapper.js did not run.';
 /** The ids the export gives the steps of tests/export/plan.json that a stranger sees: s1, s2 and on, in reading order. */
 const ID = { idea: 's1', tricky: 's2', 'code-1': 's3', 'tests-1': 's6', 'tests-2': 's7', release: 's9', later: 's10', party: 's11' };
-/** What only the owner may read: the names, ids, icons and keys of the private items of tests/export/plan.json. */
-const PRIVATE = ['Pricing track', 'Secret price', 'secret-price', 'Only the owner reads', 'coin', 'Internal branch', 'Payroll', 'payroll', 'cash',
+/** What only the owner may read: the names, ids, icons, links and keys of the private items of tests/export/plan.json. */
+const PRIVATE = ['Pricing track', 'Secret price', 'secret-price', 'Only the owner reads', 'coin', 'Price sheet', 'price-sheet', 'receipt', 'Internal branch', 'Payroll', 'payroll', 'cash',
   'Hidden prep', 'hidden-prep', 'ghost', '"private"'];
 /** The days of 'Code one' in tests/export/plan.json, which would tell a stranger it is late. */
 const DAYS = ['"start"', '"end"', '"deadline"', '2026-01-05', '2026-01-09', '2026-01-20'];
@@ -142,8 +142,10 @@ test('a pinch, or Ctrl and the wheel, scales the plan, not the page; over a plan
 test('roadmap.json holds only the icons the roadmap a stranger sees names, with their license, and the steps draw them', async ({ page }) => {
   const own = JSON.parse(readFileSync(join(DIR, 'roadmap.json'), 'utf8')).icons;
   expect(own.set).toBe('tabler');
-  // with the glyphs the view draws itself: the arrows, the buttons of the popup and of the list of branches, its search, the pill of a hidden branch and the grip; and with none of the icons of a private step
-  expect(Object.keys(own.icons)).toEqual(['arrow-left', 'arrow-right', 'bulb', 'chevron-down', 'chevron-up', 'code', 'confetti', 'eye-off', 'info-circle', 'rocket', 'search', 'stack-2', 'test-pipe']);
+  // with the glyphs the view draws itself: the arrows, the buttons of the popup and of the list of branches, its search, the pill of a hidden branch and the grip;
+  // with those of the links of a shown step, and the icon of a link, the arrow and the chevron of 'Links'; and with none of the icons of a private step or of its links
+  expect(Object.keys(own.icons)).toEqual(['arrow-left', 'arrow-right', 'book', 'bulb', 'chevron-down', 'chevron-up', 'code', 'confetti', 'external-link', 'eye-off', 'info-circle', 'link',
+    'rocket', 'search', 'stack-2', 'test-pipe']);
   expect(own.license).toContain('Permission is hereby granted');
   expect(own.license).toContain('Paweł Kuna');
   await openExport(page);
@@ -153,6 +155,21 @@ test('roadmap.json holds only the icons the roadmap a stranger sees names, with 
   for (const id of [ID.idea, ID.tricky, ID['code-1'], ID['tests-1'], ID.release]) await expect(step(page, id).locator('.coin'), id).toBeVisible();
   expect(await step(page, ID['code-1']).locator('.ic .art').innerHTML()).toContain('m7 8l-4 4l4 4');
   await expect(step(page, ID['tests-2']).locator('.coin'), 'an icon the set has not keeps the mark').toHaveCount(0);
+});
+
+test("a shown step keeps its links, and its side bar draws them with their icons, from the icons in roadmap.json", async ({ page }) => {
+  const release = JSON.parse(readFileSync(join(DIR, 'roadmap.json'), 'utf8')).branches[0].items.at(-1);
+  expect(release.links).toEqual([{ name: 'Release notes', url: 'https://example.com/notes', icon: 'book' }, { name: 'Tag', url: 'https://example.com/tag' }]);
+  await openExport(page);
+  await step(page, ID.release).click();
+  await settle(page);
+  const rows = side(page).locator('a.row');
+  await expect(rows).toHaveText(['Release notes', 'Tag']);
+  await expect(rows.first()).toHaveAttribute('href', 'https://example.com/notes');
+  // each row draws its icon and the arrow, and the heading its chevron: no sign in place of a drawing the export left out
+  for (const row of await rows.all()) await expect(row.locator('svg')).toHaveCount(2);
+  await expect(side(page).locator('.fold svg')).toHaveCount(1);
+  expect(await rows.nth(0).locator('svg').first().innerHTML()).not.toBe(await rows.nth(1).locator('svg').first().innerHTML());
 });
 
 test('a "<" in the roadmap stays text: a name with </script> and <!-- in it is drawn whole', async ({ page }) => {
@@ -202,7 +219,7 @@ test('with --private the export keeps the whole roadmap as written, each private
   for (const f of ['roadmap.html', 'roadmapper.js']) expect(readFileSync(join(out, f), 'utf8'), f).toBe(readFileSync(join(DIR, f), 'utf8'));
   const roadmap = readFileSync(join(out, 'roadmap.json'), 'utf8');
   for (const word of [...PRIVATE, ...DAYS]) expect(roadmap, word).toContain(word);
-  expect(Object.keys(JSON.parse(roadmap).icons.icons)).toEqual(expect.arrayContaining(['cash', 'coin', 'ghost']));
+  expect(Object.keys(JSON.parse(roadmap).icons.icons)).toEqual(expect.arrayContaining(['cash', 'coin', 'ghost', 'receipt']));
   // `npm run export --private`, with no `--`: npm keeps the option and says so in the env
   const kept2 = await runExport(['plan.json', 'out2'], dir, { npm_config_private: 'true' });
   expect(kept2.code, kept2.said).toBe(0);

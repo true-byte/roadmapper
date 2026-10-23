@@ -2,6 +2,7 @@
 // The configs of the test pages load this file, so this file and each file that it imports name each import with its `.ts`, as Node needs to load them.
 import { icons as tabler } from '@iconify-json/tabler';
 import type { Plugin } from 'vite';
+import { LINKS } from '../src/icons/icons.ts';
 import { nodesOf, plans } from './plans.ts';
 
 /** The script stays out of the page, as the browser then need not read the script as a part of the page.
@@ -14,12 +15,17 @@ export const plainScript: Plugin = {
   },
 };
 
-const named = new Set(Object.values(plans).flatMap(p => nodesOf(p).flatMap(n => (n.icon ? [n.icon] : []))));
+// the icons of the steps and of their links, and where a step has a link, the glyphs of the 'Links' part of the side bar, as the HTML export ships them
+const nodes = Object.values(plans).flatMap(nodesOf);
+const named = new Set([
+  ...nodes.flatMap(n => [n.icon, ...(n.links ?? []).map(l => l.icon)].flatMap(i => (i ? [i] : []))),
+  ...(nodes.some(n => n.links?.length) ? Object.values(LINKS) : []),
+]);
 const aliases = Object.fromEntries(Object.entries(tabler.aliases ?? {}).filter(([name]) => named.has(name)));
 const kept = new Set([...named, ...Object.values(aliases).map(a => a.parent)]);
 const subset = { ...tabler, icons: Object.fromEntries(Object.entries(tabler.icons).filter(([name]) => kept.has(name))), aliases };
 const SUBSET = '\0tabler-subset';
-/** The icon set is Tabler with only the icons that the plans in tests/plans.ts name, and the aliases among them: the whole set is 2 MB to read on each open.
+/** The icon set is Tabler with only the icons that the plans in tests/plans.ts name, with the glyphs of 'Links', and the aliases among them: the whole set is 2 MB to read on each open.
  * The drawings are Tabler's own. A test that names another icon puts it in a plan there. His page, the app build, has the whole set. */
 export const fewIcons: Plugin = {
   name: 'tabler-subset',

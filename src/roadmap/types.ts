@@ -25,6 +25,8 @@ export interface RoadNode {
   icon?: string;
   /** One of the few steps that say where the plan stands. The owner of the plan picks them. */
   milestone?: boolean;
+  /** What the step produced, such as a doc or a demo: pages the side bar opens in a new tab. */
+  links?: Link[];
   /** Not for strangers. */
   private?: boolean;
   /** The estimated start and end, and the day it must be done by, as YYYY-MM-DD. */
@@ -35,6 +37,14 @@ export interface RoadNode {
   waitsFor?: string[];
   /** It waits for private work not done, which the HTML export leaves out. Only the export writes it. */
   waitsForPrivate?: boolean;
+}
+/** A page that a step links to. */
+export interface Link {
+  name: string;
+  /** Its address, which starts with https:// or http://. */
+  url: string;
+  /** What it is: the name of a drawing in the icon set of the theme. A link with no icon, or with a name that is not in the set, shows the icon of a link. */
+  icon?: string;
 }
 /** A group or a branching. A group is one item on its branch: tracks side by side that always come back together, or steps in a row.
  * It is a branching when it says so, or when one of its branches ends: then its branches are branches of their own. */
