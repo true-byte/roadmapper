@@ -43,6 +43,7 @@ npm run validate -- data/roadmap.json
 
 This project adds these rules to the skill:
 
+- No text of the roadmap file names a person or a role who acts. Write what is done, such as "A mock of the 'Links' part of the side bar is reviewed and approved."
 - Each feature has the shape that the Icons feature has in `data/roadmap.json`: the step 'Icons design', then the group 'Icons build'. That group has two tracks: 'Code', with the step 'Icons code', and 'Tests', with the step 'Icons tests'.
 - The 'Code' track of a feature also holds the feature's docs, where it has any.
 - Features that do not need each other go side by side in a branching.
