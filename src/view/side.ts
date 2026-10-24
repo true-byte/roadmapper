@@ -55,24 +55,44 @@ export function sidePart(ctx: ViewContext) {
   }
   /** A step, a group or a branch as one row to press: it picks that thing, and lights it on the plan while pointed at. */
   function row(t: Thing): HTMLElement {
-    // a step in a hidden branch is not on the plan: its name, and a pill with the name of its top-level branch, and it answers no pointer
+    // a step in a hidden branch is not on the plan: its name, and a pill with the name of its top-level branch, and it answers no pointer.
+    // A click shows neither name whole, so the browser's tip does while either is cut. Where nothing points without a touch, no tip shows, and the CSS cuts neither
     if (isStep(t) && t.hidden) {
       const r = html('div', 'row off'), pill = html('span', 'gone');
       let top = t.owner;
       while (top.parent) top = top.parent;
-      pill.append(glyph(BRANCHES.hidden, 14, ''), top.name ?? 'Branch');
-      r.append(drawMark(t.state), html('span', t.milestone ? 'strong' : '', t.node.name), pill);
+      const nm = html('span', t.milestone ? 'strong nm' : 'nm', t.node.name), branch = html('span', 'cut', top.name ?? 'Branch');
+      pill.append(glyph(BRANCHES.hidden, 14, ''), branch);
+      r.append(drawMark(t.state), nm, pill);
+      cuts.observe(nm);
+      cuts.observe(branch);
       return r;
     }
     const b = html('button', 'row');
-    if (isStep(t)) b.append(drawMark(t.state), html('span', t.milestone ? 'strong' : '', t.node.name));
-    else if (isBranch(t)) b.append(html('span', 'branch', t.name ?? 'Branch'), html('span', 'dim', count(t)));
-    else b.append(drawMark(sum(t)), html('span', '', t.name), html('span', 'dim', count(t)));
+    if (isStep(t)) b.append(drawMark(t.state), html('span', t.milestone ? 'strong nm' : 'nm', t.node.name));
+    else if (isBranch(t)) b.append(html('span', 'branch nm', t.name ?? 'Branch'), html('span', 'dim', count(t)));
+    else b.append(drawMark(sum(t)), html('span', 'nm', t.name), html('span', 'dim', count(t)));
     b.addEventListener('click', () => pick(t));
     b.addEventListener('pointerenter', e => { if (e.pointerType === 'touch') return; ctx.rowHot = t; ctx.light(t, 'hot', true); ctx.aim(t); });
     b.addEventListener('pointerleave', e => { if (e.pointerType === 'touch') return; ctx.rowHot = null; ctx.light(t, 'hot', t === ctx.hot); ctx.aim(null); });
     return b;
   }
+  /** A row that a click does not show whole, a link or a step in a hidden branch, has its whole text in the browser's own tip while a part of it is cut with "…", and no tip while all of it is whole.
+   * The tip of a step in a hidden branch has the name of the step on its first line, and the name of its branch on the second.
+   * Asked again each time a cut part gets another size: as the side bar is filled, as 'Links' opens, as the view gets another size, or as a font loads. */
+  // only a part with a set number of lines is cut at its foot. Any other part is cut only sideways: its font can stand taller than its line, so its height tells nothing
+  const cut = (e: Element): boolean =>
+    e.scrollWidth > e.clientWidth || (getComputedStyle(e).webkitLineClamp !== 'none' && e.scrollHeight > e.clientHeight + 1);
+  const cuts = new ResizeObserver(es => {
+    for (const { target } of es) {
+      const r = target.closest<HTMLElement>('a.row, .row.off');
+      if (!r) continue;
+      const parts = [...r.querySelectorAll('.nm, .cut')];
+      if (parts.some(cut)) r.title = parts.map(p => p.textContent ?? '').join('\n');
+      else r.removeAttribute('title');
+    }
+  });
+  ctx.off.signal.addEventListener('abort', () => cuts.disconnect());
   /** The 'Links' part of a step: a row for each link, which opens its page in a new tab. Its heading closes and opens it, and the view keeps which. */
   function linksPart(links: Link[]): HTMLElement {
     const s = html('section', 'part'), fold = html('button', 'fold'), body = html('div', '');
@@ -81,7 +101,9 @@ export function sidePart(ctx: ViewContext) {
       const a = html('a', 'row'), go = html('span', 'go');
       a.href = l.url; a.target = '_blank'; a.rel = 'noopener noreferrer';
       go.append(glyph(LINKS.open, 16, '↗'));
-      a.append(glyph(l.icon && art(l.icon) ? l.icon : LINKS.link, 20, ''), html('span', 'strong', l.name), go);
+      const nm = html('span', 'strong nm', l.name);
+      a.append(glyph(l.icon && art(l.icon) ? l.icon : LINKS.link, 20, ''), nm, go);
+      cuts.observe(nm);
       a.addEventListener('click', e => { if (performance.now() < ctx.noClick) e.preventDefault(); });
       body.append(a);
     }
@@ -117,8 +139,16 @@ export function sidePart(ctx: ViewContext) {
       if (b.pod?.kids.includes(b)) around.push(b.pod);
     }
     for (const at of around) {
-      const crumb = html('button', 'crumb', at.name ?? 'Branch');
+      // a crumb is text in the line of the path, so a long name wraps between its words, as a <button> never does. Tab reaches it, and Enter or Space presses it
+      const crumb = html('span', 'crumb', at.name ?? 'Branch');
+      crumb.setAttribute('role', 'button');
+      crumb.tabIndex = 0;
       crumb.addEventListener('click', () => pick(at));
+      crumb.addEventListener('keydown', e => {
+        if (e.key !== 'Enter' && e.key !== ' ') return;
+        e.preventDefault();
+        pick(at);
+      });
       path.prepend(crumb);
     }
     // back to what the side bar showed before, at the top left, across from the close button
@@ -209,6 +239,7 @@ export function sidePart(ctx: ViewContext) {
     ctx.light(ctx.picked, 'picked', true);
     side.hidden = !t;
     if (t) {
+      cuts.disconnect();
       side.replaceChildren(...sideOf(t));
       side.scrollTop = 0;
     }

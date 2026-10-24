@@ -1124,6 +1124,7 @@
                   "id": "long-text",
                   "name": "Long text design",
                   "icon": "text-wrap",
+                  "state": "done",
                   "why": "Long names, long links and long lists of items, links among them, fit everywhere on the page.",
                   "doneWhen": "A mock of how long names, long links and long lists fit on the page, on Roadmapper's own roadmap, is reviewed and approved."
                 },
@@ -1137,6 +1138,10 @@
                           "id": "long-text-code",
                           "name": "Long text code",
                           "icon": "text-wrap",
+                          "state": "done",
+                          "waitsFor": [
+                            "links-build"
+                          ],
                           "why": "Long text works in the app as designed.",
                           "doneWhen": "On Roadmapper's own roadmap, long names, long links and long lists fit everywhere on the page."
                         }
@@ -1149,6 +1154,7 @@
                           "id": "long-text-tests",
                           "name": "Long text tests",
                           "icon": "text-wrap",
+                          "state": "done",
                           "why": "Tests in a real browser for Long text, so a change cannot break it unseen.",
                           "doneWhen": "npm test checks Long text, as designed."
                         }

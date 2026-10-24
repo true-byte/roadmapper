@@ -279,7 +279,7 @@ export function layouts(plan: Plan, bare = false): Layouts {
   const vright = (b: TBranch, k: number): number =>
     !B.words
       ? vleft(b, k)
-      : Math.max(T!.HU, ...own(b).map(n => nameX(n) + widest(n.vlines, n.milestone ? 'bold' : 'label')), ...podsOn(b, k).map(sp => T!.NX + widest(sp.vlines, 'label')), b.name ? T!.CX + capText(b.name) : 0);
+      : Math.max(T!.HU, ...own(b).map(n => nameX(n) + widest(n.vlines, n.milestone ? 'bold' : 'label')), ...podsOn(b, k).map(sp => T!.NX + widest(sp.vlines, 'label')), b.name ? T!.CX + capText(b.cap) : 0);
   /** How many lines the name of a thing on a lane has: none for a split. */
   const linesOf = (it?: NodeBox | SplitBox | PodBox): number => (!it || isSplitBox(it) ? 0 : isPodBox(it) ? it.pod.vlines.length : it.n.vlines.length);
   /** Down: how far the mark in a pill is from the pill's left end. The mark sits on the line, and the pill lies right of it. A pill with no count has its mark in its middle. */
@@ -293,7 +293,7 @@ export function layouts(plan: Plan, bare = false): Layouts {
   function measure(b: TBranch, k: number): Box {
     if (shutAt(b, k, K)) {
       // down, the pill lies across its line and its name is on the run before it; with the labels hidden it has no name
-      if (T) return { b, closed: true, items: [], w: B.BH, up: markAt(), down: Math.max(pillLen(b) * B.BK - markAt(), B.words ? T.CX + capText(b.name) : 0) };
+      if (T) return { b, closed: true, items: [], w: B.BH, up: markAt(), down: Math.max(pillLen(b) * B.BK - markAt(), B.words ? T.CX + capText(b.cap) : 0) };
       return { b, closed: true, items: [], w: pillLen(b) * B.BK, up: B.UP, down: B.DOWN };
     }
     let x = 0, anchored = false, pending = false, up = T ? vleft(b, k) : over(b), down = T ? vright(b, k) : under(b), right = 0;
@@ -345,9 +345,9 @@ export function layouts(plan: Plan, bare = false): Layouts {
       const lead = !T ? 0 : (shut ? T.TLEAD : !B.words ? T.LEAD : Math.max(T.LEAD, T.CAPB + T.CAPGAP + Math.max(...kids.map(c => reach(linesOf(c.items[0])))))) + (inline ? B.FIN : 0);
       // the name of an open branch sits on its lead-in line; the name of a closed one sits above its pill and may be wider than it
       // with the labels hidden the run after the curve is a short one, and the one track of a group of steps in a row has none
-      const cap = T ? lead - cstub : shut ? 0 : !B.words ? (inline ? 0 : 8) : Math.max(0, ...kids.map(c => capW(c.b.name)));
+      const cap = T ? lead - cstub : shut ? 0 : !B.words ? (inline ? 0 : 8) : Math.max(0, ...kids.map(c => capW(c.b.cap)));
       // with the labels hidden a closed track runs as long as its pill
-      const runs = kids.map(c => (shut && !T && B.words ? Math.max(c.w, capW(c.b.name) - 14) : c.w));
+      const runs = kids.map(c => (shut && !T && B.words ? Math.max(c.w, capW(c.b.cap) - 14) : c.w));
       let maxW = Math.max(...runs);
       // a side branch that ended earlier still hangs below this lane: start past it, so nothing lands on it
       x = Math.max(x, right);
@@ -377,7 +377,7 @@ export function layouts(plan: Plan, bare = false): Layouts {
         const J = T && !it.group ? T.HANG - off[0] : 0;
         const curve = inline ? 0 : T ? (it.group ? Math.max(T.SMIN, Math.min(T.SMAX, 0.5 * off[last])) : T.COMB) : curveW(Math.max(-off[0], off[last]), shut, B);
         // the frame of a named group is as wide as its name over it needs; with the labels hidden it has no name
-        if (!T && B.words && it.group && it.named) maxW = Math.max(maxW, Math.ceil(fonts.width(it.name, 'gname')) + 16 + 2 * B.FIN - 2 * curve - cap - 2 * cstub);
+        if (!T && B.words && it.group && it.named) maxW = Math.max(maxW, Math.ceil(fonts.width(it.gname, 'gname')) + 16 + 2 * B.FIN - 2 * curve - cap - 2 * cstub);
         const ends = inline && it === b.items[b.items.length - 1];
         // the tracks of a group come back together at its end; the branches of a branching come back as soon as they can
         const { jw, jc, cF } = it.group ? { jw: kids.map(() => maxW), jc: kids.map(() => curve), cF: curve } : early(kids, runs, off, maxW, shut, T, B);
@@ -391,7 +391,7 @@ export function layouts(plan: Plan, bare = false): Layouts {
           const lo = Math.min(...kids.map((c, i) => J + off[i] - c.up)), hi = Math.max(...kids.map((c, i) => J + off[i] + c.down));
           if (it.group) {
             frL = Math.min(-T.FL, lo - B.FPAD);
-            frR = Math.max(hi + T.FRR, it.named && B.words ? T.CX + fonts.width(it.name, 'gname') + T.FRR : 0);
+            frR = Math.max(hi + T.FRR, it.named && B.words ? T.CX + fonts.width(it.gname, 'gname') + T.FRR : 0);
             up = Math.max(up, -frL); down = Math.max(down, frR);
           } else { up = Math.max(up, -lo); down = Math.max(down, hi); }
         } else {
@@ -552,6 +552,8 @@ export function layouts(plan: Plan, bare = false): Layouts {
         const lastIt = row.items[row.items.length - 1];
         const r = !lastIt || isSplitBox(lastIt) ? 0 : isPodBox(lastIt) ? B.PR : radius(lastIt.n);
         let tip = end + r + D.TAIL;
+        // far out the count is written under the name of the last step, which may take 3 lines
+        if (B.words && !k) tip = Math.max(tip, end + reach(linesOf(lastIt)) + D.NGAP + 9);
         // branches that part off beside the lane and run on past its end would lie on the count: the lane runs on past them
         // with the labels hidden the count is not written and takes no room
         const cw = B.words ? D.CX + count(t).length * 6.2 : 0;
@@ -563,7 +565,7 @@ export function layouts(plan: Plan, bare = false): Layouts {
         piece(t, 'tail', 'seg', [end, tip, Y]);
         piece(t, 'count', 'txt', [tip + 4, Y + D.CX], k || !B.words ? 0 : 1);
         const bottom = Math.max(tip + 8, X0v + row.w);
-        wide = Math.max(wide, Y + row.down, Y + cx + capText(t.name), k || !B.words ? 0 : Y + cw);
+        wide = Math.max(wide, Y + row.down, Y + cx + capText(t.cap), k || !B.words ? 0 : Y + cw);
         L.bands.set(t.key, [top, bottom]);
         top = bottom + D.BANDS;
       });
@@ -574,7 +576,7 @@ export function layouts(plan: Plan, bare = false): Layouts {
     }
 
     // the top-level branches sit one under the other and all start at the same x, after the run that holds the names of the versions
-    const X0 = B.PADL + Math.max(0, ...tops.map(t => capW(t.name))) + B.OSTUB;
+    const X0 = B.PADL + Math.max(0, ...tops.map(t => capW(t.cap))) + B.OSTUB;
     let top = B.PADT, wide = 0;
     for (const t of tops) {
       const row = measure(t, k), Y = top + row.up;

@@ -223,7 +223,102 @@ export const links: Roadmap = {
   ],
 };
 
-export const plans = { full, flat, plain, wordy, nested, versions, links };
+/** Long text everywhere: a long title; long names of top-level branches, of the branches of a branching, of groups and of steps; a long 'why'; a step with 12 links,
+ * with long names and long addresses, one of them an address used as its name. 'Long text design' is blocked by a step with a long name in its own branch,
+ * and by one in the top-level branch 'v1.0.0-beta: …', which a test can hide. The first top-level branch is finished, so it is hidden at first. */
+export const long: Roadmap = {
+  title: 'Roadmapper, from the first sketch to the release of v1.0.0 and the npm package',
+  branches: [
+    {
+      name: 'v1.0.0-alpha: the first sketch, the live view and the states of a step',
+      items: [
+        { id: 'sketch', name: 'First sketch of the tree', state: 'done', icon: 'pencil' },
+        { id: 'live', name: 'Live view that redraws the page each time the roadmap file is saved', state: 'done', icon: 'eye' },
+      ],
+    },
+    {
+      name: 'v1.0.0-beta: links on steps, the side bar and the HTML export for strangers',
+      items: [
+        { id: 'links', name: 'Links on steps', state: 'done', icon: 'link' },
+        { id: 'html-export-design', name: 'HTML export design for strangers who get one file by email and open it from their disk', state: 'in-progress', icon: 'file-export' },
+      ],
+    },
+    {
+      name: 'v1.0.0',
+      items: [
+        { id: 'start', name: 'Start of v1.0.0', state: 'done', icon: 'flag', milestone: true },
+        {
+          branching: true,
+          split: [
+            {
+              name: 'Remember the view',
+              items: [
+                { id: 'remember', name: 'Remember the view design: zoom, pan, the picked step and open parts stay after a reload', icon: 'device-floppy' },
+                {
+                  name: 'Remember the view build',
+                  split: [
+                    { name: 'Code', items: [{ id: 'remember-code', name: 'Remember the view code', icon: 'device-floppy' }] },
+                    { name: 'Tests', items: [{ id: 'remember-tests', name: 'Remember the view tests', icon: 'device-floppy' }] },
+                  ],
+                },
+              ],
+            },
+            {
+              name: 'Long names, long links and long link lists',
+              items: [
+                {
+                  id: 'long-text',
+                  name: 'Long text design for names, links and lists that do not fit on one line of the page',
+                  icon: 'text-wrap',
+                  waitsFor: ['remember', 'html-export-design'],
+                  why: 'People paste a whole sentence as the name of a step, a raw address as the name of a link, and a dozen links under one step. Each place on the page needs one plain rule for text that does not fit, the same across and down, so that nothing overlaps, nothing runs off the screen and nothing scrolls sideways. The tree and the rows cut a long text after a fixed number of lines; the tip and the side bar show all of it, and the side bar scrolls up and down.',
+                  doneWhen: 'Long names, long links and long lists fit everywhere on the page.',
+                  links: [
+                    { name: 'Long text mock', url: 'https://example.com/mocks/long-text.html', icon: 'photo' },
+                    { name: 'Screenshots of every place where a long name broke the page before the fix', url: 'https://example.com/mocks/long-text/before', icon: 'photo' },
+                    { name: 'Long link names in the side bar: one rule for every row, the same in both layouts', url: 'https://example.com/docs/view.md#links', icon: 'file-text' },
+                    { name: 'https://github.com/true-byte/roadmapper/blob/release/1.0.0/src/view/side.ts', url: 'https://github.com/true-byte/roadmapper/blob/release/1.0.0/src/view/side.ts', icon: 'file-text' },
+                    { name: 'Issue 41', url: 'https://example.com/issues/41' },
+                    { name: 'CSS Text Module Level 3: line breaking and word boundaries', url: 'https://www.w3.org/TR/css-text-3/#line-breaking' },
+                    { name: 'MDN: text-overflow', url: 'https://developer.mozilla.org/en-US/docs/Web/CSS/text-overflow', icon: 'file-text' },
+                    { name: 'MDN: line-clamp', url: 'https://developer.mozilla.org/en-US/docs/Web/CSS/line-clamp', icon: 'file-text' },
+                    { name: 'MDN: overflow-wrap', url: 'https://developer.mozilla.org/en-US/docs/Web/CSS/overflow-wrap', icon: 'file-text' },
+                    { name: 'How Linear, Jira and GitHub Projects cut long issue titles on a board and in a side panel', url: 'https://example.com/research/long-titles-on-boards-and-side-panels' },
+                    { name: 'Long text demo, across and down, at each zoom level', url: 'https://example.com/releases/download/v1.0.0/long-text-demo.mp4', icon: 'player-play' },
+                    { name: 'Pull request 57', url: 'https://example.com/pull/57' },
+                  ],
+                },
+                {
+                  name: 'Long text build for the tree, the side bar, the tip and the picker',
+                  split: [
+                    { name: 'Code', items: [{ id: 'long-text-code', name: 'Long text code', icon: 'text-wrap' }] },
+                    { name: 'Tests', items: [{ id: 'long-text-tests', name: 'Long text tests', icon: 'text-wrap' }] },
+                  ],
+                },
+              ],
+            },
+            {
+              name: 'Tools button',
+              items: [
+                { id: 'tools', name: 'Tools button design', icon: 'tool' },
+                {
+                  name: 'Tools button build',
+                  split: [
+                    { name: 'Code', items: [{ id: 'tools-code', name: 'Tools button code, with the export, the error list and the theme picker in one menu', icon: 'tool' }] },
+                    { name: 'Tests', items: [{ id: 'tools-tests', name: 'Tools button tests', icon: 'tool' }] },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+        { id: 'release', name: 'Release of v1.0.0 and of the npm package', icon: 'package', milestone: true },
+      ],
+    },
+  ],
+};
+
+export const plans = { full, flat, plain, wordy, nested, versions, links, long };
 
 /** A long first branch, then four branches side by side, each a design step and a build of two tracks, with icons; `busy` is the step in progress.
  * At 'Tracks' and 'Every step' one column fits a phone, two do not. A step in progress in a build is drawn far out as its group, and at 'Tracks' as the pill of its track. */

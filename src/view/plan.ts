@@ -34,6 +34,8 @@ export interface TSplit {
   name: string;
   /** Does the plan give it a name of its own? */
   named: boolean;
+  /** Its name as one line over its frame, cut with "…" at GNAME_W. */
+  gname: string;
   owner: TBranch;
   kids: TBranch[];
   joins: boolean;
@@ -49,6 +51,8 @@ export interface TSplit {
 export interface TBranch {
   key: string;
   name?: string;
+  /** Its name as one line on the plan, cut with "…" at CAP_W. */
+  cap?: string;
   holds?: string;
   /** Is it private, or in a private branch or group? */
   secret: boolean;
@@ -117,6 +121,22 @@ export interface Fonts {
 export const NAME_W = 100;
 /** A name is written on 3 lines at most. */
 const LINES = 3;
+/** How wide the name of a branch may be on the plan: the room of two names side by side. A longer name is cut with "…" on one line,
+ * so it stretches the run before the branch's first step across, or its column down, no further than this. */
+export const CAP_W = 2 * NAME_W;
+/** How wide the name of a group may be over its frame: one line, cut with "…" past it. It fits over the frame of a group with one step on each track, across at 'Every step',
+ * so a long name makes no such frame wider there. */
+export const GNAME_W = 250;
+/** The end of a text that is cut: "…", and never a space or a mark such as "," or ":" right before it. wrap() and cutLine() both cut this way. */
+const cutEnd = (s: string): string => `${s.replace(/[\s,;:.\-–—]+$/u, '')}…`;
+/** A name on one line no wider than `width`, cut with "…" where it is wider. The tip and the side bar keep the full name. */
+export function cutLine(s: string, fonts: Fonts, kind: TextKind, width: number): string {
+  const name = s.trim().replace(/\s+/g, ' ');
+  if (fonts.width(name, kind) <= width) return name;
+  let t = name;
+  while (t.length > 1 && fonts.width(cutEnd(t), kind) > width) t = t.slice(0, -1);
+  return cutEnd(t);
+}
 
 /** How wide a line of a name may be in the vertical layout, where the name sits beside its step: as wide as the room the lane it is on has to its right.
  * On a version's own lane the names have the room of the plan; a branch of a branching has the room between two columns, as across; a track of a group less. */
@@ -165,8 +185,8 @@ export function wrap(s: string, fonts: Fonts, kind: TextKind = 'label', width = 
     i = j;
   }
   let last = join(i, bits.length);
-  while (last.length > 1 && w(`${last}…`) > width) last = last.slice(0, -1);
-  lines.push(`${last.trimEnd()}…`);
+  while (last.length > 1 && w(cutEnd(last)) > width) last = last.slice(0, -1);
+  lines.push(cutEnd(last));
   return { lines, cut: true };
 }
 
@@ -186,12 +206,12 @@ export function readPlan(roadmap: Roadmap, art: (name: string) => string | undef
   const pods: TSplit[] = [];
   // what is in a private branch or group is private too
   function grow(b: Branch, key: string, depth: number, parent?: TBranch, pod?: TSplit, hidden = false): TBranch {
-    const t: TBranch = { key, name: b.name, holds: text(b.holds), secret: hidden || b.private === true, ends: !!b.ends, depth, inner: false, parent, pod, items: [], nodes: [] };
+    const t: TBranch = { key, name: b.name, cap: b.name ? cutLine(b.name, fonts, 'cap', CAP_W) : undefined, holds: text(b.holds), secret: hidden || b.private === true, ends: !!b.ends, depth, inner: false, parent, pod, items: [], nodes: [] };
     byKey.set(key, t);
     b.items.forEach((it, i) => {
       if ('split' in it) {
         const group = it.branching !== true && it.split.every(c => !c.ends);
-        const sp: TSplit = { key: `${key}.${i}`, group, name: '', named: false, owner: t, kids: [], joins: false, nodes: [], lines: [], vlines: [], secret: t.secret || it.private === true };
+        const sp: TSplit = { key: `${key}.${i}`, group, name: '', named: false, gname: '', owner: t, kids: [], joins: false, nodes: [], lines: [], vlines: [], secret: t.secret || it.private === true };
         if (group && !pod) pods.push(sp);
         if (group) for (let a: TBranch | undefined = t; a; a = a.parent) a.inner = true;
         sp.kids = it.split.map((c, j) => grow(c, `${key}.${i}.${j}`, depth + (group ? 1 : 0), t, pod ?? (group ? sp : undefined), sp.secret));
@@ -201,6 +221,7 @@ export function readPlan(roadmap: Roadmap, art: (name: string) => string | undef
         const fits = sp.kids.every(c => c.name) && !wrap(list, fonts).cut;
         sp.named = !!own;
         sp.name = own ?? (fits ? list : sp.kids.length > 1 ? `${sp.kids.length} tracks` : 'Group');
+        sp.gname = cutLine(sp.name, fonts, 'gname', GNAME_W);
         sp.lines = wrap(sp.name, fonts).lines;
         // far out the group is one step on the lane of its owner
         sp.vlines = wrap(sp.name, fonts, 'label', vwidth(t)).lines;
