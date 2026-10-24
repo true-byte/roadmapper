@@ -185,12 +185,15 @@ export interface State {
   // ---- the pointer, and what it points at ----
 
   /** A click before this time does nothing: the second click on the grip, as the zoom control moves under it, the click after two fingers on the control,
-   * or the second click on a heading of the popup that lands out of the popup as it gets shorter. */
+   * or the second click on a heading of the popup that lands out of the popup as it gets shorter.
+   * Each time of the pointer is the time of its event (timeStamp): when the user pressed, not when a busy page got to the event. */
   noClick: number;
+  /** When the last click on the view came, by the time of its event: a double click comes right after its second click, with no such time of its own. */
+  clickedAt: number;
   /** A drag of the plan with the mouse: where it started, and the scroll then. Is it a drag yet, and no click? */
   drag: { x: number; y: number; l: number; t: number } | null;
   dragged: boolean;
-  /** The kind of pointer that pressed last: after a finger, a tap picks a moment later, and nothing shows a tip. And when it pressed. */
+  /** The kind of pointer that pressed last: after a finger, a tap picks a moment later, and nothing shows a tip. And when it pressed, by the time of its event. */
   lastPointer: string;
   pressedAt: number;
   /** What the pointer lights, with its tip. */
@@ -221,7 +224,7 @@ export function initialState(): State {
     cur: new Map(), laid: { fits: true, right: 0, bottom: 0 }, opened: null, stageWas: [0, 0], roomWas: [1, 1],
     mag: 1, floor: null, only: null,
     sraf: 0, gliding: false, pinch: null, praf: 0, gesture: null, saving: 0, tidy: 0,
-    noClick: 0, drag: null, dragged: false, lastPointer: '', pressedAt: 0, hot: null, picked: null, rowHot: null, past: [], tapWait: null,
+    noClick: 0, clickedAt: 0, drag: null, dragged: false, lastPointer: '', pressedAt: 0, hot: null, picked: null, rowHot: null, past: [], tapWait: null,
   };
 }
 

@@ -7,7 +7,7 @@ import type { Locator, Page } from '@playwright/test';
 import { checkRoadmap, parseRoadmap } from '../src/roadmap/check';
 import { sayError } from '../src/roadmap/errors';
 import { publicRoadmap } from '../src/roadmap/public';
-import { errorRows, expect, openPlan, reload, settle, side, step, stored, test } from './helpers';
+import { errorRows, expect, openPlan, play, reload, settle, side, step, stopClock, stored, test } from './helpers';
 import { links as plan } from './plans';
 
 /** A part of the drawing of an icon of Tabler Icons, which tells it from the others. */
@@ -210,15 +210,29 @@ test.describe('on a phone, where the side bar is a sheet at the bottom', () => {
 
   test("the second tap of a double tap on 'Links' lands on the link that moved under it, and opens no tab", async ({ page }) => {
     await page.context().route('https://example.com/**', r => r.fulfill({ contentType: 'text/html', body: '<title>Spec</title>' }));
-    await openPlan(page, plan, { kept: { level: 0, id: 'spec', fx: 0.5, fy: 0.4, links: false } });
+    // on a stopped clock: the page reads the two taps as 120 ms apart however long it takes over each
+    await openPlan(page, plan, { kept: { level: 0, id: 'spec', fx: 0.5, fy: 0.4, links: false }, clock: true });
+    await stopClock(page);
     await step(page, 'spec').tap();
+    // a tap picks 300 ms after it
+    await play(page, 300);
     await expect(side(page)).toBeVisible();
-    await settle(page);
+    // each click on a link, once the page has heard it: its name, and whether the page let it open its page
+    await page.evaluate(() => {
+      const w = window as unknown as { links: string[] };
+      w.links = [];
+      window.addEventListener('click', e => {
+        const a = (e.target as Element).closest('a.row');
+        if (a) w.links.push(`${a.textContent} ${e.defaultPrevented ? 'stopped' : 'opened'}`);
+      });
+    });
     const at = (await fold(page).boundingBox())!, x = at.x + at.width / 2, y = at.y + at.height / 2;
     await page.touchscreen.tap(x, y);
+    await expect(fold(page)).toHaveAttribute('aria-expanded', 'true');
     expect(await page.evaluate(([x, y]) => document.elementFromPoint(x, y)?.closest('a.row')?.textContent, [x, y]), 'a link under the finger').toBe('Spec doc');
+    await page.clock.runFor(120);
     await page.touchscreen.tap(x, y);
-    await settle(page);
+    await expect.poll(() => page.evaluate(() => (window as unknown as { links: string[] }).links), 'the second tap, on the link').toEqual(['Spec doc stopped']);
     expect(page.context().pages()).toHaveLength(1);
     await expect(fold(page)).toHaveAttribute('aria-expanded', 'true');
   });

@@ -84,7 +84,7 @@ export function toolbarPart(ctx: ViewContext) {
   let foldAt: { x: number; y: number; t: number } | null = null;
   /** Is this press, or this click, the second of a double click or of a double tap on a heading of the popup? It lands on what moved there, and does nothing there. */
   const afterFold = (e: MouseEvent): boolean =>
-    !!foldAt && performance.now() - foldAt.t < 500 && Math.hypot(e.clientX - foldAt.x, e.clientY - foldAt.y) < TAP.PX;
+    !!foldAt && e.timeStamp - foldAt.t < 500 && Math.hypot(e.clientX - foldAt.x, e.clientY - foldAt.y) < TAP.PX;
 
   // ---- the grip: it hides the zoom control down to the grip alone, and brings it back. The keys of the control still work. ----
 
@@ -100,10 +100,10 @@ export function toolbarPart(ctx: ViewContext) {
     grip.setAttribute('aria-expanded', String(!on));
   }
   setTucked(false);
-  grip.addEventListener('click', () => {
+  grip.addEventListener('click', e => {
     setTucked(!ctx.tucked);
     // the control moves under the pointer: the second click of a double click, or of a double tap, lands on what it uncovers, and does nothing there
-    ctx.noClick = performance.now() + 500;
+    ctx.noClick = e.timeStamp + 500;
     // where the side bar is a sheet at the bottom, it moves with the control: the picked thing stays clear of it
     ctx.uncover();
     ctx.save();
@@ -118,7 +118,7 @@ export function toolbarPart(ctx: ViewContext) {
   // the heading of each part of the popup closes and opens it. The view does not keep which: each part is open again on the next visit
   for (const p of parts) p.head.addEventListener('click', e => {
     p.setOpen(!p.isOpen());
-    if (e.detail > 0) foldAt = { x: e.clientX, y: e.clientY, t: performance.now() };
+    if (e.detail > 0) foldAt = { x: e.clientX, y: e.clientY, t: e.timeStamp };
   });
   // the second click of a double click on a heading does nothing on the button of the popup that moved under it; a click from the keyboard is never eaten
   popup.addEventListener('click', e => {

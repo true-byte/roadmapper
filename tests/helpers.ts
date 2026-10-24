@@ -54,8 +54,16 @@ export const nameSize = (page: Page): Promise<number> =>
     return (parseFloat(getComputedStyle(label).fontSize) * svg.getBoundingClientRect().width) / svg.viewBox.baseVal.width;
   });
 
-/** Playwright's test, where a test fails on any script error or console error on the page. `errors` lists them; empty it to allow one. */
+/** How many times slower each page runs, from the environment variable SLOW_CPU, as `npm run test:push` sets it. Unset, the pages run at full speed. */
+const SLOW_CPU = Number(process.env.SLOW_CPU) || 1;
+
+/** Playwright's test, where a test fails on any script error or console error on the page. `errors` lists them; empty it to allow one.
+ * With SLOW_CPU, Chromium runs the scripts, styles and layout of the page that many times slower, from before the test opens it. */
 export const test = base.extend<{ errors: string[] }>({
+  page: async ({ page }, use) => {
+    if (SLOW_CPU > 1) await (await page.context().newCDPSession(page)).send('Emulation.setCPUThrottlingRate', { rate: SLOW_CPU });
+    await use(page);
+  },
   errors: [
     async ({ page }, use) => {
       const errors: string[] = [];

@@ -103,16 +103,16 @@ export function sidePart(ctx: ViewContext) {
       const nm = html('span', 'strong nm', l.name);
       a.append(glyph(l.icon && art(l.icon) ? l.icon : LINKS.link, 20, ''), nm, go);
       cuts.observe(nm);
-      a.addEventListener('click', e => { if (performance.now() < ctx.noClick) e.preventDefault(); });
+      a.addEventListener('click', e => { if (e.timeStamp < ctx.noClick) e.preventDefault(); });
       rows.push(a);
     }
     const { part, head: fold, setOpen } = ctx.foldPart('Links', LINKS.fold, ...rows);
-    fold.addEventListener('click', () => {
+    fold.addEventListener('click', e => {
       ctx.linksOpen = !ctx.linksOpen;
       setOpen(ctx.linksOpen);
       // where the side bar is a sheet at the bottom, its top moves: the second click of a double click, or of a double tap, lands on what moved under it, and does nothing there,
       // and the picked thing stays clear of the sheet
-      if (fit.bottom) ctx.noClick = performance.now() + 500;
+      if (fit.bottom) ctx.noClick = e.timeStamp + 500;
       ctx.uncover();
       ctx.save();
     });
@@ -245,11 +245,11 @@ export function sidePart(ctx: ViewContext) {
   }
   for (const where of [stage, head]) {
     where.addEventListener('click', e => {
-      if (ctx.dragged || performance.now() < ctx.noClick) return;
+      if (ctx.dragged || e.timeStamp < ctx.noClick) return;
       // asked of the view's own root, which may be a shadow root: there the page would answer with the box itself
       const t = ctx.thingAt((host.getRootNode() as Document | ShadowRoot).elementFromPoint(e.clientX, e.clientY));
       // a finger held down is no tap: a long press does nothing
-      if (ctx.lastPointer === 'touch' && performance.now() - ctx.pressedAt > TAP.HOLD) return;
+      if (ctx.lastPointer === 'touch' && e.timeStamp - ctx.pressedAt > TAP.HOLD) return;
       if (ctx.lastPointer !== 'touch') {
         if (ctx.only && !t) ctx.endOnly();
         else pick(t);
@@ -264,14 +264,14 @@ export function sidePart(ctx: ViewContext) {
       };
       const was = ctx.tapWait;
       if (was) { window.clearTimeout(was.timer); ctx.tapWait = null; }
-      if (was && performance.now() - was.t < TAP.MS && Math.hypot(e.clientX - was.x, e.clientY - was.y) < TAP.PX) {
+      if (was && e.timeStamp - was.t < TAP.MS && Math.hypot(e.clientX - was.x, e.clientY - was.y) < TAP.PX) {
         // the step under the finger stays put, and so does the sheet: the move ends with no glide for what it shows
         if (ctx.plan && ctx.all.length && ctx.target < ctx.K && !ctx.only) { ctx.setPopup(false); ctx.go(ctx.target + 1, ctx.nearest(ctx.all, was.x, was.y), false); }
         return;
       }
       // a tap somewhere else: the one before it acts now
       was?.act();
-      ctx.tapWait = { x: e.clientX, y: e.clientY, t: performance.now(), act, timer: window.setTimeout(() => { ctx.tapWait = null; act(); }, TAP.MS) };
+      ctx.tapWait = { x: e.clientX, y: e.clientY, t: e.timeStamp, act, timer: window.setTimeout(() => { ctx.tapWait = null; act(); }, TAP.MS) };
     });
   }
   /** A tap that waits to pick is dropped when the plan moves before it picks: a swipe that comes right after it, or a pinch. */

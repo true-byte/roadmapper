@@ -41,7 +41,6 @@ async function drawn(page: Page): Promise<void> {
  * and for any other address a 404, or the landing's own page, as a host that serves a one-page app does. `files` puts other text in place of a file. */
 async function landing(page: Page, at = '/', o: { lib?: boolean; ownPage?: boolean; files?: Record<string, string>; pages?: Record<string, string> } = {}): Promise<void> {
   const file = (name: string): string | Buffer => o.files?.[name] ?? readFileSync(join(DIR, name));
-  await page.route('https://fonts.googleapis.com/**', r => r.abort());
   await page.route('https://landing.test/**', r => {
     const path = new URL(r.request().url()).pathname;
     if (path === `${at}roadmap.html` || path === `${at}roadmap`) return r.fulfill({ contentType: 'text/html; charset=utf-8', body: file('roadmap.html') });
@@ -78,6 +77,10 @@ const nameSize = (page: Page): Promise<number> =>
   });
 
 test.use({ offline: false });
+// the web fonts of the theme never come, as in the specs that run offline: the page draws in the fallback fonts, and never draws its names again at a moment that the network sets
+test.beforeEach(async ({ context }) => {
+  await context.route('https://fonts.googleapis.com/**', r => r.abort());
+});
 
 test('the page is the whole window, with the title in its head and the about line as its description, and it keeps nothing: a stranger always opens it with the labels shown', async ({ page }) => {
   await openExport(page);

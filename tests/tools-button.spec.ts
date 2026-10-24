@@ -143,8 +143,7 @@ test('a double click on a heading closes only its part: its second click does no
     await settle(page);
     expect(await heading(page, name).evaluate((h, [x, y]) => h.contains(document.elementFromPoint(x, y)), [x, y]), `${name}: the heading moved from under the pointer`).toBe(false);
     expect(await shown(), name).toEqual(before.map(s => (s === `${name} true` ? `${name} false` : s)));
-    // the next click, after the double click, opens the part again
-    await page.waitForTimeout(600);
+    // the next click, away from the point of the double click, opens the part again
     await heading(page, name).click();
     await expect(heading(page, name)).toHaveAttribute('aria-expanded', 'true');
   }

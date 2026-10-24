@@ -191,19 +191,24 @@ test.describe("'Export' in the app", () => {
     const files = await filesOf(await save(page));
     const unzipped = folder();
     for (const f of files) writeFileSync(join(unzipped, f.name), f.data);
-    // at the first frame: the color of the text of the page, which the browser gives by the color-scheme of the page, and whether the plan is drawn yet
+    // the color of the text of the page, which the browser gives by the color-scheme of the page: as the lib starts, when it makes <roadmapper-view> known,
+    // so before it draws, and at the first frame. The lib can draw before the first frame or after it: nothing sets which comes first
     await page.addInitScript(() => {
-      requestAnimationFrame(() => {
-        (window as unknown as { first: string[] }).first = [getComputedStyle(document.documentElement).color,
-          String(!!document.querySelector('roadmapper-view')?.shadowRoot?.querySelector('svg.plan'))];
-      });
+      const w = window as unknown as { lib?: string; first?: string }, color = (): string => getComputedStyle(document.documentElement).color;
+      const define = customElements.define.bind(customElements);
+      customElements.define = (name, ...rest) => {
+        if (name === 'roadmapper-view') w.lib ??= color();
+        define(name, ...rest);
+      };
+      requestAnimationFrame(() => { w.first = color(); });
     });
     const view = page.locator('.roadmap'), mode = (name: string): Locator => popup(page).getByRole('radio', { name, includeHidden: true });
+    const seen = (): Promise<(string | undefined)[]> => page.evaluate(() => { const w = window as unknown as { lib?: string; first?: string }; return [w.lib, w.first]; });
     for (const [device, text] of [['light', 'rgb(0, 0, 0)'], ['dark', 'rgb(255, 255, 255)']] as const) {
       await page.emulateMedia({ colorScheme: device });
       await page.goto(pathToFileURL(join(unzipped, 'roadmap.html')).href);
       await expect(page.locator('svg.plan')).toBeVisible();
-      expect(await page.evaluate(() => (window as unknown as { first: string[] }).first), device).toEqual([text, 'false']);
+      await expect.poll(seen, `${device}: as the lib starts, and at the first frame`).toEqual([text, text]);
       await expect(view, device).toHaveCSS('background-color', BG[device]);
       await expect(view.locator('svg.plan .lane').first(), device).toHaveCSS('stroke', LINE[device]);
       await settle(page);

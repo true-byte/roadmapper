@@ -7,7 +7,7 @@ import { readFileSync } from 'node:fs';
 import type { Locator, Page } from '@playwright/test';
 import { STATE_NAME, STATES, type Roadmap, type State } from '../src/roadmap/types';
 import {
-  expect, flowOf, iconsSwitch, toolsButton, labelsSwitch, level, levels, nameOf, nameSize, openApp, openEmbed, openTools, openPlan, pickLayout, play, popup, reload,
+  everywhere, expect, flowOf, iconsSwitch, toolsButton, labelsSwitch, level, levels, nameOf, nameSize, openApp, openEmbed, openTools, openPlan, pickLayout, play, popup, reload,
   settle, showLabels, side, step, stopClock, stored, test, tip, words, zoomTo,
 } from './helpers';
 import { columns, edit, full, nodeOf, nodesOf, plain, plans, shownAtFirst } from './plans';
@@ -670,7 +670,9 @@ async function faults(page: Page): Promise<string[]> {
       for (let s = 0; s < n; s += step) { const q = e.getPointAtLength(s); pts.push([q.x, q.y, s]); }
       const q = e.getPointAtLength(n);
       pts.push([q.x, q.y, n]);
-      return { k: `line ${i} (${(e.getAttribute('d') ?? '').slice(0, 24)})`, n, pts };
+      // the box of its points
+      const box = [Math.min(...pts.map(p => p[0])), Math.min(...pts.map(p => p[1])), Math.max(...pts.map(p => p[0])), Math.max(...pts.map(p => p[1]))];
+      return { k: `line ${i} (${(e.getAttribute('d') ?? '').slice(0, 24)})`, n, pts, box };
     });
     for (const l of lines) for (const t of texts) if (l.pts.some(([x, y]) => x > t.x0 + 0.8 && x < t.x1 - 0.8 && y > t.y0 + 0.8 && y < t.y1 - 0.8)) out.push(`${l.k} through ${t.k}`);
     // a step as a body: its coin, or else its mark with the ring of a milestone. A line through it, but for the lane it sits on, which runs through its middle,
@@ -717,6 +719,8 @@ async function faults(page: Page): Promise<string[]> {
       (along(A, a + 1, a + 4, B) && along(B, b + 1, b + 4, A)) || (along(A, a - 3, a, B) && along(B, b - 3, b, A));
     lines.forEach((A, i) => {
       for (const B of lines.slice(i + 1)) {
+        // two lines whose boxes do not meet cannot cross, so their points are not compared
+        if (A.box[2] < B.box[0] || B.box[2] < A.box[0] || A.box[3] < B.box[1] || B.box[3] < A.box[1]) continue;
         let hit = false;
         for (let a = 0; a + 1 < A.pts.length && !hit; a++) {
           if (A.pts[a][2] < end || A.pts[a + 1][2] > A.n - end) continue;
@@ -765,55 +769,33 @@ test('the check of a plan as drawn finds a name moved onto another step, a line 
   expect(await faults(page)).toContainEqual(expect.stringContaining('through the step launch'));
 });
 
-for (const [name, plan] of Object.entries(plans)) {
-  test(`'${name}': in both layouts, at every level and in both views, no line crosses another or runs through a name, and no name touches another, a step, a pill or the edge of a frame`, async ({ page }) => {
+/** The layouts, in the order the plan turns to them: 'Horizontal' after 'Vertical', so it is drawn after a turn. */
+const FLOWS = ['Vertical', 'Horizontal'] as const;
+/** Draws the plan in a layout, through the layouts before it in FLOWS, and shuts the popup. */
+async function turnTo(page: Page, flow: (typeof FLOWS)[number]): Promise<void> {
+  for (const f of FLOWS.slice(0, FLOWS.indexOf(flow) + 1)) await pickLayout(page, f);
+  await page.keyboard.press('Escape');
+  await expect(popup(page)).toBeHidden();
+}
+
+// a test for each layout: the work of one test grows as the computer gets slower, and this keeps it well inside the time a test has
+for (const [name, plan] of Object.entries(plans)) for (const flow of FLOWS) {
+  test(`'${name}', '${flow}': at every level and in both views, no line crosses another or runs through a name, and no name touches another, a step, a pill or the edge of a frame`, async ({ page }) => {
     await openPlan(page, plan, { store: null });
-    for (const flow of ['Vertical', 'Horizontal'] as const) {
-      await pickLayout(page, flow);
-      await page.keyboard.press('Escape');
-      await expect(popup(page)).toBeHidden();
-      for (const view of ['icons', 'marks']) {
-        if (view === 'marks') {
-          await page.keyboard.press('i');
-          await settle(page);
-        }
-        for (const at of await levels(page)) {
-          await zoomTo(page, at);
-          expect(await faults(page), `${flow}, ${view}, '${at}'`).toEqual([]);
-        }
-        if (view === 'marks') {
-          await page.keyboard.press('i');
-          await settle(page);
-        }
-      }
-    }
+    await turnTo(page, flow);
+    await everywhere(page, async where => expect(await faults(page), `${flow}, ${where}`).toEqual([]));
   });
 
-  test(`'${name}': with the labels hidden, in both layouts, at every level and in both views, the plan draws no word but the names of its versions that show, and no line crosses another or runs through one`, async ({ page }) => {
+  test(`'${name}', '${flow}': with the labels hidden, at every level and in both views, the plan draws no word but the names of its versions that show, and no line crosses another or runs through one`, async ({ page }) => {
     const versions = shownAtFirst(plan).sort();
     // a long name of a version is written on one line, cut with "…": it stands for the name it starts
     const whole = (w: string): string => versions.find(v => v === w || (w.endsWith('…') && v.startsWith(w.slice(0, -1)))) ?? w;
     await openPlan(page, plan, { store: null });
     await showLabels(page, false);
-    for (const flow of ['Vertical', 'Horizontal'] as const) {
-      await pickLayout(page, flow);
-      await page.keyboard.press('Escape');
-      await expect(popup(page)).toBeHidden();
-      for (const view of ['icons', 'marks']) {
-        if (view === 'marks') {
-          await page.keyboard.press('i');
-          await settle(page);
-        }
-        for (const at of await levels(page)) {
-          await zoomTo(page, at);
-          expect((await words(page)).map(whole).sort(), `${flow}, ${view}, '${at}'`).toEqual(versions);
-          expect(await faults(page), `${flow}, ${view}, '${at}'`).toEqual([]);
-        }
-        if (view === 'marks') {
-          await page.keyboard.press('i');
-          await settle(page);
-        }
-      }
-    }
+    await turnTo(page, flow);
+    await everywhere(page, async where => {
+      expect((await words(page)).map(whole).sort(), `${flow}, ${where}`).toEqual(versions);
+      expect(await faults(page), `${flow}, ${where}`).toEqual([]);
+    });
   });
 }
