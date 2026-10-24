@@ -193,16 +193,19 @@ test("from the keyboard the popup opens with the focus on 'Hide node icons'; wit
 
 test('a part closed stays closed while the popup closes and opens again, comes back open after a reload, and the browser keeps nothing of it', async ({ page }) => {
   await openApp(page);
+  // the view keeps itself as the page goes, and also when a move of its own ends, so compare what two reloads keep, not one moment with the next
+  await reload(page);
+  const keys = Object.keys((await stored(page, APP_STORE)) ?? {}).sort();
+  expect(keys, 'the view is kept').not.toEqual([]);
   await openTools(page);
-  const kept = await stored(page, APP_STORE);
   await heading(page, 'Key').click();
   await heading(page, 'Export').click();
-  expect(await stored(page, APP_STORE), 'nothing kept for the parts').toEqual(kept);
   await toolsButton(page).click();
   await expect(popup(page)).toBeHidden();
   await openTools(page);
   expect(await headings(page).evaluateAll(h => h.map(b => b.getAttribute('aria-expanded')))).toEqual(['false', 'true', 'false']);
   await reload(page);
+  expect(Object.keys((await stored(page, APP_STORE)) ?? {}).sort(), 'nothing kept for the parts').toEqual(keys);
   await expect(popup(page), 'shut after the reload').toBeHidden();
   await openTools(page);
   for (const name of PARTS) await expect(heading(page, name), name).toHaveAttribute('aria-expanded', 'true');
