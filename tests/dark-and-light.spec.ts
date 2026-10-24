@@ -2,7 +2,7 @@
 // and 'Device' draws it as the device is set, also as that setting changes. The app keeps the pick; a box of the lib keeps nothing, and its mode is its own.
 // The export: export.spec.ts. No color outside the theme: theme.spec.ts.
 import type { Locator, Page } from '@playwright/test';
-import { APP_STORE, boxesDrawn, expect, openApp, openKey, openPlan, PLAIN, popup, reload, settle, side, step, stored, test } from './helpers';
+import { APP_STORE, boxesDrawn, expect, openApp, openTools, openPlan, PLAIN, popup, reload, settle, side, step, stored, test } from './helpers';
 import { full, links } from './plans';
 
 type Scheme = 'light' | 'dark';
@@ -18,7 +18,7 @@ const root = (page: Page): Locator => page.locator('.roadmap').first();
 const ring = (view: Locator): Locator => view.locator('svg.plan g.zn .node .ring').first();
 
 /** Every part of the view, each by its CSS inside the root of the view, with the colors it is drawn in. */
-const PARTS = ['', '.head .title', '.head .progress', '.zoom', '.zoom .knob', '.zoom .stop', '.popup', '.popup .key', '.popup .switch', '.popup .opt[aria-checked="true"]', '.popup .seg',
+const PARTS = ['', '.head .title', '.head .progress', '.zoom', '.zoom .knob', '.zoom .stop', '.popup', '.popup .fold', '.popup .key', '.popup .switch', '.popup .opt[aria-checked="true"]', '.popup .seg',
   '.picker', '.grip', '.tip', '.side', '.errors', 'svg.plan .lane', 'svg.plan g.zn .node .ring', 'svg.plan text.label', 'svg.plan .cap', '.names', '.show-all'];
 const looks = (view: Locator): Promise<Record<string, string>> =>
   view.evaluate((r, parts) => {
@@ -36,7 +36,7 @@ for (const device of ['dark', 'light'] as const) {
   test(`on a ${device} device, 'Light' and 'Dark' draw every part of the view as 'Device' does on a device set to that mode, and 'Device' draws it as this device is set`, async ({ page }) => {
     await page.emulateMedia({ colorScheme: device });
     await openPlan(page, full, { store: null });
-    await openKey(page);
+    await openTools(page);
     await expect(mode(page, 'Device'), 'the first pick').toHaveAttribute('aria-checked', 'true');
     // what 'Device' draws as the device is set to each mode
     const as = {} as Record<Scheme, Record<string, string>>;
@@ -70,7 +70,7 @@ test("'Device' follows the device's setting as it changes; 'Light' and 'Dark' do
   await page.emulateMedia({ colorScheme: 'light' });
   await expect(root(page)).toHaveCSS('background-color', BG.light);
   await expect(ring(root(page))).toHaveCSS('stroke', LINE.light);
-  await openKey(page);
+  await openTools(page);
   await mode(page, 'Dark').click();
   await expect(root(page)).toHaveCSS('background-color', BG.dark);
   await page.emulateMedia({ colorScheme: 'dark' });
@@ -87,7 +87,7 @@ test('the arrows move the pick in the mode, as in the pair of layouts, and do no
   await openPlan(page, full, { store: null });
   const scroll = (): Promise<number[]> => page.locator('.roadmap .stage').evaluate(s => [s.scrollLeft, s.scrollTop]);
   const before = await scroll();
-  await openKey(page);
+  await openTools(page);
   await mode(page, 'Device').focus();
   for (const [key, name, s] of [['ArrowRight', 'Light', 'light'], ['ArrowRight', 'Dark', 'dark'], ['ArrowRight', 'Device', 'dark'], ['ArrowLeft', 'Dark', 'dark'], ['ArrowUp', 'Light', 'light']] as const) {
     await page.keyboard.press(key);
@@ -98,7 +98,7 @@ test('the arrows move the pick in the mode, as in the pair of layouts, and do no
   await expect(popup(page)).toBeVisible();
   expect(await scroll(), 'the plan stays').toEqual(before);
   await mode(page, 'Dark').click();
-  await expect(page.locator('.zoom').getByRole('button', { name: 'Key', exact: true })).toBeFocused();
+  await expect(page.locator('.zoom').getByRole('button', { name: 'Tools', exact: true })).toBeFocused();
 });
 
 test("the app keeps the pick, and after a reload the view is in it before it draws anything; what an older page kept, with no mode, opens as the device is set", async ({ page }) => {
@@ -117,7 +117,7 @@ test("the app keeps the pick, and after a reload the view is in it before it dra
   const seen = async (): Promise<string[]> => (await page.evaluate(() => (window as unknown as { seen: string[] }).seen)).filter((s, i, a) => s !== 'drawn' || a[i - 1] !== 'drawn');
   await openApp(page);
   expect((await seen()).slice(0, 2), 'a first visit').toEqual(['device', 'drawn']);
-  await openKey(page);
+  await openTools(page);
   await mode(page, 'Light').click();
   await settle(page);
   expect((await stored(page, APP_STORE))?.mode).toBe('light');
@@ -127,14 +127,14 @@ test("the app keeps the pick, and after a reload the view is in it before it dra
   await expect(root(page)).toHaveCSS('background-color', BG.light);
   await expect(mode(page, 'Light')).toHaveAttribute('aria-checked', 'true');
 
-  await openKey(page);
+  await openTools(page);
   await mode(page, 'Device').click();
   await reload(page);
   await expect(root(page)).toHaveCSS('background-color', BG.dark);
   await expect(mode(page, 'Device')).toHaveAttribute('aria-checked', 'true');
 
   // what a page kept before the mode, in place of a kept 'Light'
-  await openKey(page);
+  await openTools(page);
   await mode(page, 'Light').click();
   await openApp(page, { kept: { level: 0, id: 'kickoff', fx: 0.5, fy: 0.5 } });
   await expect(root(page)).toHaveCSS('background-color', BG.dark);
@@ -150,7 +150,7 @@ test("the mode, 'Links' open or closed and 'Include private items' are kept toge
     await expect(fold).toBeVisible();
   };
   await openPlan(page, links, { exporting: true });
-  await openKey(page);
+  await openTools(page);
   await mode(page, 'Light').click();
   expect(await kept()).toEqual(['light', true, false]);
   await privateSwitch.click();
@@ -165,7 +165,7 @@ test("the mode, 'Links' open or closed and 'Include private items' are kept toge
   await pickSpec();
   await expect(fold).toHaveAttribute('aria-expanded', 'false');
   await page.keyboard.press('Escape');
-  await openKey(page);
+  await openTools(page);
   await expect(mode(page, 'Light')).toHaveAttribute('aria-checked', 'true');
   await expect(privateSwitch).toHaveAttribute('aria-checked', 'true');
   await mode(page, 'Dark').click();
@@ -188,7 +188,7 @@ test('on a slow device, the app paints nothing before the view is in the kept mo
 
 test('with motion, a pick turns every part of the view at once: no color fades from the mode before', async ({ page }) => {
   await openPlan(page, full, { store: null, motion: true });
-  await openKey(page);
+  await openTools(page);
   for (const name of ['Light', 'Dark', 'Device', 'Light']) {
     // right after the click: the transitions of a color that run, and the colors of every part
     const [fades, now] = await root(page).evaluate((r, name) => {
@@ -208,7 +208,7 @@ test("in the tag of the lib, the mode is the box's own: a pick draws that box in
   const [a, b] = [page.locator('roadmapper-view').nth(0), page.locator('roadmapper-view').nth(1)];
   const body = await page.locator('body').evaluate(e => getComputedStyle(e).backgroundColor);
   for (const box of [a, b]) await expect(box.locator('.roadmap'), 'as the device is set').toHaveCSS('background-color', BG.dark);
-  await a.locator('.zoom').getByRole('button', { name: 'Key', exact: true }).click();
+  await a.locator('.zoom').getByRole('button', { name: 'Tools', exact: true }).click();
   await a.getByRole('radio', { name: 'Light' }).click();
   await expect(a.locator('.roadmap')).toHaveCSS('background-color', BG.light);
   await expect(a.locator('.roadmap')).toHaveCSS('color-scheme', 'light');

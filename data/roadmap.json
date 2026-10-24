@@ -1170,8 +1170,9 @@
                 {
                   "id": "tools-button",
                   "name": "Tools button design",
-                  "icon": "tool",
-                  "why": "(i) becomes a tools button, with sections that open and close, such as the key, themes and export.",
+                  "icon": "settings",
+                  "state": "done",
+                  "why": "(i) becomes a gear button, with parts that open and close: the key, the view and export.",
                   "doneWhen": "A mock of the tools button and its sections, on Roadmapper's own roadmap, is reviewed and approved."
                 },
                 {
@@ -1183,9 +1184,14 @@
                         {
                           "id": "tools-button-code",
                           "name": "Tools button code",
-                          "icon": "tool",
+                          "icon": "settings",
+                          "state": "done",
+                          "waitsFor": [
+                            "export-in-the-app-build",
+                            "dark-and-light-code"
+                          ],
                           "why": "Tools button works in the app as designed.",
-                          "doneWhen": "On Roadmapper's own roadmap, each section of the tools button opens and closes."
+                          "doneWhen": "On Roadmapper's own roadmap, each part of the gear button opens and closes."
                         }
                       ]
                     },
@@ -1195,7 +1201,8 @@
                         {
                           "id": "tools-button-tests",
                           "name": "Tools button tests",
-                          "icon": "tool",
+                          "icon": "settings",
+                          "state": "done",
                           "why": "Tests in a real browser for Tools button, so a change cannot break it unseen.",
                           "doneWhen": "npm test checks the tools button, as designed."
                         }

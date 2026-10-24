@@ -1,14 +1,15 @@
-// The zoom control: its buttons, the popup by its end with the key, the switches, the mode, the pair of layouts and in the app Export, and the grip that hides it.
+// The zoom control: its buttons, the popup of the tools button by its end with the parts 'Key', 'View' and in the app 'Export', and the grip that hides it.
 import { GRIP } from '../icons/icons.js';
 import type { ViewContext } from './context.js';
 import type { Mode } from './dom.js';
 import { r2 } from './math.js';
+import { TAP } from './side.js';
 
 /** How far over the zoom control the popup and the list lie: clear of the grip on its top edge. */
 export const OVER = 30;
 
 export function toolbarPart(ctx: ViewContext) {
-  const { fit, flows, glyph, grip, hide, hideL, host, info, into, keepPrivate, layers, modeSeg, modes, names, out, picker, popup, rule, seg, stops, zoom } = ctx;
+  const { fit, flows, glyph, grip, hide, hideL, host, into, keepPrivate, layers, modeSeg, modes, names, out, parts, picker, popup, rule, seg, stops, tools, viewPart, zoom } = ctx;
 
   /** Writes the level, the view, the labels, the layout and what is open on the zoom control and the popup, for the keyboard and for the theme. */
   function controls(): void {
@@ -19,7 +20,7 @@ export function toolbarPart(ctx: ViewContext) {
     hide.setAttribute('aria-checked', String(ctx.view === 0));
     hideL.setAttribute('aria-checked', String(!ctx.labels));
     keepPrivate.setAttribute('aria-checked', String(ctx.withPrivate));
-    info.setAttribute('aria-expanded', String(!popup.hidden));
+    tools.setAttribute('aria-expanded', String(!popup.hidden));
     layers.setAttribute('aria-expanded', String(!picker.hidden));
     // the layout the plan is drawn in, for the theme and for what embeds the view
     host.dataset.flow = ctx.flow;
@@ -31,7 +32,8 @@ export function toolbarPart(ctx: ViewContext) {
       b.tabIndex = on ? 0 : -1;
     });
   }
-  /** Opens or closes the popup. From the keyboard the focus goes into it as it opens, and back to its button as it closes. */
+  /** Opens or closes the popup. From the keyboard the focus goes into it as it opens: to the first switch of 'View', or to the first heading while 'View' is closed.
+   * It goes back to the tools button as the popup closes. */
   function setPopup(open: boolean, focus = false): void {
     if (open === !popup.hidden) return;
     // while only a blocked step and its blockers show, the zoom control rests, and so does the popup
@@ -44,7 +46,7 @@ export function toolbarPart(ctx: ViewContext) {
     else ctx.resetExport();
     placePopup();
     controls();
-    if (focus) (open ? (ctx.hasIcons ? hide : hideL) : info).focus();
+    if (focus) (open ? (viewPart.isOpen() ? (ctx.hasIcons ? hide : hideL) : parts[0].head) : tools).focus();
     ctx.seek();
   }
   /** Puts the popup by the end of the zoom control, OVER it: as wide as the control where the side bar is a sheet at the bottom, else its own width with its right edge on the control's.
@@ -78,13 +80,19 @@ export function toolbarPart(ctx: ViewContext) {
     });
   }
 
+  /** Where and when the pointer last clicked a heading of the popup. The popup keeps its bottom edge, so what is above that part moves under the pointer. */
+  let foldAt: { x: number; y: number; t: number } | null = null;
+  /** Is this press, or this click, the second of a double click or of a double tap on a heading of the popup? It lands on what moved there, and does nothing there. */
+  const afterFold = (e: MouseEvent): boolean =>
+    !!foldAt && performance.now() - foldAt.t < 500 && Math.hypot(e.clientX - foldAt.x, e.clientY - foldAt.y) < TAP.PX;
+
   // ---- the grip: it hides the zoom control down to the grip alone, and brings it back. The keys of the control still work. ----
 
   function setTucked(on: boolean): void {
     ctx.tucked = on;
     if (on) { setPopup(false); ctx.setBranches(false); }
     host.classList.toggle('tucked', on);
-    for (const e of [out, stops, into, rule, layers, info]) e.inert = on;
+    for (const e of [out, stops, into, rule, layers, tools]) e.inert = on;
     const label = on ? 'Show toolbar' : 'Hide toolbar';
     grip.replaceChildren(glyph(on ? GRIP.show : GRIP.hide, 18, on ? '▴' : '▾'));
     grip.setAttribute('aria-label', label);
@@ -106,14 +114,25 @@ export function toolbarPart(ctx: ViewContext) {
   hide.addEventListener('click', () => ctx.setIcons(ctx.view === 0));
   hideL.addEventListener('click', () => ctx.setLabels(!ctx.labels));
   // a press from the keyboard has no pointer: the focus goes into the popup
-  info.addEventListener('click', e => setPopup(popup.hidden === true, e.detail === 0));
+  tools.addEventListener('click', e => setPopup(popup.hidden === true, e.detail === 0));
+  // the heading of each part of the popup closes and opens it. The view does not keep which: each part is open again on the next visit
+  for (const p of parts) p.head.addEventListener('click', e => {
+    p.setOpen(!p.isOpen());
+    if (e.detail > 0) foldAt = { x: e.clientX, y: e.clientY, t: performance.now() };
+  });
+  // the second click of a double click on a heading does nothing on the button of the popup that moved under it; a click from the keyboard is never eaten
+  popup.addEventListener('click', e => {
+    if (e.detail === 0 || !afterFold(e)) return;
+    e.stopPropagation();
+    e.preventDefault();
+  }, { capture: true });
   const pickMode = (b: HTMLButtonElement): void => { setMode(b.dataset.mode as Mode); ctx.save(); };
   // the pair of layouts and the mode: a click chooses, and the arrows move between the buttons of the box and choose. They do not move the plan
   for (const [box, buttons, choose] of [[seg, flows, (b: HTMLButtonElement) => ctx.setFlow(b.dataset.flow as 'h' | 'v')], [modeSeg, modes, pickMode]] as const) {
     for (const b of buttons) b.addEventListener('click', e => {
       choose(b);
       // a press of the pointer leaves the focus on the button of the popup, not on the box: the arrows that come next move the plan, and do not choose again
-      if (e.detail > 0 && (host.getRootNode() as Document | ShadowRoot).activeElement === b) info.focus({ preventScroll: true });
+      if (e.detail > 0 && (host.getRootNode() as Document | ShadowRoot).activeElement === b) tools.focus({ preventScroll: true });
     });
     box.addEventListener('keydown', e => {
       const by = ({ ArrowLeft: -1, ArrowUp: -1, ArrowRight: 1, ArrowDown: 1 } as Record<string, number | undefined>)[e.key];
@@ -126,7 +145,7 @@ export function toolbarPart(ctx: ViewContext) {
     });
   }
 
-  return { controls, setPopup, placePopup, setTucked, setMode };
+  return { controls, setPopup, placePopup, setTucked, setMode, afterFold };
 }
 
 export type ToolbarPart = ReturnType<typeof toolbarPart>;

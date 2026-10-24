@@ -216,28 +216,28 @@ export const labels = (more = ''): string =>
 export const nameOf = (page: Page, id: string): Locator => page.locator(labels(`[data-id="${id}"]`));
 /** The layout the plan is drawn in: 'h' across, 'v' down. */
 export const flowOf = (page: Page): Promise<string | null> => page.locator('.roadmap').first().getAttribute('data-flow');
-/** The button at the end of the zoom control that opens the popup with the key, the switches 'Hide node icons' and 'Hide labels', the mode and the pair of layouts. */
-export const keyButton = (page: Page): Locator => page.locator('.zoom').getByRole('button', { name: 'Key', exact: true });
-/** The popup that the button opens, found also while it is shut. */
-export const popup = (page: Page): Locator => page.getByRole('dialog', { name: 'Key', includeHidden: true });
+/** The tools button, a gear at the end of the zoom control, which opens the popup with the parts 'Key', 'View' and, in the app, 'Export'. */
+export const toolsButton = (page: Page): Locator => page.locator('.zoom').getByRole('button', { name: 'Tools', exact: true });
+/** The popup that the tools button opens, found also while it is shut. */
+export const popup = (page: Page): Locator => page.getByRole('dialog', { name: 'Tools', includeHidden: true });
 /** The switch 'Hide node icons' in the popup, found also while the popup is shut. A plan with no icons has it hidden. */
 export const iconsSwitch = (page: Page): Locator => popup(page).getByRole('switch', { name: 'Hide node icons', includeHidden: true });
 /** The switch 'Hide labels' in the popup, found also while the popup is shut. Every plan has it. */
 export const labelsSwitch = (page: Page): Locator => popup(page).getByRole('switch', { name: 'Hide labels', includeHidden: true });
-/** Opens the popup with a click on its button, if it is not open. */
-export async function openKey(page: Page): Promise<void> {
-  if (await popup(page).isHidden()) await keyButton(page).click();
+/** Opens the popup with a click on the tools button, if it is not open. */
+export async function openTools(page: Page): Promise<void> {
+  if (await popup(page).isHidden()) await toolsButton(page).click();
   await expect(popup(page)).toBeVisible();
 }
 /** Draws the plan in a layout with the pair in the popup: 'Horizontal' or 'Vertical'. The popup stays open. Waits for the view to rest. */
 export async function pickLayout(page: Page, name: 'Horizontal' | 'Vertical'): Promise<void> {
-  await openKey(page);
+  await openTools(page);
   await popup(page).getByRole('radio', { name }).click();
   await settle(page);
 }
 /** Shows the labels or hides them with the switch in the popup, where they are not so yet. The popup stays open. Waits for the view to rest. */
 export async function showLabels(page: Page, shown: boolean): Promise<void> {
-  await openKey(page);
+  await openTools(page);
   if ((await labelsSwitch(page).getAttribute('aria-checked')) === String(shown)) await labelsSwitch(page).click();
   await settle(page);
   await expect(labelsSwitch(page)).toHaveAttribute('aria-checked', String(!shown));

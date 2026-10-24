@@ -228,15 +228,16 @@ test.describe('<Roadmap> in a React app', () => {
     await expect(view.locator('.zoom')).toHaveCSS('position', 'absolute');
   });
 
-  test("the popup of the box ends with the layouts: it has no hairline after them, no switch 'Include private items' and no button 'Export'", async ({ page }) => {
+  test("the popup of the box holds the parts 'Key' and 'View', which ends with the layouts: it has no part 'Export', no switch 'Include private items' and no button 'Export'", async ({ page }) => {
     await openEmbed(page, { plan: full });
-    await press(page, theBox(page).locator('.zoom .info'));
-    const key = theBox(page).getByRole('dialog', { name: 'Key' });
-    await expect(key).toBeVisible();
-    await expect(key.locator('hr')).toHaveCount(1);
-    await expect(key.getByRole('switch', { name: 'Include private items', includeHidden: true })).toHaveCount(0);
-    await expect(key.locator('button.export')).toHaveCount(0);
-    await expect(key.getByRole('button', { name: 'Export', includeHidden: true })).toHaveCount(0);
+    await press(page, theBox(page).locator('.zoom .tools'));
+    const tools = theBox(page).getByRole('dialog', { name: 'Tools' });
+    await expect(tools).toBeVisible();
+    await expect(tools.locator('button.fold')).toHaveText(['Key', 'View']);
+    await expect(tools.locator('hr')).toHaveCount(1);
+    await expect(tools.getByRole('switch', { name: 'Include private items', includeHidden: true })).toHaveCount(0);
+    await expect(tools.locator('button.export')).toHaveCount(0);
+    await expect(tools.getByRole('button', { name: 'Export', includeHidden: true })).toHaveCount(0);
   });
 
   test("scrolled under the page's header and past, nothing of the box shows: not the side bar, the tip or the zoom control", async ({ page }) => {

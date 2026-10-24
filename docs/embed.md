@@ -107,7 +107,7 @@ A page opened from disk cannot read a file by `src`. For such a page, put the te
 - The plan in the box runs across at any size, because the page scrolls up and down. 'Vertical' still makes it run down.
 - Each visit opens the box the way the app opens the first time, as [view.md, section "What it remembers"](view.md#what-it-remembers) says.
 - The side bar, the tip, the zoom control and the popup stay inside the box.
-- The popup ends with 'Horizontal' and 'Vertical'. To export the roadmap, use the app, as [export.md, section "Export from the app"](export.md#export-from-the-app) says.
+- The popup holds the parts 'Key' and 'View'. To export the roadmap, use the app, as [export.md, section "Export from the app"](export.md#export-from-the-app) says.
 
 ## Which roadmapper.js is which
 

@@ -95,8 +95,7 @@ export function sidePart(ctx: ViewContext) {
   ctx.off.signal.addEventListener('abort', () => cuts.disconnect());
   /** The 'Links' part of a step: a row for each link, which opens its page in a new tab. Its heading closes and opens it, and the view keeps which. */
   function linksPart(links: Link[]): HTMLElement {
-    const s = html('section', 'part'), fold = html('button', 'fold'), body = html('div', '');
-    fold.append(html('h3', '', 'Links'), glyph(LINKS.fold, 16, '▾'));
+    const rows: HTMLElement[] = [];
     for (const l of links) {
       const a = html('a', 'row'), go = html('span', 'go');
       a.href = l.url; a.target = '_blank'; a.rel = 'noopener noreferrer';
@@ -105,24 +104,20 @@ export function sidePart(ctx: ViewContext) {
       a.append(glyph(l.icon && art(l.icon) ? l.icon : LINKS.link, 20, ''), nm, go);
       cuts.observe(nm);
       a.addEventListener('click', e => { if (performance.now() < ctx.noClick) e.preventDefault(); });
-      body.append(a);
+      rows.push(a);
     }
-    const shown = (): void => {
-      fold.setAttribute('aria-expanded', String(ctx.linksOpen));
-      body.hidden = !ctx.linksOpen;
-    };
+    const { part, head: fold, setOpen } = ctx.foldPart('Links', LINKS.fold, ...rows);
     fold.addEventListener('click', () => {
       ctx.linksOpen = !ctx.linksOpen;
-      shown();
+      setOpen(ctx.linksOpen);
       // where the side bar is a sheet at the bottom, its top moves: the second click of a double click, or of a double tap, lands on what moved under it, and does nothing there,
       // and the picked thing stays clear of the sheet
       if (fit.bottom) ctx.noClick = performance.now() + 500;
       ctx.uncover();
       ctx.save();
     });
-    shown();
-    s.append(fold, body);
-    return s;
+    setOpen(ctx.linksOpen);
+    return part;
   }
   /** What is in a branch, in the order of the plan: its own steps, each group that is one step far out, and the branches of a branching or of a group inside a group. */
   const inIt = (b: TBranch): Thing[] => b.items.flatMap((it): Thing[] => (isKids(it) && !ctx.byPod.has(it.key) ? it.kids : [it]));

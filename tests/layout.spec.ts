@@ -1,4 +1,4 @@
-// 'Layout tests': the head on one row; the popup at the end of the zoom control, with the key, the switches 'Hide node icons' and 'Hide labels', the mode and the pair of layouts,
+// 'Layout tests': the head on one row; the popup at the end of the zoom control, with the key in 'Key', and in 'View' the switches 'Hide node icons' and 'Hide labels', the mode and the pair of layouts,
 // each of which acts on its own and leaves the popup open; the layout a view first draws, across or down, by its size; the pick of the pair, which holds for the visit and which the app keeps;
 // 'Hide labels', which draws no word but the names of the versions, plays as a move and is kept; a pinch on a phone, which scales the plan and not the page;
 // and in both layouts, with the labels shown and hidden, no line crosses another, runs through a name, and no name touches another.
@@ -7,7 +7,7 @@ import { readFileSync } from 'node:fs';
 import type { Locator, Page } from '@playwright/test';
 import { STATE_NAME, STATES, type Roadmap, type State } from '../src/roadmap/types';
 import {
-  expect, flowOf, iconsSwitch, keyButton, labelsSwitch, level, levels, nameOf, nameSize, openApp, openEmbed, openKey, openPlan, pickLayout, play, popup, reload,
+  expect, flowOf, iconsSwitch, toolsButton, labelsSwitch, level, levels, nameOf, nameSize, openApp, openEmbed, openTools, openPlan, pickLayout, play, popup, reload,
   settle, showLabels, side, step, stopClock, stored, test, tip, words, zoomTo,
 } from './helpers';
 import { columns, edit, full, nodeOf, nodesOf, plain, plans, shownAtFirst } from './plans';
@@ -69,8 +69,8 @@ test.describe('the head and the popup', () => {
 
   test('the button at the end of the zoom control opens the popup and shuts it; the popup holds the key of the states on the plan, the switches and the pair', async ({ page }) => {
     await openPlan(page, plain, { store: null });
-    const button = keyButton(page);
-    await expect(page.locator('.zoom > :last-child')).toHaveAttribute('aria-label', 'Key');
+    const button = toolsButton(page);
+    await expect(page.locator('.zoom > :last-child')).toHaveAttribute('aria-label', 'Tools');
     await expect(popup(page)).toBeHidden();
     await expect(button).toHaveAttribute('aria-expanded', 'false');
     expect(await button.getAttribute('aria-controls')).toBe(await popup(page).getAttribute('id'));
@@ -88,13 +88,13 @@ test.describe('the head and the popup', () => {
     await expect(button).toHaveAttribute('aria-expanded', 'false');
     // a plan with icons has both switches, 'Hide node icons' first
     await openPlan(page, full, { store: null });
-    await openKey(page);
+    await openTools(page);
     await expect(popup(page).getByRole('switch')).toHaveText(['Hide node icons', 'Hide labels']);
   });
 
   test('the popup lies 30 px over the end of the zoom control, clear of the grip: on a laptop its right edge on the control\'s, on a phone as wide as the control', async ({ page }) => {
     await openPlan(page, full, { store: null });
-    await openKey(page);
+    await openTools(page);
     let bar = await boxOf(page, '.roadmap .zoom'), pop = await boxOf(page, '.roadmap .popup');
     expect(Math.abs(pop.x + pop.width - (bar.x + bar.width)), 'right edges').toBeLessThan(1);
     expect(Math.abs(bar.y - (pop.y + pop.height) - 30), 'over the control, clear of the grip').toBeLessThan(1);
@@ -108,12 +108,12 @@ test.describe('the head and the popup', () => {
     expect(Math.abs(bar.y - (pop.y + pop.height) - 30), 'over the control, clear of the grip').toBeLessThan(1);
   });
 
-  test("with icons the popup is the key, a hairline, 'Hide node icons' over 'Hide labels', each a row of 44 px, and a row under them: the mode at the left and the pair at the right. With a key of six it is 291 px high, and at 320 px wide the rows still fit", async ({ page }) => {
+  test("with icons the popup is 'Key', a hairline, then 'View': 'Hide node icons' over 'Hide labels', each a row of 44 px, and a row under them: the mode at the left and the pair at the right. With a key of six it is 337 px high, and at 320 px wide the rows still fit", async ({ page }) => {
     for (const [width, height] of [[1440, 900], [844, 390], [390, 664], [360, 640], [320, 568]]) {
       const at = `${width}x${height}`;
       await page.setViewportSize({ width, height });
       await openPlan(page, six, { store: null });
-      await openKey(page);
+      await openTools(page);
       await expect(popup(page).locator('.key li')).toHaveCount(6);
       const b = await popup(page).evaluate(p => {
         const box = (e: Element): { l: number; r: number; t: number; b: number } => { const r = e.getBoundingClientRect(); return { l: r.left, r: r.right, t: r.top, b: r.bottom }; };
@@ -123,7 +123,7 @@ test.describe('the head and the popup', () => {
           over: Math.max(p.scrollWidth - p.clientWidth, opts.scrollWidth - opts.clientWidth), whole: p.scrollHeight + (p as HTMLElement).offsetHeight - p.clientHeight,
         };
       });
-      expect(b.whole, `${at}: high, where a short view scrolls it too`).toBeCloseTo(291, 0);
+      expect(b.whole, `${at}: high, where a short view scrolls it too`).toBeCloseTo(337, 0);
       expect(b.hide.b - b.hide.t, at).toBeCloseTo(44, 0);
       expect(b.hideL.b - b.hideL.t, at).toBeCloseTo(44, 0);
       expect(b.hide.t, `${at}: 'Hide node icons' on the first row`).toBeCloseTo(b.opts.t, 0);
@@ -149,10 +149,10 @@ test.describe('the head and the popup', () => {
     });
     // 'plain' with an icon on its first step: the same key, and both switches
     await openPlan(page, edit(plain, p => { nodeOf(p, 'p-1').icon = 'rocket'; }), { store: null });
-    await openKey(page);
+    await openTools(page);
     const two = await rowOf();
     await openPlan(page, plain, { store: null });
-    await openKey(page);
+    await openTools(page);
     await expect(popup(page).getByRole('switch')).toHaveText(['Hide labels']);
     await expect(iconsSwitch(page)).toBeHidden();
     const one = await rowOf();
@@ -160,13 +160,13 @@ test.describe('the head and the popup', () => {
     expect(one.row - one.under, 'the mode and the pair under the switch').toBeCloseTo(two.row - two.under, 0);
     await page.keyboard.press('Escape');
     await expect(popup(page)).toBeHidden();
-    await keyButton(page).press('Enter');
+    await toolsButton(page).press('Enter');
     await expect(labelsSwitch(page)).toBeFocused();
   });
 
   test('the zoom control is a part of the popup: its stops and + act and leave it open, and so do the switches, the key I and the pair', async ({ page }) => {
     await openPlan(page, full, { store: null });
-    await openKey(page);
+    await openTools(page);
     await zoomTo(page, 'Tracks');
     await expect(popup(page)).toBeVisible();
     await page.locator('.zoom').getByRole('button', { name: 'Zoom in' }).click();
@@ -193,7 +193,7 @@ test.describe('the head and the popup', () => {
 
   test('a press out of the popup shuts it and does nothing else: no pick and no zoom; the next press picks; a drag from out of it still moves the plan', async ({ page }) => {
     await openPlan(page, full, { store: null });
-    await openKey(page);
+    await openTools(page);
     await step(page, 'kickoff').click();
     await settle(page);
     await expect(popup(page)).toBeHidden();
@@ -204,7 +204,7 @@ test.describe('the head and the popup', () => {
     await page.keyboard.press('Escape');
     await settle(page);
 
-    await openKey(page);
+    await openTools(page);
     await step(page, 'kickoff').dblclick();
     await settle(page);
     await expect(popup(page)).toBeHidden();
@@ -213,7 +213,7 @@ test.describe('the head and the popup', () => {
     await settle(page);
 
     await zoomTo(page, 'Every step');
-    await openKey(page);
+    await openTools(page);
     // from the middle of the stage between its left edge and the popup
     const before = await stageScroll(page), r = await boxOf(page, '.roadmap .stage'), x = (r.x + (await boxOf(page, '.roadmap .popup')).x) / 2;
     await page.mouse.move(x, r.y + r.height / 2);
@@ -231,7 +231,7 @@ test.describe('the head and the popup', () => {
     await step(page, 'kickoff').click();
     await settle(page);
     await expect(side(page)).toBeVisible();
-    await openKey(page);
+    await openTools(page);
     await expect(side(page), 'over an open side bar').toBeVisible();
     await page.keyboard.press('Escape');
     await expect(popup(page)).toBeHidden();
@@ -240,7 +240,7 @@ test.describe('the head and the popup', () => {
     await settle(page);
     await expect(side(page)).toBeHidden();
 
-    await keyButton(page).focus();
+    await toolsButton(page).focus();
     await page.keyboard.press('Enter');
     await expect(popup(page)).toBeVisible();
     await expect(popup(page).getByRole('switch', { name: 'Hide node icons' })).toBeFocused();
@@ -252,7 +252,7 @@ test.describe('the head and the popup', () => {
     await expect(popup(page).getByRole('radio', { name: 'Horizontal' }), 'the chosen one of the pair').toBeFocused();
     await page.keyboard.press('Escape');
     await expect(popup(page)).toBeHidden();
-    await expect(keyButton(page)).toBeFocused();
+    await expect(toolsButton(page)).toBeFocused();
   });
 });
 
@@ -261,7 +261,7 @@ test.describe("the switches in the popup, 'Hide node icons' and 'Hide labels', a
 
   test('by a click', async ({ page }) => {
     await openPlan(page, full, { store: null });
-    await openKey(page);
+    await openTools(page);
     await pressed(page, 'icons', () => iconsSwitch(page).click());
     await pressed(page, 'labels', () => labelsSwitch(page).click());
     await pressed(page, 'flow', () => radio(page, 'Vertical').click());
@@ -272,7 +272,7 @@ test.describe("the switches in the popup, 'Hide node icons' and 'Hide labels', a
 
   test('by the keyboard: Space and Enter on a switch, the arrows in the pair', async ({ page }) => {
     await openPlan(page, full, { store: null });
-    await keyButton(page).focus();
+    await toolsButton(page).focus();
     await page.keyboard.press('Enter');
     await expect(iconsSwitch(page)).toBeFocused();
     await pressed(page, 'icons', () => page.keyboard.press('Space'));
@@ -303,7 +303,7 @@ test.describe("the switches in the popup, 'Hide node icons' and 'Hide labels', a
     test('by a tap of a finger', async ({ page }) => {
       await openPlan(page, full, { store: null });
       expect(await flowOf(page)).toBe('v');
-      await keyButton(page).tap();
+      await toolsButton(page).tap();
       await expect(popup(page)).toBeVisible();
       await pressed(page, 'icons', () => iconsSwitch(page).tap());
       await pressed(page, 'labels', () => labelsSwitch(page).tap());
@@ -422,7 +422,7 @@ test.describe('the two layouts', () => {
   test('with motion, a turn plays for 600 ms, and a press during it ends it where it was going', async ({ page }) => {
     await openPlan(page, full, { store: null, motion: true, clock: true });
     await stopClock(page);
-    await openKey(page);
+    await openTools(page);
     const host = page.locator('.roadmap');
     await popup(page).getByRole('radio', { name: 'Vertical' }).click();
     await page.clock.runFor(300);
@@ -497,7 +497,7 @@ test.describe("'Hide labels'", () => {
     // the width of the plan runs straight from the one with the labels shown to the one with them hidden, as the flip does
     const width = (): Promise<number> => page.locator('svg.plan').evaluate(s => (s as SVGSVGElement).viewBox.baseVal.width);
     const shown = await width();
-    await openKey(page);
+    await openTools(page);
     await labelsSwitch(page).click();
     await play(page, 1000);
     const hidden = await width();
@@ -580,7 +580,7 @@ test.describe("'Hide labels'", () => {
       await showLabels(page, false);
       await iconsSwitch(page).click();
       await settle(page);
-      await keyButton(page).click();
+      await toolsButton(page).click();
       // the tidy after each switch keeps the plan clear of the open popup: the top of the plan comes back into sight
       await page.locator('.roadmap .stage').evaluate(s => { s.scrollTop = 0; });
       await settle(page);

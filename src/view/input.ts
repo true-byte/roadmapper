@@ -41,6 +41,11 @@ export function inputPart(ctx: ViewContext): void {
     if (popup.hidden && picker.hidden) return;
     const path = e.composedPath();
     if (path.includes(popup) || path.includes(picker) || path.includes(zoom)) return;
+    // the second press of a double click on a heading of the popup lands out of the popup that got shorter: the popup stays open, and the press does nothing there
+    if (ctx.afterFold(e)) {
+      ctx.noClick = performance.now() + 500;
+      return;
+    }
     ctx.setPopup(false);
     ctx.setBranches(false);
     eat = path.includes(stage) || path.includes(head);

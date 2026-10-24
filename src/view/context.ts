@@ -184,7 +184,8 @@ export interface State {
 
   // ---- the pointer, and what it points at ----
 
-  /** A click before this time does nothing: the second click on the grip, as the zoom control moves under it, or the click after two fingers on the control. */
+  /** A click before this time does nothing: the second click on the grip, as the zoom control moves under it, the click after two fingers on the control,
+   * or the second click on a heading of the popup that lands out of the popup as it gets shorter. */
   noClick: number;
   /** A drag of the plan with the mouse: where it started, and the scroll then. Is it a drag yet, and no click? */
   drag: { x: number; y: number; l: number; t: number } | null;
@@ -238,7 +239,7 @@ export interface ViewContext extends Fixed, State {
   // opening.ts
   middle: OpeningPart['middle']; firstView: OpeningPart['firstView']; firstReach: OpeningPart['firstReach']; columnOf: OpeningPart['columnOf']; untouched: OpeningPart['untouched'];
   // toolbar.ts
-  controls: ToolbarPart['controls']; setPopup: ToolbarPart['setPopup']; placePopup: ToolbarPart['placePopup']; setTucked: ToolbarPart['setTucked']; setMode: ToolbarPart['setMode'];
+  controls: ToolbarPart['controls']; setPopup: ToolbarPart['setPopup']; placePopup: ToolbarPart['placePopup']; setTucked: ToolbarPart['setTucked']; setMode: ToolbarPart['setMode']; afterFold: ToolbarPart['afterFold'];
   // branches.ts
   fillBranches: BranchesPart['fillBranches']; setBranches: BranchesPart['setBranches']; placeBranches: BranchesPart['placeBranches'];
   // moves.ts

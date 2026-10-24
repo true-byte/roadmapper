@@ -9,7 +9,7 @@ import { readFileSync } from 'node:fs';
 import type { Locator, Page } from '@playwright/test';
 import { publicRoadmap } from '../src/roadmap/public';
 import type { Roadmap } from '../src/roadmap/types';
-import { expect, flowOf, keyButton, labelsSwitch, level, openApp, openKey, openPlan, pickLayout, popup, reload, save, settle, showLabels, side, step, test, zoomTo, iconsSwitch } from './helpers';
+import { expect, flowOf, toolsButton, labelsSwitch, level, openApp, openTools, openPlan, pickLayout, popup, reload, save, settle, showLabels, side, step, test, zoomTo, iconsSwitch } from './helpers';
 import { columns, edit, full, nodeOf, nodesOf, sideBySide } from './plans';
 
 /** His roadmap with one step in progress, 'Layout code', inside the group 'Layout build': the states in his file change as the work goes on. */
@@ -77,7 +77,7 @@ test.describe('the switches in the popup, pressed and pressed back in any order,
     test(`at ${width}x${height}: labels, icons, labels, icons; then labels, the layout, labels, the layout`, async ({ page }) => {
       await page.setViewportSize({ width, height });
       await openPlan(page, columns('Three-c'), { store: null });
-      await openKey(page);
+      await openTools(page);
       const start = await pointOf(page, 'start'), first = await flowOf(page);
       const press = async (sw: Locator): Promise<void> => {
         await sw.click();
@@ -132,10 +132,10 @@ test('a picked step holds the plan when a switch goes back: after a flip of the 
 test('a press that ends with no click, such as a right click, eats nothing after it: the keyboard acts at once', async ({ page }) => {
   await openPlan(page, full, { store: null });
   const r = (await page.locator('.roadmap .stage').boundingBox())!;
-  await openKey(page);
+  await openTools(page);
   await page.mouse.click(r.x + 20, r.y + r.height - 20, { button: 'right' });
   await expect(popup(page)).toBeHidden();
-  await keyButton(page).press('Enter');
+  await toolsButton(page).press('Enter');
   await expect(popup(page), 'the first Enter opens it').toBeVisible();
   await page.mouse.click(r.x + 20, r.y + r.height - 20, { button: 'right' });
   await expect(popup(page)).toBeHidden();
@@ -147,7 +147,7 @@ test('a press that ends with no click, such as a right click, eats nothing after
 test('with the popup open, a double click on a step shuts it and does nothing else: no pick and no zoom', async ({ page }) => {
   await openPlan(page, full, { store: null });
   await zoomTo(page, 'Tracks');
-  await openKey(page);
+  await openTools(page);
   await step(page, 'kickoff').dblclick();
   await settle(page);
   await expect(popup(page)).toBeHidden();
@@ -258,7 +258,7 @@ test.describe('on a phone', () => {
       else await openPlan(page, columns('Three-c'), { store: null });
       if (hidden) {
         await showLabels(page, false);
-        await keyButton(page).click();
+        await toolsButton(page).click();
         await expect(popup(page)).toBeHidden();
       }
       // the user moves the plan, so the first view is not put again: the step in progress low in the room, where the room on its side does not reach
@@ -289,7 +289,7 @@ test.describe('on a phone', () => {
     expect(await level(page)).toBe('Every step');
     await page.setViewportSize({ width: 390, height: 664 });
     await settle(page);
-    await openKey(page);
+    await openTools(page);
     await labelsSwitch(page).click();
     await page.waitForTimeout(100);
     await page.setViewportSize({ width: 664, height: 390 });
@@ -317,7 +317,7 @@ test.describe('on a phone', () => {
     await page.setViewportSize({ width: 360, height: 640 });
     await openPlan(page, sideBySide, { store: null });
     await showLabels(page, false);
-    await keyButton(page).click();
+    await toolsButton(page).click();
     await zoomTo(page, 'Every step');
     await step(page, 'k-c').click();
     await settle(page);
@@ -364,7 +364,7 @@ test.describe('on a phone', () => {
     // the plan scrolled down to its top, so that the room over the popup holds its first steps
     await page.locator('.roadmap .stage').evaluate(s => { s.scrollTop = 0; });
     await settle(page);
-    await keyButton(page).tap();
+    await toolsButton(page).tap();
     await expect(popup(page)).toBeVisible();
     // a step, a group step or a pill in the room, over the popup
     const [x, y] = await page.evaluate(() => {
@@ -390,7 +390,7 @@ test.describe('on a phone', () => {
     // the tracks 'Code' of four builds one under the other: their sheets are as high as each other
     await openPlan(page, columns('One-d'), { store: null });
     await pickLayout(page, 'Horizontal');
-    await keyButton(page).tap();
+    await toolsButton(page).tap();
     await zoomTo(page, 'Tracks');
     const keys = await page.evaluate(() => {
       const shown = (e: Element | null): boolean => !!e && getComputedStyle(e).display !== 'none';
@@ -427,7 +427,7 @@ test.describe('on a phone', () => {
   test('at 320 px wide the zoom control keeps its height at every level, and the open popup stays 30 px over it, clear of the grip', async ({ page }) => {
     await page.setViewportSize({ width: 320, height: 568 });
     await openPlan(page, full, { store: null });
-    await keyButton(page).tap();
+    await toolsButton(page).tap();
     await expect(popup(page)).toBeVisible();
     let high: number | null = null;
     for (const at of ['Tracks', 'Every step', 'Main steps', 'Tracks']) {

@@ -1,4 +1,4 @@
-// Export, at the end of the popup, where the page makes the export (options.exportFile), as the app does: the switch 'Include private items',
+// The part 'Export', at the end of the popup, where the page makes the export (options.exportFile), as the app does: the switch 'Include private items',
 // and the button 'Export', which saves the export of the roadmap shown. The button then says 'Saved' with a check, in gold, for SAVED_MS.
 // An export that cannot be made shows in the button as the error list shows an error: the mark of a blocked step and the name of the error, in red.
 // That stays until the next press, a flip of the switch, a new text of the roadmap, or the popup closes.
