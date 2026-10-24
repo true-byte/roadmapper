@@ -1,10 +1,10 @@
-// Show and hide: the list of top-level branches left of (i), a step that waits for one in a hidden branch, and the grip that hides the zoom control.
+// Show and hide: the list of top-level branches left of the tools button, a step that waits for one in a hidden branch, and the grip that hides the zoom control.
 import type { Locator, Page } from '@playwright/test';
-import { caption, errorList, expect, keyButton, level, openKey, openPlan, popup, reload, save, settle, side, step, stored, test, zoomTo } from './helpers';
+import { caption, errorList, expect, toolsButton, level, openTools, openPlan, popup, reload, save, settle, side, step, stored, test, zoomTo } from './helpers';
 import { edit, flat, full, nodeOf, nodesOf, plain, versions } from './plans';
 
 const LONG = versions.branches[3].name!;
-/** The button left of (i) that opens the list. */
+/** The button left of the tools button that opens the list. */
 const layers = (page: Page): Locator => page.locator('.zoom').getByRole('button', { name: 'Branches', exact: true });
 /** The list of top-level branches. */
 const list = (page: Page): Locator => page.getByRole('dialog', { name: 'Branches', includeHidden: true });
@@ -34,8 +34,8 @@ test('a finished top-level branch is hidden at first; the head counts the steps 
   await expect(page.locator('.roadmap .progress')).toHaveText('0 of 4 steps done');
   await expect(list(page)).toBeHidden();
   await expect(layers(page)).toHaveAttribute('aria-expanded', 'false');
-  // left of (i), which stays the last button
-  const at = (await layers(page).boundingBox())!, key = (await keyButton(page).boundingBox())!;
+  // left of the tools button, which stays the last button
+  const at = (await layers(page).boundingBox())!, key = (await toolsButton(page).boundingBox())!;
   expect(at.x + at.width).toBeLessThanOrEqual(key.x);
   await openList(page);
   await expect(layers(page)).toHaveAttribute('aria-expanded', 'true');
@@ -124,7 +124,7 @@ test('Escape closes the list before the side bar; a press on the plan closes it 
   await expect(list(page)).toBeHidden();
   await expect(side(page), 'the press only closed the list').toBeHidden();
   await openList(page);
-  await openKey(page);
+  await openTools(page);
   await expect(list(page)).toBeHidden();
   await layers(page).click();
   await expect(list(page)).toBeVisible();
@@ -157,14 +157,14 @@ test("a step that waits for one in a hidden branch: the side bar names it with a
 test('a plan of one top-level branch has no button for the list', async ({ page }) => {
   await openPlan(page, flat, { store: null });
   await expect(layers(page)).toBeHidden();
-  await expect(keyButton(page)).toBeVisible();
+  await expect(toolsButton(page)).toBeVisible();
 });
 
 test('the grip hides the zoom control down to itself and brings it back: the popup closes, the keys still work, the buttons take no focus, and the page keeps it', async ({ page }) => {
   await openPlan(page, plain);
   const vh = page.viewportSize()!.height, bar = page.locator('.roadmap .zoom'), grip = page.locator('.roadmap .zoom .grip');
   await expect(grip).toHaveAttribute('aria-label', 'Hide toolbar');
-  await openKey(page);
+  await openTools(page);
   await grip.click();
   await expect(popup(page)).toBeHidden();
   await expect(grip).toHaveAttribute('aria-label', 'Show toolbar');
@@ -173,7 +173,7 @@ test('the grip hides the zoom control down to itself and brings it back: the pop
   // its open bottom, where it meets the control, may run 2 px under the edge
   expect(g.y + g.height, 'the grip at the bottom').toBeLessThanOrEqual(vh + 2.5);
   expect(g.y).toBeLessThan(vh - 20);
-  expect(await keyButton(page).evaluate(e => (e as HTMLElement).inert)).toBe(true);
+  expect(await toolsButton(page).evaluate(e => (e as HTMLElement).inert)).toBe(true);
   await page.keyboard.press('+');
   await settle(page);
   expect(await level(page)).toBe('Tracks');
@@ -184,7 +184,7 @@ test('the grip hides the zoom control down to itself and brings it back: the pop
   await expect(grip).toHaveAttribute('aria-label', 'Hide toolbar');
   const b = (await bar.boundingBox())!;
   expect(b.y + b.height).toBeCloseTo(vh - 20, 0);
-  expect(await keyButton(page).evaluate(e => (e as HTMLElement).inert)).toBe(false);
+  expect(await toolsButton(page).evaluate(e => (e as HTMLElement).inert)).toBe(false);
   expect((await stored(page))?.tucked).toBe(false);
 });
 
@@ -316,7 +316,7 @@ test.describe('the grip, more', () => {
   test('on a short view the popup scrolls and never runs off the top', async ({ page }) => {
     await page.setViewportSize({ width: 740, height: 300 });
     await openPlan(page, full, { store: null });
-    await openKey(page);
+    await openTools(page);
     expect((await popup(page).boundingBox())!.y).toBeGreaterThanOrEqual(0);
   });
 });

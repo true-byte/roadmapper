@@ -1,4 +1,4 @@
-// The list of top-level branches: the button left of (i) opens it and closes it. A press anywhere else closes it, and so does Escape, as for the popup.
+// The list of top-level branches: the button left of the tools button opens it and closes it. A press anywhere else closes it, and so does Escape, as for the popup.
 // Each row shows or hides its branch, and the search finds rows by their names.
 import type { ViewContext } from './context.js';
 import { html } from './dom.js';

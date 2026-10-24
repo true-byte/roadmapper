@@ -114,7 +114,7 @@ export function drawPart(ctx: ViewContext) {
       ctx.stopEls.forEach(b => b.remove());
       ctx.stopEls = ctx.views[0].map((_, k) => {
         const b = html('button', 'stop', levelName(ctx.K, k));
-        b.addEventListener('click', () => { if (performance.now() >= ctx.noClick) ctx.go(k); });
+        b.addEventListener('click', e => { if (e.timeStamp >= ctx.noClick) ctx.go(k); });
         stops.append(b);
         return b;
       });

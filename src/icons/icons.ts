@@ -12,8 +12,8 @@ export interface IconSet {
 
 /** The icons the view draws itself, from the set the theme names: the arrows of the side bar and of the edge of the page. */
 export const ARROW = { left: 'arrow-left', right: 'arrow-right' };
-/** The glyph of the button that opens the popup with the key, the 'Hide node icons' switch, the mode and the layout. */
-export const INFO = { open: 'info-circle' };
+/** The glyphs of the tools button: the gear that opens the popup with the parts 'Key', 'View' and 'Export', and the chevron of the heading of each part. */
+export const TOOLS = { open: 'settings', fold: 'chevron-down' };
 /** The glyphs of the mode in the popup: the device's setting, light and dark. */
 export const MODE = { device: 'device-desktop', light: 'sun', dark: 'moon' };
 /** The glyphs of the list of top-level branches: the button that opens it, its search, and the pill of a step in a hidden branch. */

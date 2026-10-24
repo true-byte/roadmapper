@@ -1,7 +1,7 @@
-// The page of a view, made once by mountRoadmap(): the head, the stage with the plan, the zoom control, the popup with Export in the app, the list of branches, the grip,
+// The page of a view, made once by mountRoadmap(): the head, the stage with the plan, the zoom control, the popup of the tools button, the list of branches, the grip,
 // the tip, the side bar, the aim, the names of 'Show only blockers' and the error list. What it shows is drawn again on each good show().
 // Also what the view reads of the theme and of the browser: the icon set, the padding of the stage, where the side bar goes, the layout, and how thick a scroll bar is.
-import { ARROW, BRANCHES, INFO, MODE, iconSet } from '../icons/icons.js';
+import { ARROW, BRANCHES, MODE, TOOLS, iconSet } from '../icons/icons.js';
 import { fontsOf } from './fonts.js';
 import { SVG_NS } from './svg.js';
 import type { ViewOptions } from './view.js';
@@ -50,6 +50,19 @@ export function makeDom(host: HTMLElement, options: ViewOptions) {
     e.innerHTML = a;
     return e;
   }
+  /** A part that its heading closes and opens, as 'Links' in the side bar and each part of the popup: a button with the name and a chevron after it, then the body.
+   * setOpen() shows the part open or closed; the chevron turns while it is closed (view.css). */
+  function foldPart(name: string, chevron: string, ...body: Node[]) {
+    const part = html('section', 'part'), head = html('button', 'fold'), inner = html('div', '');
+    head.append(html('h3', '', name), glyph(chevron, 16, '▾'));
+    inner.append(...body);
+    part.append(head, inner);
+    const setOpen = (open: boolean): void => {
+      head.setAttribute('aria-expanded', String(open));
+      inner.hidden = !open;
+    };
+    return { part, head, setOpen, isOpen: (): boolean => !inner.hidden };
+  }
 
   const head = html('header', 'head');
   const stage = html('div', 'stage');
@@ -69,22 +82,22 @@ export function makeDom(host: HTMLElement, options: ViewOptions) {
   const stops = html('div', 'stops');
   const knob = html('span', 'knob');
   stops.append(html('span', 'rail'), knob);
-  // at its end, at every size: the button that opens the popup
+  // at its end, at every size: the tools button, a gear, which opens the popup
   const rule = html('span', 'rule');
-  const info = html('button', 'info');
-  info.append(glyph(INFO.open, 24, 'i'));
-  info.setAttribute('aria-label', 'Key');
-  info.title = 'Key';
-  info.setAttribute('aria-expanded', 'false');
-  zoom.append(out, stops, into, rule, info);
-  // The popup: what the marks mean, then the switch between the two views, the switch of the labels, the mode and the pair of layouts, and in the app Export.
+  const tools = html('button', 'tools');
+  tools.append(glyph(TOOLS.open, 24, '⚙'));
+  tools.setAttribute('aria-label', 'Tools');
+  tools.title = 'Tools';
+  tools.setAttribute('aria-expanded', 'false');
+  zoom.append(out, stops, into, rule, tools);
+  // The popup: the parts 'Key', 'View' and, where the page makes the export, 'Export', a hairline between each two. The heading of each part closes and opens it.
   // It lies over the plan by the end of the zoom control, and the plan stays live under it.
   const popup = html('div', 'popup');
-  popup.id = `roadmapper-key-${++mounted}`;
+  popup.id = `roadmapper-tools-${++mounted}`;
   popup.setAttribute('role', 'dialog');
-  popup.setAttribute('aria-label', 'Key');
+  popup.setAttribute('aria-label', 'Tools');
   popup.hidden = true;
-  info.setAttribute('aria-controls', popup.id);
+  tools.setAttribute('aria-controls', popup.id);
   /** One mark and one word for each state that is on the plan: filled by draw(). */
   const keyList = html('ul', 'key');
   // the switch between the two views: on, every step is its mark; off, every step is its icon
@@ -136,7 +149,7 @@ export function makeDom(host: HTMLElement, options: ViewOptions) {
   looks.append(modeSeg, seg);
   const opts = html('div', 'opts');
   opts.append(hide, hideL, looks);
-  // Export, only where the page makes the export (options.exportFile), after a hairline: the switch that keeps the private items in it, then the button that saves it,
+  // Export, only where the page makes the export (options.exportFile): the switch that keeps the private items in it, then the button that saves it,
   // as wide as the popup. The button's face is drawn by the export part (export.ts).
   const keepPrivate = html('button', 'switch');
   keepPrivate.append(html('span', 'word', 'Include private items'));
@@ -146,9 +159,13 @@ export function makeDom(host: HTMLElement, options: ViewOptions) {
   const exportButton = html('button', 'export');
   const exporting = html('div', 'exporting');
   exporting.append(keepPrivate, exportButton);
-  popup.append(keyList, html('hr', ''), opts, ...(options.exportFile ? [html('hr', ''), exporting] : []));
+  // 'Key': what the marks mean. 'View': the switches, the mode and the layouts. 'Export': the switch and the button. Each is open when the view starts
+  const viewPart = foldPart('View', TOOLS.fold, opts);
+  const parts = [foldPart('Key', TOOLS.fold, keyList), viewPart, ...(options.exportFile ? [foldPart('Export', TOOLS.fold, exporting)] : [])];
+  parts.forEach(p => p.setOpen(true));
+  popup.append(...parts.flatMap((p, i) => (i ? [html('hr', ''), p.part] : [p.part])));
 
-  // The list of top-level branches: the button left of (i) opens it over the zoom control, as the popup. Each row shows or hides its branch, and the search finds rows by their names.
+  // The list of top-level branches: the button left of the tools button opens it over the zoom control, as the popup. Each row shows or hides its branch, and the search finds rows by their names.
   const layers = html('button', 'layers');
   layers.append(glyph(BRANCHES.open, 24, '≡'));
   layers.setAttribute('aria-label', 'Branches');
@@ -169,7 +186,7 @@ export function makeDom(host: HTMLElement, options: ViewOptions) {
   picker.append(findBox, branchList);
   // The grip on the top edge of the zoom control: it hides the control down to the grip alone, and brings it back
   const grip = html('button', 'grip');
-  zoom.insertBefore(layers, info);
+  zoom.insertBefore(layers, tools);
   zoom.prepend(grip);
 
   // The tip: the name, the state and one line. It stands over what is pointed at, and never takes the pointer.
@@ -222,7 +239,7 @@ export function makeDom(host: HTMLElement, options: ViewOptions) {
     return n;
   })();
 
-  return { icons, ICON_BOX, art, glyph, head, stage, sheet, svg, zoom, out, into, stops, knob, rule, info, popup, keyList, hide, seg, flows, hideL, modeSeg, modes, keepPrivate, exportButton, layers, picker, find, branchList, grip, tip, side, errorList, aimLayer, ring, arrow, names, showAll, PAD, fit, readFit, BAR };
+  return { icons, ICON_BOX, art, glyph, foldPart, head, stage, sheet, svg, zoom, out, into, stops, knob, rule, tools, popup, parts, viewPart, keyList, hide, seg, flows, hideL, modeSeg, modes, keepPrivate, exportButton, layers, picker, find, branchList, grip, tip, side, errorList, aimLayer, ring, arrow, names, showAll, PAD, fit, readFit, BAR };
 }
 
 /** The page of a view, and what the view reads of the theme and of the browser. */

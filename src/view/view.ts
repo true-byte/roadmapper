@@ -53,8 +53,8 @@ export interface ViewOptions {
   /** The icons of the set the theme names, for this view only, in place of the set on the page: those a page holds for its roadmap. */
   icons?: IconSet;
   /** Makes the export of the roadmap shown, as one file to save, from the text of its file: the export for strangers, or with `private` the whole roadmap.
-   * It throws a RoadmapError for a roadmap it cannot export. With it, the popup ends with the switch 'Include private items' and the button 'Export',
-   * which saves that file. With none, the popup has neither: only the app gives it (src/app/main.ts). */
+   * It throws a RoadmapError for a roadmap it cannot export. With it, the popup ends with the part 'Export': the switch 'Include private items' and the button 'Export',
+   * which saves that file. With none, the popup has no part 'Export': only the app gives it (src/app/main.ts). */
   exportFile?: (text: string, keep: { private: boolean }) => Promise<File>;
 }
 

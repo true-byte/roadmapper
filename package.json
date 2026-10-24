@@ -40,6 +40,7 @@
     "validate": "node scripts/roadmapper.mjs validate",
     "build:tests": "node scripts/roadmapper.mjs build tests/roadmapper.json dist/tests/app && vite build tests/page --config tests/page/vite.config.ts && vite build tests/embed --config tests/embed/vite.config.ts && node scripts/roadmapper.mjs export tests/export/plan.json dist/tests/export",
     "test": "npm run build:lib && npm run build:cli && npm run build:tests && playwright test",
+    "test:push": "npm run build:lib && npm run build:cli && npm run build:tests && node scripts/test-push.mjs",
     "build:lib": "tsc --noEmit && vite build --config vite.lib.config.ts --mode module && vite build --config vite.lib.config.ts --mode script && vite build --config vite.lib.config.ts --mode export && tsc -p tsconfig.lib.json",
     "build:cli": "vite build --config vite.cli.config.ts && vite build",
     "package": "npm run build:lib && npm run build:cli && node scripts/pack.mjs",

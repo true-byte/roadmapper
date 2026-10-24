@@ -81,8 +81,16 @@ test('the host of the view has data-moving while a move to a level, a change of 
     await page.locator('.zoom').getByRole('button', { name, exact: true }).click();
     await play(page, 2000);
   };
-  /** Waits, a frame at a time, for the host to lose data-moving. */
-  const ended = (): Promise<unknown> => page.waitForFunction(() => !document.querySelector('.roadmap')!.hasAttribute('data-moving'), null, { polling: 'raf' });
+  /** A smooth scroll is the browser's own and runs in real time, not on the clock: each time the host gets data-moving or loses it, from here on, is written down as 'on' or 'off'. */
+  const watch = (): Promise<void> => host.evaluate(h => {
+    const w = window as unknown as { moves: string[]; watch?: MutationObserver };
+    w.watch?.disconnect();
+    w.moves = [];
+    w.watch = new MutationObserver(rs => { for (const r of rs) w.moves.push(r.oldValue === null ? 'on' : 'off'); });
+    w.watch.observe(h, { attributeFilter: ['data-moving'], attributeOldValue: true });
+  });
+  /** Waits until the host has got data-moving and lost it again: the smooth scroll was on its way, and has ended. */
+  const ended = (): Promise<void> => expect.poll(() => page.evaluate(() => (window as unknown as { moves: string[] }).moves), 'on its way, then at rest').toEqual(['on', 'off']);
   /** The step drawn furthest right on the screen, where the side bar comes. */
   const rightmost = (): Promise<string> => page.evaluate(() => {
     const st = document.querySelector('.stage')!.getBoundingClientRect();
@@ -93,8 +101,9 @@ test('the host of the view has data-moving while a move to a level, a change of 
   await test.step('a smooth scroll at a level that fits: the plan scrolls a step under the side bar clear of it', async () => {
     await go('Tracks');
     await expect(page.locator('.stage'), 'the level fits').toHaveCSS('overflow', 'hidden');
-    await step(page, await rightmost()).click();
-    await expect(host, 'on its way').toHaveAttribute('data-moving');
+    const last = await rightmost();
+    await watch();
+    await step(page, last).click();
     await ended();
     expect(await page.locator('.stage').evaluate(s => s.scrollLeft), 'it scrolled').toBeGreaterThan(0);
     await page.keyboard.press('Escape');
@@ -120,8 +129,9 @@ test('the host of the view has data-moving while a move to a level, a change of 
     await expect(page.locator('.stage'), 'the level scrolls').not.toHaveCSS('overflow', 'hidden');
     await page.locator('.stage').evaluate(s => { s.scrollLeft = 0; });
     await settle(page);
-    await step(page, await rightmost()).click();
-    await expect(host, 'on its way').toHaveAttribute('data-moving');
+    const last = await rightmost();
+    await watch();
+    await step(page, last).click();
     await ended();
     expect(await page.locator('.stage').evaluate(s => s.scrollLeft), 'it scrolled').toBeGreaterThan(0);
   });

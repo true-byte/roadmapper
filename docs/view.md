@@ -80,18 +80,31 @@ The words "as far as the plan allows" mean that two rules come first:
 
 When either rule stops the plan, the point that should keep its place moves.
 
-## The popup
+## Tools
+
+The button 'Tools' opens the popup. The popup holds three parts:
+
+| Part | What it holds |
+|---|---|
+| 'Key' | The legend of the marks |
+| 'View' | The switches 'Hide node icons' and 'Hide labels', then 'Device', 'Light' and 'Dark' at the left and 'Horizontal' and 'Vertical' at the right |
+| 'Export' | The switch 'Include private items', then the button 'Export' |
 
 | Do this | What happens |
 |---|---|
-| Click the (i) button at the right end of the zoom control. Its tip says 'Key'. | The popup opens. It holds the legend of the marks, and the switches 'Hide node icons', 'Hide labels', 'Device', 'Light', 'Dark', 'Horizontal' and 'Vertical'. Under them are the switch 'Include private items' and the button 'Export'. A click on a switch changes only that setting, and the popup stays open. |
+| Click the button with a gear at the right end of the zoom control. Its tip says 'Tools'. | The popup opens. A click on a switch changes only that setting, and the popup stays open. |
+| Click the heading of a part, such as 'Key'. | The part closes, and only its heading shows. A second click on the heading opens the part again. |
 | Click outside the popup and the zoom control. | The popup closes. That click does nothing else on the plan, and neither does a double click or double tap that starts with it. |
 | Click 'Hide node icons'. | The steps switch between their icons and the marks of their states. The switch shows only when a step names an icon that is in the icon set. |
 | Click 'Hide labels'. | The plan hides every word except the names of the top-level branches, and the steps move closer together. The tip and the side bar still show every name. |
 | Click 'Device', 'Light' or 'Dark'. | 'Light' draws the whole page light, and 'Dark' draws it dark, whatever the device is set to. 'Device' draws the page light or dark as the device is set, and follows a change of that setting. |
 | Click 'Horizontal' or 'Vertical'. | 'Horizontal' makes the plan run across, with each name over its step. 'Vertical' makes the plan run down, with each name to the right of its step. The choice stays when the page changes size. |
-| Click 'Include private items'. | The switch turns on or off. With it on, 'Export' saves the whole roadmap, with its private items. |
-| Click 'Export'. | The browser saves `roadmap.zip`, the HTML export of the roadmap, as [export.md, section "Export from the app"](export.md#export-from-the-app) says. The button shows a check and 'Saved' for 2 seconds. |
+| Click 'Include private items'. | The switch turns on or off. With it on, the button 'Export' saves the whole roadmap, with its private items. |
+| Click the button 'Export'. | The browser saves `roadmap.zip`, the HTML export of the roadmap, as [export.md, section "Export from the app"](export.md#export-from-the-app) says. The button shows a check and 'Saved' for 2 seconds. |
+
+Each part is open each time the page opens. A part that you close stays closed while the popup closes and opens again.
+
+When you open the popup with the keyboard, the focus goes to the first switch in 'View'. While 'View' is closed, the focus goes to the heading 'Key'.
 
 The legend lists only the states that are on the plan. It also lists the milestone when the plan has one. [format.md, section "States"](https://github.com/true-byte/roadmapper/blob/main/.claude/skills/roadmapper/format.md#states) gives each mark.
 
@@ -99,7 +112,7 @@ The legend lists only the states that are on the plan. It also lists the milesto
 
 | Do this | What happens |
 |---|---|
-| Click the button with a stack of layers, to the left of the (i) button. Its tip says 'Branches'. | The list of top-level branches opens over the zoom control. It holds a search box, then one row for each branch. Each row holds a check box, the mark of the branch's state, its name, and how many of its steps are done. The check box is ticked while the branch shows. The button shows only when the plan has two or more top-level branches. |
+| Click the button with a stack of layers, to the left of the button 'Tools'. Its tip says 'Branches'. | The list of top-level branches opens over the zoom control. It holds a search box, then one row for each branch. Each row holds a check box, the mark of the branch's state, its name, and how many of its steps are done. The check box is ticked while the branch shows. The button shows only when the plan has two or more top-level branches. |
 | Click a row. | That branch shows or hides, and the list stays open. The last branch that shows cannot be hidden. |
 | Type in the search box. | The list keeps only the rows whose names contain the text. The search ignores upper and lower case. |
 | Click outside the list and the zoom control. | The list closes. |

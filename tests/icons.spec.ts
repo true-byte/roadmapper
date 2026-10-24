@@ -2,7 +2,7 @@
 // Checks that look at one page each are steps of one test on that page.
 import { icons as tabler } from '@iconify-json/tabler';
 import type { Locator, Page } from '@playwright/test';
-import { expect, group, iconsSwitch, keyButton, openApp, openKey, openPlan, popup, reload, settle, step, test, zoomTo } from './helpers';
+import { expect, group, iconsSwitch, toolsButton, openApp, openTools, openPlan, popup, reload, settle, step, test, zoomTo } from './helpers';
 import { edit, full, nodeOf, nodesOf, plain } from './plans';
 
 /** The drawing of an icon in Tabler: its own name, or the icon an alias renames. */
@@ -16,7 +16,7 @@ const markOf = (s: Locator): Locator => s.locator('.st');
 
 /** Turns the switch with a click, in the popup, and waits for the view to rest. The popup stays open. */
 async function flip(page: Page): Promise<void> {
-  await openKey(page);
+  await openTools(page);
   await theSwitch(page).click();
   await settle(page);
 }
@@ -127,11 +127,11 @@ test("far out, at 'Main steps': the page first opens with the icons shown and th
   });
 
   await test.step('the switch Hide node icons is in the popup that the button at the end of the zoom control opens, off', async () => {
-    await expect(page.locator('.zoom > :last-child')).toHaveAttribute('aria-label', 'Key');
-    const plus = await page.locator('.zoom').getByRole('button', { name: 'Zoom in' }).boundingBox(), at = await keyButton(page).boundingBox();
+    await expect(page.locator('.zoom > :last-child')).toHaveAttribute('aria-label', 'Tools');
+    const plus = await page.locator('.zoom').getByRole('button', { name: 'Zoom in' }).boundingBox(), at = await toolsButton(page).boundingBox();
     expect(at!.x).toBeGreaterThanOrEqual(plus!.x + plus!.width);
     await expect(popup(page)).toBeHidden();
-    await openKey(page);
+    await openTools(page);
     const sw = theSwitch(page);
     await expect(sw).toBeVisible();
     await expect(sw).toHaveAttribute('aria-checked', 'false');
@@ -191,7 +191,7 @@ test("far out, at 'Main steps': the page first opens with the icons shown and th
 
 /** The popup opens with no switch 'Hide node icons' in it: only 'Hide labels' and the pair of layouts. */
 async function noSwitch(page: Page): Promise<void> {
-  await openKey(page);
+  await openTools(page);
   await expect(popup(page).getByRole('switch')).toHaveCount(1);
   await expect(theSwitch(page)).toBeHidden();
   await expect(popup(page).getByRole('switch', { name: 'Hide labels' })).toBeVisible();

@@ -34,9 +34,9 @@ The examples come from the sample roadmap file, 'Plant care app'.
 
 The app and the HTML file can also save the export, as one file.
 
-1. Click the (i) button at the right end of the zoom control.
-2. To export the whole roadmap, turn on 'Include private items'.
-3. Click 'Export'.
+1. Click the button 'Tools' at the right end of the zoom control.
+2. To export the whole roadmap, turn on 'Include private items' in the part 'Export'.
+3. Click the button 'Export' under that switch.
 
 The browser saves `roadmap.zip`. It holds the three files that `npx roadmapper export` writes for the same roadmap file. With 'Include private items' on, it holds the files that `npx roadmapper export --private` writes. Unzip it. Then open its `roadmap.html`, or upload its three files as [Put the export on a site](#put-the-export-on-a-site) says.
 
@@ -85,7 +85,7 @@ The browser asks the site each time whether `roadmap.json` has changed. So a str
 ## The page of the export
 
 - The page fills the whole window and works like the app. Each visit opens it the way the app opens the first time, as [view.md, section "What it remembers"](view.md#what-it-remembers) says.
-- The popup ends with 'Horizontal' and 'Vertical'.
+- The popup holds the parts 'Key' and 'View'.
 - The title of the page is the `title` of the roadmap followed by ` · roadmap`, such as 'Plant care app · roadmap'.
 - The `about` of the roadmap is the `<meta name="description">` of the page.
 - Until the lib runs, the page shows 'Loading the roadmap…'.

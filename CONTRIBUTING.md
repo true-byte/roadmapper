@@ -59,7 +59,27 @@ npx playwright test tests/cli.spec.ts
 | `tests/page/` | It holds the test page, which has only the icons that the plans in `tests/plans.ts` name, so that it opens fast. A test that needs another icon names it in a plan there. |
 | `playwright.config.ts` | It runs the tests offline, so the pages draw in the fallback fonts. It runs them in the dark color scheme, at 1440 × 900, with reduced motion. A test that checks a move turns motion on. |
 
-The tests read the attribute `data-moving` to wait until the plan is at rest, as [Wait for the plan to rest](#wait-for-the-plan-to-rest) says. They run each timed effect and each move on Playwright's clock.
+A test waits for what the page does, such as an attribute, a text or an event that the page sets. It never waits for a set time. Where the page does not set the order of two events, the test passes in either order.
+
+The tests read the attribute `data-moving` to wait until the plan is at rest, as [Wait for the plan to rest](#wait-for-the-plan-to-rest) says. A test that checks the view partway through a move or a timed effect runs it on Playwright's clock. A smooth scroll is the browser's own and runs in real time, so its test records each change of `data-moving`.
+
+To find a test that passes at one speed and fails at another, run `npm run test:push`. It builds the code, then runs every test in three rounds:
+
+| Round | What runs |
+|---|---|
+| 1 | 4 tests at once, on 4 CPUs of the computer |
+| 2 | 4 tests at once, with each page 4 times slower |
+| 3 | 8 tests at once, on 4 CPUs of the computer |
+
+`taskset` puts the tests on 4 CPUs, and runs only on Linux. On another system, rounds 1 and 3 run on all the CPUs. When a round fails, the check stops. The output names each test that failed, and gives the command that runs the round again.
+
+To run one test file as a round runs it, on the pages that were built last, run the line of that round below. The lines are for rounds 1, 2 and 3, in that order. `<cpus>` is the list of 4 CPUs that the output of the check gives.
+
+```sh
+taskset -c <cpus> npx playwright test --workers=4 tests/<file>
+SLOW_CPU=4 npx playwright test --workers=4 tests/<file>
+taskset -c <cpus> npx playwright test --workers=8 tests/<file>
+```
 
 ## Hold the page still
 

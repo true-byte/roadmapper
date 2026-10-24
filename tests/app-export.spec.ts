@@ -9,7 +9,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { crc32 as nodeCrc32 } from 'node:zlib';
 import { test as plain, type Download, type Locator, type Page } from '@playwright/test';
 import { crc32, zip } from '../src/app/zip';
-import { APP_STORE, errorList, expect, keyButton, openApp, openKey, openPlan, play, popup, save as draw, settle, side, step, stopClock, stored, test } from './helpers';
+import { APP_STORE, errorList, expect, toolsButton, openApp, openTools, openPlan, play, popup, save as draw, settle, side, step, stopClock, stored, test } from './helpers';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 /** Where each test writes what it makes: a folder of its own, deleted after it. */
@@ -144,16 +144,19 @@ plain.describe('the zip', () => {
 });
 
 test.describe("'Export' in the app", () => {
-  test("the popup ends with a hairline, the switch 'Include private items', off, and the button 'Export' with its icon, as wide as the popup", async ({ page }) => {
+  test("the popup ends with a hairline and the part 'Export': its heading, the switch 'Include private items', off, and the button 'Export' with its icon, as wide as the popup", async ({ page }) => {
     await openApp(page);
-    await openKey(page);
+    await openTools(page);
     await expect(popup(page).locator('hr')).toHaveCount(2);
     await expect(privateSwitch(page)).toBeVisible();
     await expect(privateSwitch(page)).toHaveAttribute('aria-checked', 'false');
     await expect(exportButton(page)).toHaveAccessibleName('Export');
     await expect(exportButton(page).locator('svg')).toBeVisible();
-    // the switch, then the button, after the second hairline
-    expect(await popup(page).evaluate(p => [...p.children].slice(-2).map(e => e.className))).toEqual(['', 'exporting']);
+    // after the second hairline, the part 'Export': its heading, then the switch and the button
+    expect(await popup(page).evaluate(p => [...p.children].slice(-2).map(e => e.tagName))).toEqual(['HR', 'SECTION']);
+    const part = popup(page).locator('section').last();
+    await expect(part.locator('button.fold')).toHaveText('Export');
+    expect(await part.locator('.exporting').evaluate(e => [...e.children].map(c => c.className))).toEqual(['switch', 'export']);
     const inner = await popup(page).evaluate(p => p.clientWidth - parseFloat(getComputedStyle(p).paddingLeft) - parseFloat(getComputedStyle(p).paddingRight));
     expect((await exportButton(page).boundingBox())!.width).toBeCloseTo(inner, 0);
   });
@@ -161,7 +164,7 @@ test.describe("'Export' in the app", () => {
   test('Export saves roadmap.zip, which holds the three files that `npx roadmapper export` writes for the same roadmap file, with no private item; unzipped, its page draws from disk', async ({ page, errors }) => {
     const want = await exported(FILE, folder());
     await openApp(page);
-    await openKey(page);
+    await openTools(page);
     const download = await save(page);
     expect(download.suggestedFilename()).toBe('roadmap.zip');
     const files = await filesOf(download);
@@ -184,27 +187,32 @@ test.describe("'Export' in the app", () => {
     // the page is the one that `npx roadmapper export` writes, byte for byte (above), so this holds for that page too
     const BG = { light: 'rgb(244, 246, 251)', dark: 'rgb(10, 18, 36)' }, LINE = { light: 'rgb(11, 122, 140)', dark: 'rgb(86, 207, 225)' };
     await openApp(page);
-    await openKey(page);
+    await openTools(page);
     const files = await filesOf(await save(page));
     const unzipped = folder();
     for (const f of files) writeFileSync(join(unzipped, f.name), f.data);
-    // at the first frame: the color of the text of the page, which the browser gives by the color-scheme of the page, and whether the plan is drawn yet
+    // the color of the text of the page, which the browser gives by the color-scheme of the page: as the lib starts, when it makes <roadmapper-view> known,
+    // so before it draws, and at the first frame. The lib can draw before the first frame or after it: nothing sets which comes first
     await page.addInitScript(() => {
-      requestAnimationFrame(() => {
-        (window as unknown as { first: string[] }).first = [getComputedStyle(document.documentElement).color,
-          String(!!document.querySelector('roadmapper-view')?.shadowRoot?.querySelector('svg.plan'))];
-      });
+      const w = window as unknown as { lib?: string; first?: string }, color = (): string => getComputedStyle(document.documentElement).color;
+      const define = customElements.define.bind(customElements);
+      customElements.define = (name, ...rest) => {
+        if (name === 'roadmapper-view') w.lib ??= color();
+        define(name, ...rest);
+      };
+      requestAnimationFrame(() => { w.first = color(); });
     });
     const view = page.locator('.roadmap'), mode = (name: string): Locator => popup(page).getByRole('radio', { name, includeHidden: true });
+    const seen = (): Promise<(string | undefined)[]> => page.evaluate(() => { const w = window as unknown as { lib?: string; first?: string }; return [w.lib, w.first]; });
     for (const [device, text] of [['light', 'rgb(0, 0, 0)'], ['dark', 'rgb(255, 255, 255)']] as const) {
       await page.emulateMedia({ colorScheme: device });
       await page.goto(pathToFileURL(join(unzipped, 'roadmap.html')).href);
       await expect(page.locator('svg.plan')).toBeVisible();
-      expect(await page.evaluate(() => (window as unknown as { first: string[] }).first), device).toEqual([text, 'false']);
+      await expect.poll(seen, `${device}: as the lib starts, and at the first frame`).toEqual([text, text]);
       await expect(view, device).toHaveCSS('background-color', BG[device]);
       await expect(view.locator('svg.plan .lane').first(), device).toHaveCSS('stroke', LINE[device]);
       await settle(page);
-      await openKey(page);
+      await openTools(page);
       await expect(mode('Device')).toHaveAttribute('aria-checked', 'true');
       for (const [name, s] of [['Light', 'light'], ['Dark', 'dark']] as const) {
         await mode(name).click();
@@ -222,7 +230,7 @@ test.describe("'Export' in the app", () => {
     await page.goto(pathToFileURL(join(dir, 'app/index.html')).href);
     await expect(page.locator('svg.plan')).toBeVisible();
     await settle(page);
-    await openKey(page);
+    await openTools(page);
     const files = await filesOf(await save(page));
     const roadmap = JSON.parse(files[1].data.toString());
     expect(roadmap.branches[0].items.at(-1).links).toEqual([{ name: 'Release notes', url: 'https://example.com/notes', icon: 'book' }, { name: 'Tag', url: 'https://example.com/tag' }]);
@@ -251,7 +259,7 @@ test.describe("'Export' in the app", () => {
     const want = await exported(FILE, dir, true);
     expect(want[1].equals((await exported(FILE, dir))[1]), 'the whole roadmap is not the roadmap a stranger sees').toBe(false);
     await openApp(page);
-    await openKey(page);
+    await openTools(page);
     await privateSwitch(page).click();
     await expect(privateSwitch(page)).toHaveAttribute('aria-checked', 'true');
     expect((await stored(page, APP_STORE))?.private).toBe(true);
@@ -262,7 +270,7 @@ test.describe("'Export' in the app", () => {
     await page.reload();
     await settle(page);
     await expect(privateSwitch(page)).toHaveAttribute('aria-checked', 'true');
-    await openKey(page);
+    await openTools(page);
     await privateSwitch(page).click();
     await expect(privateSwitch(page)).toHaveAttribute('aria-checked', 'false');
     expect((await stored(page, APP_STORE))?.private).toBe(false);
@@ -271,7 +279,7 @@ test.describe("'Export' in the app", () => {
   test("a press makes the button a check and 'Saved' in gold for 2 s, then 'Export' again", async ({ page }) => {
     await openApp(page, { clock: true });
     await stopClock(page);
-    await openKey(page);
+    await openTools(page);
     await save(page);
     await expect(exportButton(page)).toHaveText('Saved');
     await expect(exportButton(page)).toHaveClass(/\bsaved\b/);
@@ -290,12 +298,12 @@ test.describe("'Export' in the app", () => {
     // the clock stands, so 'Saved' never ends by its time
     await openApp(page, { clock: true });
     await stopClock(page);
-    await openKey(page);
+    await openTools(page);
     await save(page);
     await expect(exportButton(page)).toHaveText('Saved');
     await page.keyboard.press('Escape');
     await expect(popup(page)).toBeHidden();
-    await keyButton(page).click();
+    await toolsButton(page).click();
     await expect(exportButton(page)).toHaveText('Export');
 
     // Escape in the same task as the press: the popup is closed before the export is made
@@ -305,7 +313,7 @@ test.describe("'Export' in the app", () => {
     })]);
     expect(download.suggestedFilename()).toBe('roadmap.zip');
     await expect(popup(page)).toBeHidden();
-    await keyButton(page).click();
+    await toolsButton(page).click();
     await expect(exportButton(page)).toHaveText('Export');
     await expect(exportButton(page)).not.toHaveClass(/\bsaved\b/);
   });
@@ -330,7 +338,7 @@ test.describe("'Export' on a roadmap where everything is private", () => {
     await secretApp(page);
     const downloads: Download[] = [];
     page.on('download', d => downloads.push(d));
-    await openKey(page);
+    await openTools(page);
     await exportButton(page).click();
     await expect(exportButton(page)).toHaveText('Nothing public');
     await expect(exportButton(page)).toHaveClass(/\bfailed\b/);
@@ -352,12 +360,12 @@ test.describe("'Export' on a roadmap where everything is private", () => {
 
   test('the error goes when the popup closes, and comes back with the next press', async ({ page }) => {
     await secretApp(page);
-    await openKey(page);
+    await openTools(page);
     await exportButton(page).click();
     await expect(exportButton(page)).toHaveText('Nothing public');
     await page.keyboard.press('Escape');
     await expect(popup(page)).toBeHidden();
-    await keyButton(page).click();
+    await toolsButton(page).click();
     await expect(exportButton(page)).toHaveText('Export');
     await exportButton(page).click();
     await expect(exportButton(page)).toHaveText('Nothing public');
@@ -368,7 +376,7 @@ test.describe("'Export' on a roadmap where everything is private", () => {
       { id: 'pick-a-supplier', name: 'Pick a supplier' }, { id: 'sign-the-deal', name: 'Sign the deal' },
     ] }] });
     await openPlan(page, plan(true), { exporting: true });
-    await openKey(page);
+    await openTools(page);
     await exportButton(page).click();
     await expect(exportButton(page)).toHaveText('Nothing public');
     await draw(page, plan(false));
