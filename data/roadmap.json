@@ -53,157 +53,193 @@
       "holds": "The standalone app, the embeddable lib, the HTML export, zoom, icons on the nodes, private and public items, and the error list.",
       "items": [
         {
-          "id": "zoom-levels",
-          "name": "Zoom design",
-          "icon": "zoom-in",
-          "state": "done",
-          "why": "A full tree dumps everything at once. Three levels, each with more detail: 'Main steps', where each group is one step; 'Tracks', where each track of a group is one pill with how many of its steps are done; 'Every step'. A group and a branching are told apart.",
-          "doneWhen": "A mock of the three levels and their names, on the example plan, is reviewed and approved."
-        },
-        {
-          "name": "Zoom build",
+          "name": "Zoom",
           "split": [
             {
-              "name": "Code",
               "items": [
                 {
-                  "id": "zoom-build",
-                  "name": "Zoom code",
+                  "id": "zoom-levels",
+                  "name": "Zoom design",
                   "icon": "zoom-in",
                   "state": "done",
-                  "why": "The page of Roadmapper's own roadmap zooms through the three levels of the design.",
-                  "doneWhen": "On Roadmapper's own roadmap (npm run dev), the page zooms through 'Main steps', 'Tracks' and 'Every step', and a file save still redraws it."
-                }
-              ]
-            },
-            {
-              "name": "Tests",
-              "private": true,
-              "items": [
+                  "why": "A full tree dumps everything at once. Three levels, each with more detail: 'Main steps', where each group is one step; 'Tracks', where each track of a group is one pill with how many of its steps are done; 'Every step'. A group and a branching are told apart.",
+                  "doneWhen": "A mock of the three levels and their names, on the example plan, is reviewed and approved."
+                },
                 {
-                  "id": "zoom-tests",
-                  "name": "Zoom tests",
-                  "icon": "zoom-in",
-                  "state": "done",
-                  "why": "Tests in a real browser for Zoom, so a change cannot break it unseen.",
-                  "doneWhen": "One command runs the zoom tests in a real browser on the built page, and they pass."
+                  "name": "Zoom build",
+                  "split": [
+                    {
+                      "name": "Code",
+                      "items": [
+                        {
+                          "id": "zoom-build",
+                          "name": "Zoom code",
+                          "icon": "zoom-in",
+                          "state": "done",
+                          "why": "The page of Roadmapper's own roadmap zooms through the three levels of the design.",
+                          "doneWhen": "On Roadmapper's own roadmap (npm run dev), the page zooms through 'Main steps', 'Tracks' and 'Every step', and a file save still redraws it."
+                        }
+                      ]
+                    },
+                    {
+                      "name": "Tests",
+                      "private": true,
+                      "items": [
+                        {
+                          "id": "zoom-tests",
+                          "name": "Zoom tests",
+                          "icon": "zoom-in",
+                          "state": "done",
+                          "why": "Tests in a real browser for Zoom, so a change cannot break it unseen.",
+                          "doneWhen": "One command runs the zoom tests in a real browser on the built page, and they pass."
+                        }
+                      ]
+                    }
+                  ]
                 }
               ]
             }
           ]
         },
         {
-          "id": "icons",
-          "name": "Icons design",
-          "icon": "icons",
-          "state": "done",
-          "why": "The marks say the state of a step and nothing about the step. A step gets an icon that fits what it is about, set in the file and open to change, and one switch hides the icons.",
-          "doneWhen": "A mock of the icons, on the example plan, is reviewed and approved. With \"hide node icons\" off, each step shows the icon set for it in the file, with its state small at the bottom right. When the plan is zoomed all the way out, only the milestones show their icons, so it is not crowded. With \"hide node icons\" on, the view is as before."
-        },
-        {
-          "name": "Icons build",
+          "name": "Icons",
           "split": [
             {
-              "name": "Code",
               "items": [
                 {
-                  "id": "icons-build",
-                  "name": "Icons code",
+                  "id": "icons",
+                  "name": "Icons design",
                   "icon": "icons",
                   "state": "done",
-                  "why": "A step shows the icon set for it in the file, as a coin where its name shows, and one switch brings back the marks.",
-                  "doneWhen": "On Roadmapper's own roadmap, each step shows its icon, and 'Hide node icons' turns every step into its mark and back."
-                }
-              ]
-            },
-            {
-              "name": "Tests",
-              "items": [
+                  "why": "The marks say the state of a step and nothing about the step. A step gets an icon that fits what it is about, set in the file and open to change, and one switch hides the icons.",
+                  "doneWhen": "A mock of the icons, on the example plan, is reviewed and approved. With \"hide node icons\" off, each step shows the icon set for it in the file, with its state small at the bottom right. When the plan is zoomed all the way out, only the milestones show their icons, so it is not crowded. With \"hide node icons\" on, the view is as before."
+                },
                 {
-                  "id": "icons-tests",
-                  "name": "Icons tests",
-                  "icon": "icons",
-                  "state": "done",
-                  "why": "Tests in a real browser for Icons, so a change cannot break it unseen.",
-                  "doneWhen": "One command runs the icons tests in a real browser on the built page, and they pass."
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "id": "node-details",
-          "name": "Hover and click design",
-          "icon": "pointer",
-          "state": "done",
-          "why": "The hover tip is plain text and hard to read, a branch shows nothing, and nothing reacts to the pointer. A short tip on hover and a side bar with the data on a click, for a branch as for a step. Zooming and picking one step must never be taken for each other.",
-          "doneWhen": "A mock of hover and click, on the example plan, is reviewed and approved. On the mock, a step and a branch each show that the pointer is on them and give a short tip. A click on either keeps it lit and opens a side bar with its data. A click on empty space closes the side bar. No click zooms."
-        },
-        {
-          "name": "Hover and click build",
-          "split": [
-            {
-              "name": "Code",
-              "items": [
-                {
-                  "id": "hover-and-click-build",
-                  "name": "Hover and click code",
-                  "icon": "pointer",
-                  "state": "done",
-                  "why": "A hover lights what is under the pointer and shows a short tip. A click picks it, and the side bar shows its data.",
-                  "doneWhen": "On Roadmapper's own roadmap, a step and a branch each light up and show a tip under the pointer. A click on either keeps it lit in gold and opens the side bar. A click on empty space closes the side bar. No click zooms."
-                }
-              ]
-            },
-            {
-              "name": "Tests",
-              "items": [
-                {
-                  "id": "hover-and-click-tests",
-                  "name": "Hover and click tests",
-                  "icon": "pointer",
-                  "state": "done",
-                  "why": "Tests in a real browser for Hover and click, so a change cannot break it unseen.",
-                  "doneWhen": "One command runs the hover and click tests in a real browser on the built page, and they pass."
+                  "name": "Icons build",
+                  "split": [
+                    {
+                      "name": "Code",
+                      "items": [
+                        {
+                          "id": "icons-build",
+                          "name": "Icons code",
+                          "icon": "icons",
+                          "state": "done",
+                          "why": "A step shows the icon set for it in the file, as a coin where its name shows, and one switch brings back the marks.",
+                          "doneWhen": "On Roadmapper's own roadmap, each step shows its icon, and 'Hide node icons' turns every step into its mark and back."
+                        }
+                      ]
+                    },
+                    {
+                      "name": "Tests",
+                      "items": [
+                        {
+                          "id": "icons-tests",
+                          "name": "Icons tests",
+                          "icon": "icons",
+                          "state": "done",
+                          "why": "Tests in a real browser for Icons, so a change cannot break it unseen.",
+                          "doneWhen": "One command runs the icons tests in a real browser on the built page, and they pass."
+                        }
+                      ]
+                    }
+                  ]
                 }
               ]
             }
           ]
         },
         {
-          "id": "waits-for-look",
-          "name": "Waits on others design",
-          "icon": "hourglass",
-          "state": "done",
-          "why": "A step can wait for steps on other branches, and no line may cross branches. A blocked step lists what blocks it, and one button blurs all but it and its blockers.",
-          "doneWhen": "A mock of how a blocked step's blockers stand out, on Roadmapper's own roadmap, is reviewed and approved. The mock shows the step picked, with 'Show only blockers' pressed."
-        },
-        {
-          "name": "Waits on others build",
+          "name": "Hover and click",
           "split": [
             {
-              "name": "Code",
               "items": [
                 {
-                  "id": "waits-for-build",
-                  "name": "Waits on others code",
-                  "icon": "hourglass",
+                  "id": "node-details",
+                  "name": "Hover and click design",
+                  "icon": "pointer",
                   "state": "done",
-                  "why": "A step that waits for one not done is blocked by itself. Its side bar lists what blocks it, and 'Show only blockers' blurs all but it and them.",
-                  "doneWhen": "On Roadmapper's own roadmap, 'Show only blockers' in the side bar of 'Edit on page design' fades all but the step and its blockers. Pointing at 'Release v1.0.0-beta' in that side bar works as designed. The back arrow then shows what the side bar showed before."
+                  "why": "The hover tip is plain text and hard to read, a branch shows nothing, and nothing reacts to the pointer. A short tip on hover and a side bar with the data on a click, for a branch as for a step. Zooming and picking one step must never be taken for each other.",
+                  "doneWhen": "A mock of hover and click, on the example plan, is reviewed and approved. On the mock, a step and a branch each show that the pointer is on them and give a short tip. A click on either keeps it lit and opens a side bar with its data. A click on empty space closes the side bar. No click zooms."
+                },
+                {
+                  "name": "Hover and click build",
+                  "split": [
+                    {
+                      "name": "Code",
+                      "items": [
+                        {
+                          "id": "hover-and-click-build",
+                          "name": "Hover and click code",
+                          "icon": "pointer",
+                          "state": "done",
+                          "why": "A hover lights what is under the pointer and shows a short tip. A click picks it, and the side bar shows its data.",
+                          "doneWhen": "On Roadmapper's own roadmap, a step and a branch each light up and show a tip under the pointer. A click on either keeps it lit in gold and opens the side bar. A click on empty space closes the side bar. No click zooms."
+                        }
+                      ]
+                    },
+                    {
+                      "name": "Tests",
+                      "items": [
+                        {
+                          "id": "hover-and-click-tests",
+                          "name": "Hover and click tests",
+                          "icon": "pointer",
+                          "state": "done",
+                          "why": "Tests in a real browser for Hover and click, so a change cannot break it unseen.",
+                          "doneWhen": "One command runs the hover and click tests in a real browser on the built page, and they pass."
+                        }
+                      ]
+                    }
+                  ]
                 }
               ]
-            },
+            }
+          ]
+        },
+        {
+          "name": "Waits on others",
+          "split": [
             {
-              "name": "Tests",
               "items": [
                 {
-                  "id": "waits-for-tests",
-                  "name": "Waits on others tests",
+                  "id": "waits-for-look",
+                  "name": "Waits on others design",
                   "icon": "hourglass",
                   "state": "done",
-                  "why": "Tests in a real browser for Waits on others, so a change cannot break it unseen.",
-                  "doneWhen": "npm test checks the blocked state, 'Blocked by', 'Show only blockers', the ring and the arrow, and the back arrow, and all tests still run in seconds."
+                  "why": "A step can wait for steps on other branches, and no line may cross branches. A blocked step lists what blocks it, and one button blurs all but it and its blockers.",
+                  "doneWhen": "A mock of how a blocked step's blockers stand out, on Roadmapper's own roadmap, is reviewed and approved. The mock shows the step picked, with 'Show only blockers' pressed."
+                },
+                {
+                  "name": "Waits on others build",
+                  "split": [
+                    {
+                      "name": "Code",
+                      "items": [
+                        {
+                          "id": "waits-for-build",
+                          "name": "Waits on others code",
+                          "icon": "hourglass",
+                          "state": "done",
+                          "why": "A step that waits for one not done is blocked by itself. Its side bar lists what blocks it, and 'Show only blockers' blurs all but it and them.",
+                          "doneWhen": "On Roadmapper's own roadmap, 'Show only blockers' in the side bar of 'Edit on page design' fades all but the step and its blockers. Pointing at 'Release v1.0.0-beta' in that side bar works as designed. The back arrow then shows what the side bar showed before."
+                        }
+                      ]
+                    },
+                    {
+                      "name": "Tests",
+                      "items": [
+                        {
+                          "id": "waits-for-tests",
+                          "name": "Waits on others tests",
+                          "icon": "hourglass",
+                          "state": "done",
+                          "why": "Tests in a real browser for Waits on others, so a change cannot break it unseen.",
+                          "doneWhen": "npm test checks the blocked state, 'Blocked by', 'Show only blockers', the ring and the arrow, and the back arrow, and all tests still run in seconds."
+                        }
+                      ]
+                    }
+                  ]
                 }
               ]
             }
@@ -216,175 +252,211 @@
               "name": "Sharing",
               "items": [
                 {
-                  "id": "roadmap-model",
-                  "name": "Roadmap spec design",
-                  "icon": "file-code",
-                  "state": "done",
-                  "why": "How a roadmap is written: one file holds it all, as today. A new id is the name in kebab-case, with -2 or -3 when taken. Files are not kept with the roadmap; in v1.0.0 a step links to what it produced.",
-                  "doneWhen": "How a roadmap is written is reviewed and approved.",
-                  "links": [
-                    {
-                      "name": "The roadmap file format",
-                      "url": "https://github.com/true-byte/roadmapper/blob/main/.claude/skills/roadmapper/format.md",
-                      "icon": "file-text"
-                    }
-                  ]
-                },
-                {
-                  "name": "Roadmap spec build",
+                  "name": "Roadmap spec",
                   "split": [
                     {
-                      "name": "Code",
                       "items": [
                         {
-                          "id": "roadmap-spec-build",
-                          "name": "Roadmap spec code",
+                          "id": "roadmap-model",
+                          "name": "Roadmap spec design",
                           "icon": "file-code",
-                          "state": "canceled",
-                          "why": "The file stays as it is today: nothing to build."
-                        }
-                      ]
-                    },
-                    {
-                      "name": "Tests",
-                      "items": [
-                        {
-                          "id": "roadmap-spec-tests",
-                          "name": "Roadmap spec tests",
-                          "icon": "file-code",
-                          "state": "canceled",
-                          "why": "The file stays as it is today: nothing to build."
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "id": "embeddable-lib-design",
-                  "name": "Embeddable lib design",
-                  "icon": "package",
-                  "state": "done",
-                  "why": "Another project shows a roadmap with one short piece of code: a React app with one component, any page with one tag. The page sets only the size, and the box leaves the page alone. The lib reads the roadmap as the spec says, so it comes after the spec.",
-                  "doneWhen": "A mock of how another project puts a roadmap on its own page, on Roadmapper's own roadmap, is reviewed and approved."
-                },
-                {
-                  "name": "Embeddable lib build",
-                  "split": [
-                    {
-                      "name": "Code",
-                      "items": [
-                        {
-                          "id": "embeddable-lib",
-                          "name": "Embeddable lib code",
-                          "icon": "package",
                           "state": "done",
-                          "why": "A React app shows a roadmap in a box on its page with one component, and any page with one tag, without running this app.",
-                          "doneWhen": "On a React page that installs the lib, Roadmapper's own roadmap shows in a box that leaves the page alone, and README.md says how.",
+                          "why": "How a roadmap is written: one file holds it all, as today. A new id is the name in kebab-case, with -2 or -3 when taken. Files are not kept with the roadmap; in v1.0.0 a step links to what it produced.",
+                          "doneWhen": "How a roadmap is written is reviewed and approved.",
                           "links": [
                             {
-                              "name": "Embed a roadmap",
-                              "url": "https://github.com/true-byte/roadmapper/blob/main/docs/embed.md",
+                              "name": "The roadmap file format",
+                              "url": "https://github.com/true-byte/roadmapper/blob/main/.claude/skills/roadmapper/format.md",
                               "icon": "file-text"
+                            }
+                          ]
+                        },
+                        {
+                          "name": "Roadmap spec build",
+                          "split": [
+                            {
+                              "name": "Code",
+                              "items": [
+                                {
+                                  "id": "roadmap-spec-build",
+                                  "name": "Roadmap spec code",
+                                  "icon": "file-code",
+                                  "state": "canceled",
+                                  "why": "The file stays as it is today: nothing to build."
+                                }
+                              ]
+                            },
+                            {
+                              "name": "Tests",
+                              "items": [
+                                {
+                                  "id": "roadmap-spec-tests",
+                                  "name": "Roadmap spec tests",
+                                  "icon": "file-code",
+                                  "state": "canceled",
+                                  "why": "The file stays as it is today: nothing to build."
+                                }
+                              ]
                             }
                           ]
                         }
                       ]
-                    },
-                    {
-                      "name": "Tests",
-                      "items": [
-                        {
-                          "id": "embeddable-lib-tests",
-                          "name": "Embeddable lib tests",
-                          "icon": "package",
-                          "state": "done",
-                          "why": "Tests in a real browser for Embeddable lib, so a change cannot break it unseen.",
-                          "doneWhen": "npm test checks the box on a React page and on a plain page: the page still scrolls, the keys, the side bar, and the page's own look."
-                        }
-                      ]
                     }
                   ]
                 },
                 {
-                  "id": "html-export-design",
-                  "name": "HTML export design",
-                  "icon": "file-export",
-                  "state": "done",
-                  "why": "The export is two files side by side: roadmap.html holds the roadmap and its icons, and the lib file, named by its content, holds the code. So the page stays light, and an old export keeps its own lib.",
-                  "doneWhen": "A mock of the HTML file to upload to a landing page, on Roadmapper's own roadmap, is reviewed and approved."
-                },
-                {
-                  "name": "HTML export build",
+                  "name": "Embeddable lib",
                   "split": [
                     {
-                      "name": "Code",
                       "items": [
                         {
-                          "id": "html-export",
-                          "name": "HTML export code",
-                          "icon": "file-export",
+                          "id": "embeddable-lib-design",
+                          "name": "Embeddable lib design",
+                          "icon": "package",
                           "state": "done",
-                          "why": "npm run export writes roadmap.html and its lib file, ready to upload to a landing page, and README.md says how to make and upload them.",
-                          "doneWhen": "On Roadmapper's own roadmap, npm run export writes roadmap.html, a page that matches the approved mock.",
-                          "links": [
+                          "why": "Another project shows a roadmap with one short piece of code: a React app with one component, any page with one tag. The page sets only the size, and the box leaves the page alone. The lib reads the roadmap as the spec says, so it comes after the spec.",
+                          "doneWhen": "A mock of how another project puts a roadmap on its own page, on Roadmapper's own roadmap, is reviewed and approved."
+                        },
+                        {
+                          "name": "Embeddable lib build",
+                          "split": [
                             {
-                              "name": "The HTML export",
-                              "url": "https://github.com/true-byte/roadmapper/blob/main/docs/export.md",
-                              "icon": "file-text"
+                              "name": "Code",
+                              "items": [
+                                {
+                                  "id": "embeddable-lib",
+                                  "name": "Embeddable lib code",
+                                  "icon": "package",
+                                  "state": "done",
+                                  "why": "A React app shows a roadmap in a box on its page with one component, and any page with one tag, without running this app.",
+                                  "doneWhen": "On a React page that installs the lib, Roadmapper's own roadmap shows in a box that leaves the page alone, and README.md says how.",
+                                  "links": [
+                                    {
+                                      "name": "Embed a roadmap",
+                                      "url": "https://github.com/true-byte/roadmapper/blob/main/docs/embed.md",
+                                      "icon": "file-text"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "name": "Tests",
+                              "items": [
+                                {
+                                  "id": "embeddable-lib-tests",
+                                  "name": "Embeddable lib tests",
+                                  "icon": "package",
+                                  "state": "done",
+                                  "why": "Tests in a real browser for Embeddable lib, so a change cannot break it unseen.",
+                                  "doneWhen": "npm test checks the box on a React page and on a plain page: the page still scrolls, the keys, the side bar, and the page's own look."
+                                }
+                              ]
                             }
                           ]
                         }
                       ]
-                    },
+                    }
+                  ]
+                },
+                {
+                  "name": "HTML export",
+                  "split": [
                     {
-                      "name": "Tests",
                       "items": [
                         {
-                          "id": "html-export-tests",
-                          "name": "HTML export tests",
+                          "id": "html-export-design",
+                          "name": "HTML export design",
                           "icon": "file-export",
                           "state": "done",
-                          "why": "Tests in a real browser for HTML export, so a change cannot break it unseen.",
-                          "doneWhen": "npm test checks the export from disk and from a made-up host: the page draws, a missing lib shows its line, and a '<' in the roadmap cannot break the page."
+                          "why": "The export is two files side by side: roadmap.html holds the roadmap and its icons, and the lib file, named by its content, holds the code. So the page stays light, and an old export keeps its own lib.",
+                          "doneWhen": "A mock of the HTML file to upload to a landing page, on Roadmapper's own roadmap, is reviewed and approved."
+                        },
+                        {
+                          "name": "HTML export build",
+                          "split": [
+                            {
+                              "name": "Code",
+                              "items": [
+                                {
+                                  "id": "html-export",
+                                  "name": "HTML export code",
+                                  "icon": "file-export",
+                                  "state": "done",
+                                  "why": "npm run export writes roadmap.html and its lib file, ready to upload to a landing page, and README.md says how to make and upload them.",
+                                  "doneWhen": "On Roadmapper's own roadmap, npm run export writes roadmap.html, a page that matches the approved mock.",
+                                  "links": [
+                                    {
+                                      "name": "The HTML export",
+                                      "url": "https://github.com/true-byte/roadmapper/blob/main/docs/export.md",
+                                      "icon": "file-text"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "name": "Tests",
+                              "items": [
+                                {
+                                  "id": "html-export-tests",
+                                  "name": "HTML export tests",
+                                  "icon": "file-export",
+                                  "state": "done",
+                                  "why": "Tests in a real browser for HTML export, so a change cannot break it unseen.",
+                                  "doneWhen": "npm test checks the export from disk and from a made-up host: the page draws, a missing lib shows its line, and a '<' in the roadmap cannot break the page."
+                                }
+                              ]
+                            }
+                          ]
                         }
                       ]
                     }
                   ]
                 },
                 {
-                  "id": "private-items",
-                  "name": "Private items design",
-                  "icon": "lock",
-                  "state": "done",
-                  "why": "The export leaves out every private item, with no gap, lock or count. The one trace: a shown step that waits on unfinished private work is drawn blocked, without naming what blocks it.",
-                  "doneWhen": "A mock of what a stranger sees where an item is private, on the export of Roadmapper's own roadmap, is reviewed and approved."
-                },
-                {
-                  "name": "Private items build",
+                  "name": "Private items",
                   "split": [
                     {
-                      "name": "Code",
                       "items": [
                         {
-                          "id": "private-items-build",
-                          "name": "Private items code",
+                          "id": "private-items",
+                          "name": "Private items design",
                           "icon": "lock",
                           "state": "done",
-                          "why": "npm run export writes roadmap.json with every private item and all inside it left out, roadmapper.js that reads it, and roadmap.html, the whole page. README.md says how a page shows it.",
-                          "doneWhen": "On Roadmapper's own roadmap, with items marked private, npm run export writes a page that matches the approved mock."
-                        }
-                      ]
-                    },
-                    {
-                      "name": "Tests",
-                      "items": [
+                          "why": "The export leaves out every private item, with no gap, lock or count. The one trace: a shown step that waits on unfinished private work is drawn blocked, without naming what blocks it.",
+                          "doneWhen": "A mock of what a stranger sees where an item is private, on the export of Roadmapper's own roadmap, is reviewed and approved."
+                        },
                         {
-                          "id": "private-items-tests",
-                          "name": "Private items tests",
-                          "icon": "lock",
-                          "state": "done",
-                          "why": "Tests in a real browser for Private items, so a change cannot break it unseen.",
-                          "doneWhen": "npm test checks that no private name, id or icon is in an export, that a step waiting on private work is drawn blocked, and that a plan left with nothing exports nothing."
+                          "name": "Private items build",
+                          "split": [
+                            {
+                              "name": "Code",
+                              "items": [
+                                {
+                                  "id": "private-items-build",
+                                  "name": "Private items code",
+                                  "icon": "lock",
+                                  "state": "done",
+                                  "why": "npm run export writes roadmap.json with every private item and all inside it left out, roadmapper.js that reads it, and roadmap.html, the whole page. README.md says how a page shows it.",
+                                  "doneWhen": "On Roadmapper's own roadmap, with items marked private, npm run export writes a page that matches the approved mock."
+                                }
+                              ]
+                            },
+                            {
+                              "name": "Tests",
+                              "items": [
+                                {
+                                  "id": "private-items-tests",
+                                  "name": "Private items tests",
+                                  "icon": "lock",
+                                  "state": "done",
+                                  "why": "Tests in a real browser for Private items, so a change cannot break it unseen.",
+                                  "doneWhen": "npm test checks that no private name, id or icon is in an export, that a step waiting on private work is drawn blocked, and that a plan left with nothing exports nothing."
+                                }
+                              ]
+                            }
+                          ]
                         }
                       ]
                     }
@@ -396,36 +468,45 @@
               "name": "Focus",
               "items": [
                 {
-                  "id": "focus-rule",
-                  "name": "Focus design",
-                  "icon": "focus-2",
-                  "state": "canceled",
-                  "why": "This step is canceled. The current look is fine, and 'Main steps' is already the view with no noise that this step was meant to give."
-                },
-                {
-                  "name": "Focus build",
+                  "name": "Focus",
                   "split": [
                     {
-                      "name": "Code",
                       "items": [
                         {
-                          "id": "focus-build",
-                          "name": "Focus code",
+                          "id": "focus-rule",
+                          "name": "Focus design",
                           "icon": "focus-2",
                           "state": "canceled",
-                          "why": "The tree shows work in progress, waiting work and done work in their detail by itself."
-                        }
-                      ]
-                    },
-                    {
-                      "name": "Tests",
-                      "items": [
+                          "why": "This step is canceled. The current look is fine, and 'Main steps' is already the view with no noise that this step was meant to give."
+                        },
                         {
-                          "id": "focus-tests",
-                          "name": "Focus tests",
-                          "icon": "focus-2",
-                          "state": "canceled",
-                          "why": "Tests in a real browser for Focus, so a change cannot break it unseen."
+                          "name": "Focus build",
+                          "split": [
+                            {
+                              "name": "Code",
+                              "items": [
+                                {
+                                  "id": "focus-build",
+                                  "name": "Focus code",
+                                  "icon": "focus-2",
+                                  "state": "canceled",
+                                  "why": "The tree shows work in progress, waiting work and done work in their detail by itself."
+                                }
+                              ]
+                            },
+                            {
+                              "name": "Tests",
+                              "items": [
+                                {
+                                  "id": "focus-tests",
+                                  "name": "Focus tests",
+                                  "icon": "focus-2",
+                                  "state": "canceled",
+                                  "why": "Tests in a real browser for Focus, so a change cannot break it unseen."
+                                }
+                              ]
+                            }
+                          ]
                         }
                       ]
                     }
@@ -437,39 +518,48 @@
               "name": "Show and hide",
               "items": [
                 {
-                  "id": "show-hide-design",
-                  "name": "Show and hide design",
-                  "icon": "eye",
-                  "state": "done",
-                  "why": "Finished top-level branches start hidden. A layers button in the zoom control, left of (i), opens a list with a search to show or hide any of them. A blocker in a hidden branch has a pill with its branch name in the side bar. A tab on the zoom control hides it.",
-                  "doneWhen": "A mock of the picker and of how a blocker in a hidden branch shows, on Roadmapper's own roadmap, is reviewed and approved. The mock is at phone and laptop size."
-                },
-                {
-                  "name": "Show and hide build",
+                  "name": "Show and hide",
                   "split": [
                     {
-                      "name": "Code",
                       "items": [
                         {
-                          "id": "show-hide-code",
-                          "name": "Show and hide code",
+                          "id": "show-hide-design",
+                          "name": "Show and hide design",
                           "icon": "eye",
                           "state": "done",
-                          "why": "The page draws the approved design: the hidden default, the layers button and its list, and the pill of a hidden blocker. It also draws the tab that hides the zoom control.",
-                          "doneWhen": "On Roadmapper's own roadmap at phone and laptop size, how branches and the zoom control hide and show is reviewed and approved."
-                        }
-                      ]
-                    },
-                    {
-                      "name": "Tests",
-                      "items": [
+                          "why": "Finished top-level branches start hidden. A layers button in the zoom control, left of (i), opens a list with a search to show or hide any of them. A blocker in a hidden branch has a pill with its branch name in the side bar. A tab on the zoom control hides it.",
+                          "doneWhen": "A mock of the picker and of how a blocker in a hidden branch shows, on Roadmapper's own roadmap, is reviewed and approved. The mock is at phone and laptop size."
+                        },
                         {
-                          "id": "show-hide-tests",
-                          "name": "Show and hide tests",
-                          "icon": "eye",
-                          "state": "done",
-                          "why": "Tests in a real browser for Show and hide, so a change cannot break it unseen.",
-                          "doneWhen": "Browser tests of the hidden default, the list and its search, the pill of a hidden blocker and the tab pass with npm test."
+                          "name": "Show and hide build",
+                          "split": [
+                            {
+                              "name": "Code",
+                              "items": [
+                                {
+                                  "id": "show-hide-code",
+                                  "name": "Show and hide code",
+                                  "icon": "eye",
+                                  "state": "done",
+                                  "why": "The page draws the approved design: the hidden default, the layers button and its list, and the pill of a hidden blocker. It also draws the tab that hides the zoom control.",
+                                  "doneWhen": "On Roadmapper's own roadmap at phone and laptop size, how branches and the zoom control hide and show is reviewed and approved."
+                                }
+                              ]
+                            },
+                            {
+                              "name": "Tests",
+                              "items": [
+                                {
+                                  "id": "show-hide-tests",
+                                  "name": "Show and hide tests",
+                                  "icon": "eye",
+                                  "state": "done",
+                                  "why": "Tests in a real browser for Show and hide, so a change cannot break it unseen.",
+                                  "doneWhen": "Browser tests of the hidden default, the list and its search, the pill of a hidden blocker and the tab pass with npm test."
+                                }
+                              ]
+                            }
+                          ]
                         }
                       ]
                     }
@@ -481,39 +571,48 @@
               "name": "Layout",
               "items": [
                 {
-                  "id": "layout",
-                  "name": "Layout design",
-                  "icon": "layout",
-                  "state": "done",
-                  "why": "A phone draws the tree top to bottom and a laptop left to right, with a switch between them. An (i) at the end of the bar opens the key, 'Hide node icons', 'Hide labels' and that switch; with labels hidden the tree packs tight. Branches join right after their last step, the first view opens on the step in progress, and a pinch scales the plan, not the page.",
-                  "doneWhen": "A mock of how the tree is laid out and read, on the export of Roadmapper's own roadmap, is reviewed and approved. The mock is at phone and laptop size and also shows how the zoom control fits."
-                },
-                {
-                  "name": "Layout build",
+                  "name": "Layout",
                   "split": [
                     {
-                      "name": "Code",
                       "items": [
                         {
-                          "id": "layout-build",
-                          "name": "Layout code",
+                          "id": "layout",
+                          "name": "Layout design",
                           "icon": "layout",
                           "state": "done",
-                          "why": "The app, the lib and the export draw the layout of the approved mock.",
-                          "doneWhen": "On Roadmapper's own roadmap at phone and laptop size, the page has the layout of the mock. Each switch in (i) works on its own and leaves the popup open."
-                        }
-                      ]
-                    },
-                    {
-                      "name": "Tests",
-                      "items": [
+                          "why": "A phone draws the tree top to bottom and a laptop left to right, with a switch between them. An (i) at the end of the bar opens the key, 'Hide node icons', 'Hide labels' and that switch; with labels hidden the tree packs tight. Branches join right after their last step, the first view opens on the step in progress, and a pinch scales the plan, not the page.",
+                          "doneWhen": "A mock of how the tree is laid out and read, on the export of Roadmapper's own roadmap, is reviewed and approved. The mock is at phone and laptop size and also shows how the zoom control fits."
+                        },
                         {
-                          "id": "layout-tests",
-                          "name": "Layout tests",
-                          "icon": "layout",
-                          "state": "done",
-                          "why": "Tests in a real browser for Layout, so a change cannot break it unseen.",
-                          "doneWhen": "npm test checks both layouts at every level and with labels hidden: no line crosses another or runs through a name, the default follows the screen, the switches in (i) act on their own, and a pinch scales the plan, not the page."
+                          "name": "Layout build",
+                          "split": [
+                            {
+                              "name": "Code",
+                              "items": [
+                                {
+                                  "id": "layout-build",
+                                  "name": "Layout code",
+                                  "icon": "layout",
+                                  "state": "done",
+                                  "why": "The app, the lib and the export draw the layout of the approved mock.",
+                                  "doneWhen": "On Roadmapper's own roadmap at phone and laptop size, the page has the layout of the mock. Each switch in (i) works on its own and leaves the popup open."
+                                }
+                              ]
+                            },
+                            {
+                              "name": "Tests",
+                              "items": [
+                                {
+                                  "id": "layout-tests",
+                                  "name": "Layout tests",
+                                  "icon": "layout",
+                                  "state": "done",
+                                  "why": "Tests in a real browser for Layout, so a change cannot break it unseen.",
+                                  "doneWhen": "npm test checks both layouts at every level and with labels hidden: no line crosses another or runs through a name, the default follows the screen, the switches in (i) act on their own, and a pinch scales the plan, not the page."
+                                }
+                              ]
+                            }
+                          ]
                         }
                       ]
                     }
@@ -525,40 +624,49 @@
               "name": "Looks",
               "items": [
                 {
-                  "id": "size-and-looks",
-                  "name": "Looks design",
-                  "icon": "typography",
-                  "private": true,
-                  "state": "done",
-                  "why": "The sizes stay. Parallel lanes get more room between them, so each name reads as its own step's, not the one over it.",
-                  "doneWhen": "A mock of the sizes and of how each step and state look, on Roadmapper's own roadmap, is reviewed and approved."
-                },
-                {
-                  "name": "Looks build",
+                  "name": "Looks",
                   "split": [
                     {
-                      "name": "Code",
                       "items": [
                         {
-                          "id": "looks-build",
-                          "name": "Looks code",
+                          "id": "size-and-looks",
+                          "name": "Looks design",
                           "icon": "typography",
+                          "private": true,
                           "state": "done",
-                          "why": "More room between parallel lanes where the names are written.",
-                          "doneWhen": "On Roadmapper's own roadmap at v1.0.0, the name of each step reads as its own, not the step's over it."
-                        }
-                      ]
-                    },
-                    {
-                      "name": "Tests",
-                      "items": [
+                          "why": "The sizes stay. Parallel lanes get more room between them, so each name reads as its own step's, not the one over it.",
+                          "doneWhen": "A mock of the sizes and of how each step and state look, on Roadmapper's own roadmap, is reviewed and approved."
+                        },
                         {
-                          "id": "looks-tests",
-                          "name": "Looks tests",
-                          "icon": "typography",
-                          "state": "done",
-                          "why": "Tests in a real browser for Looks, so a change cannot break it unseen.",
-                          "doneWhen": "A test fails when the name of a step lies less than 3 times as far from the step over it as from its own."
+                          "name": "Looks build",
+                          "split": [
+                            {
+                              "name": "Code",
+                              "items": [
+                                {
+                                  "id": "looks-build",
+                                  "name": "Looks code",
+                                  "icon": "typography",
+                                  "state": "done",
+                                  "why": "More room between parallel lanes where the names are written.",
+                                  "doneWhen": "On Roadmapper's own roadmap at v1.0.0, the name of each step reads as its own, not the step's over it."
+                                }
+                              ]
+                            },
+                            {
+                              "name": "Tests",
+                              "items": [
+                                {
+                                  "id": "looks-tests",
+                                  "name": "Looks tests",
+                                  "icon": "typography",
+                                  "state": "done",
+                                  "why": "Tests in a real browser for Looks, so a change cannot break it unseen.",
+                                  "doneWhen": "A test fails when the name of a step lies less than 3 times as far from the step over it as from its own."
+                                }
+                              ]
+                            }
+                          ]
                         }
                       ]
                     }
@@ -570,39 +678,48 @@
               "name": "Dates",
               "items": [
                 {
-                  "id": "dates",
-                  "name": "Dates design",
-                  "icon": "calendar",
-                  "state": "done",
-                  "why": "The export for strangers shows no days: it leaves out each step's start, end and deadline.",
-                  "doneWhen": "A mock of where the dates show, on Roadmapper's own roadmap, is reviewed and approved. Otherwise, dates move out of v1.0.0-beta."
-                },
-                {
-                  "name": "Dates build",
+                  "name": "Dates",
                   "split": [
                     {
-                      "name": "Code",
                       "items": [
                         {
-                          "id": "dates-build",
-                          "name": "Dates code",
+                          "id": "dates",
+                          "name": "Dates design",
                           "icon": "calendar",
                           "state": "done",
-                          "why": "The export leaves out the days of each step.",
-                          "doneWhen": "A stranger's export holds no start, end or deadline, and its side bar shows none."
-                        }
-                      ]
-                    },
-                    {
-                      "name": "Tests",
-                      "items": [
+                          "why": "The export for strangers shows no days: it leaves out each step's start, end and deadline.",
+                          "doneWhen": "A mock of where the dates show, on Roadmapper's own roadmap, is reviewed and approved. Otherwise, dates move out of v1.0.0-beta."
+                        },
                         {
-                          "id": "dates-tests",
-                          "name": "Dates tests",
-                          "icon": "calendar",
-                          "state": "done",
-                          "why": "Tests in a real browser for Dates, so a change cannot break it unseen.",
-                          "doneWhen": "A test proves the export for strangers holds no day, and the export with --private keeps them."
+                          "name": "Dates build",
+                          "split": [
+                            {
+                              "name": "Code",
+                              "items": [
+                                {
+                                  "id": "dates-build",
+                                  "name": "Dates code",
+                                  "icon": "calendar",
+                                  "state": "done",
+                                  "why": "The export leaves out the days of each step.",
+                                  "doneWhen": "A stranger's export holds no start, end or deadline, and its side bar shows none."
+                                }
+                              ]
+                            },
+                            {
+                              "name": "Tests",
+                              "items": [
+                                {
+                                  "id": "dates-tests",
+                                  "name": "Dates tests",
+                                  "icon": "calendar",
+                                  "state": "done",
+                                  "why": "Tests in a real browser for Dates, so a change cannot break it unseen.",
+                                  "doneWhen": "A test proves the export for strangers holds no day, and the export with --private keeps them."
+                                }
+                              ]
+                            }
+                          ]
                         }
                       ]
                     }
@@ -615,39 +732,48 @@
               "private": true,
               "items": [
                 {
-                  "id": "viewer-level",
-                  "name": "Viewer level design",
-                  "icon": "eye",
-                  "state": "done",
-                  "why": "The stranger sets their own level with the zoom, and going down to every step is fine. The options of the export set the rest. The export must allow an option to include private items.",
-                  "doneWhen": "A mock of what a stranger sees at the level set for them, on the export of Roadmapper's own roadmap, is reviewed and approved. Otherwise, the viewer level moves out of v1.0.0-beta."
-                },
-                {
-                  "name": "Viewer level build",
+                  "name": "Viewer level",
                   "split": [
                     {
-                      "name": "Code",
                       "items": [
                         {
-                          "id": "viewer-level-build",
-                          "name": "Viewer level code",
+                          "id": "viewer-level",
+                          "name": "Viewer level design",
                           "icon": "eye",
                           "state": "done",
-                          "why": "An export can keep the private items, for those who may read the whole roadmap.",
-                          "doneWhen": "On Roadmapper's own roadmap, npm run export -- --private keeps the private steps, and npm run export:preview -- --private shows them."
-                        }
-                      ]
-                    },
-                    {
-                      "name": "Tests",
-                      "items": [
+                          "why": "The stranger sets their own level with the zoom, and going down to every step is fine. The options of the export set the rest. The export must allow an option to include private items.",
+                          "doneWhen": "A mock of what a stranger sees at the level set for them, on the export of Roadmapper's own roadmap, is reviewed and approved. Otherwise, the viewer level moves out of v1.0.0-beta."
+                        },
                         {
-                          "id": "viewer-level-tests",
-                          "name": "Viewer level tests",
-                          "icon": "eye",
-                          "state": "done",
-                          "why": "Tests in a real browser for Viewer level, so a change cannot break it unseen.",
-                          "doneWhen": "A browser test shows that --private keeps every private item with its tag, and the plain export still leaves them out."
+                          "name": "Viewer level build",
+                          "split": [
+                            {
+                              "name": "Code",
+                              "items": [
+                                {
+                                  "id": "viewer-level-build",
+                                  "name": "Viewer level code",
+                                  "icon": "eye",
+                                  "state": "done",
+                                  "why": "An export can keep the private items, for those who may read the whole roadmap.",
+                                  "doneWhen": "On Roadmapper's own roadmap, npm run export -- --private keeps the private steps, and npm run export:preview -- --private shows them."
+                                }
+                              ]
+                            },
+                            {
+                              "name": "Tests",
+                              "items": [
+                                {
+                                  "id": "viewer-level-tests",
+                                  "name": "Viewer level tests",
+                                  "icon": "eye",
+                                  "state": "done",
+                                  "why": "Tests in a real browser for Viewer level, so a change cannot break it unseen.",
+                                  "doneWhen": "A browser test shows that --private keeps every private item with its tag, and the plain export still leaves them out."
+                                }
+                              ]
+                            }
+                          ]
                         }
                       ]
                     }
@@ -659,39 +785,48 @@
               "name": "Error list",
               "items": [
                 {
-                  "id": "error-list-design",
-                  "name": "Error list design",
-                  "icon": "alert-triangle",
-                  "state": "done",
-                  "why": "A broken file shows only its first error. The page must show every error of the file at once: where it is and what is wrong.",
-                  "doneWhen": "A mock of how the page lists every error of a broken file, on Roadmapper's own roadmap, is reviewed and approved."
-                },
-                {
-                  "name": "Error list build",
+                  "name": "Error list",
                   "split": [
                     {
-                      "name": "Code",
                       "items": [
                         {
-                          "id": "error-list-code",
-                          "name": "Error list code",
+                          "id": "error-list-design",
+                          "name": "Error list design",
                           "icon": "alert-triangle",
                           "state": "done",
-                          "why": "The page lists every error of a broken file, as designed.",
-                          "doneWhen": "On Roadmapper's own roadmap, with the roadmap file broken in three places, the page lists all three errors, each with its line."
-                        }
-                      ]
-                    },
-                    {
-                      "name": "Tests",
-                      "items": [
+                          "why": "A broken file shows only its first error. The page must show every error of the file at once: where it is and what is wrong.",
+                          "doneWhen": "A mock of how the page lists every error of a broken file, on Roadmapper's own roadmap, is reviewed and approved."
+                        },
                         {
-                          "id": "error-list-tests",
-                          "name": "Error list tests",
-                          "icon": "alert-triangle",
-                          "state": "done",
-                          "why": "Tests in a real browser for the error list, so a change cannot break it unseen.",
-                          "doneWhen": "npm test checks that the list shows every error with its line, and goes away on the next good save."
+                          "name": "Error list build",
+                          "split": [
+                            {
+                              "name": "Code",
+                              "items": [
+                                {
+                                  "id": "error-list-code",
+                                  "name": "Error list code",
+                                  "icon": "alert-triangle",
+                                  "state": "done",
+                                  "why": "The page lists every error of a broken file, as designed.",
+                                  "doneWhen": "On Roadmapper's own roadmap, with the roadmap file broken in three places, the page lists all three errors, each with its line."
+                                }
+                              ]
+                            },
+                            {
+                              "name": "Tests",
+                              "items": [
+                                {
+                                  "id": "error-list-tests",
+                                  "name": "Error list tests",
+                                  "icon": "alert-triangle",
+                                  "state": "done",
+                                  "why": "Tests in a real browser for the error list, so a change cannot break it unseen.",
+                                  "doneWhen": "npm test checks that the list shows every error with its line, and goes away on the next good save."
+                                }
+                              ]
+                            }
+                          ]
                         }
                       ]
                     }
@@ -721,7 +856,7 @@
     {
       "name": "v1.0.0",
       "private": true,
-      "holds": "Edit on page, themes, a switch between dark and light, links, export in the app, a timeline, a remembered view, long text, a tools button, an error fixer, and the npm package.",
+      "holds": "A switch between dark and light, links, export in the app, long text, a tools button, a remembered view, edit on page, an error fixer, themes, a timeline, and the npm package.",
       "items": [
         {
           "id": "start-v1-0-0",
@@ -745,160 +880,51 @@
           "branching": true,
           "split": [
             {
-              "name": "Edit on page",
-              "items": [
-                {
-                  "id": "edit-on-page",
-                  "name": "Edit on page design",
-                  "icon": "pencil",
-                  "why": "The roadmap is changed on the page, not in a file.",
-                  "doneWhen": "A mock of how the roadmap is changed on the page, on Roadmapper's own roadmap, is reviewed and approved."
-                },
-                {
-                  "name": "Edit on page build",
-                  "split": [
-                    {
-                      "name": "Code",
-                      "items": [
-                        {
-                          "id": "edit-on-page-build",
-                          "name": "Edit on page code",
-                          "icon": "pencil",
-                          "why": "Edit on page works in the app as designed.",
-                          "doneWhen": "On Roadmapper's own roadmap, roadmap.json holds each change made on the page."
-                        }
-                      ]
-                    },
-                    {
-                      "name": "Tests",
-                      "items": [
-                        {
-                          "id": "edit-on-page-tests",
-                          "name": "Edit on page tests",
-                          "icon": "pencil",
-                          "why": "Tests in a real browser for Edit on page, so a change cannot break it unseen.",
-                          "doneWhen": "npm test checks Edit on page, as designed."
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "id": "error-fixer-design",
-                  "name": "Error fixer design",
-                  "icon": "wand",
-                  "state": "tbd",
-                  "why": "Each error the error list shows comes with a way to fix it on the page. The fix writes the file, so it comes after Edit on page."
-                },
-                {
-                  "name": "Error fixer build",
-                  "split": [
-                    {
-                      "name": "Code",
-                      "items": [
-                        {
-                          "id": "error-fixer-code",
-                          "name": "Error fixer code",
-                          "icon": "wand",
-                          "state": "tbd",
-                          "why": "The error fixer works in the app as designed."
-                        }
-                      ]
-                    },
-                    {
-                      "name": "Tests",
-                      "items": [
-                        {
-                          "id": "error-fixer-tests",
-                          "name": "Error fixer tests",
-                          "icon": "wand",
-                          "state": "tbd",
-                          "why": "Tests in a real browser for the error fixer, so a change cannot break it unseen."
-                        }
-                      ]
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "name": "Themes",
-              "items": [
-                {
-                  "id": "themes",
-                  "name": "Themes design",
-                  "icon": "palette",
-                  "why": "A button of its own opens a picker of themes, like the picker of branches: it has a search, and each row shows a small picture of its theme, light and dark among them. Each theme is a folder of its own in themes/, so no theme depends on another. We add a new theme easily; users do not make their own.",
-                  "doneWhen": "A mock of the picker of themes, on Roadmapper's own roadmap, is reviewed and approved."
-                },
-                {
-                  "name": "Themes build",
-                  "split": [
-                    {
-                      "name": "Code",
-                      "items": [
-                        {
-                          "id": "themes-build",
-                          "name": "Themes code",
-                          "icon": "palette",
-                          "why": "The picker of themes picks the theme in the app, the lib and the export, as designed.",
-                          "doneWhen": "On Roadmapper's own roadmap, the page draws in the theme picked in the picker."
-                        }
-                      ]
-                    },
-                    {
-                      "name": "Tests",
-                      "items": [
-                        {
-                          "id": "themes-tests",
-                          "name": "Themes tests",
-                          "icon": "palette",
-                          "why": "Tests in a real browser for Themes, so a change cannot break it unseen.",
-                          "doneWhen": "npm test checks the picker of themes, as designed."
-                        }
-                      ]
-                    }
-                  ]
-                }
-              ]
-            },
-            {
               "name": "Dark and light",
               "items": [
                 {
-                  "id": "dark-and-light",
-                  "name": "Dark and light design",
-                  "icon": "sun-moon",
-                  "state": "done",
-                  "why": "A switch picks dark, light, or the setting of the device. Each theme has a dark and a light mode.",
-                  "doneWhen": "A mock of the switch between dark, light and the device, on Roadmapper's own roadmap, is reviewed and approved."
-                },
-                {
-                  "name": "Dark and light build",
+                  "name": "Dark and light",
                   "split": [
                     {
-                      "name": "Code",
                       "items": [
                         {
-                          "id": "dark-and-light-code",
-                          "name": "Dark and light code",
+                          "id": "dark-and-light",
+                          "name": "Dark and light design",
                           "icon": "sun-moon",
                           "state": "done",
-                          "why": "The switch works in the app, the lib and the export, as designed.",
-                          "doneWhen": "On Roadmapper's own roadmap, the page draws in each of dark, light and the device, as picked in the switch."
-                        }
-                      ]
-                    },
-                    {
-                      "name": "Tests",
-                      "items": [
+                          "why": "A switch picks dark, light, or the setting of the device. Each theme has a dark and a light mode.",
+                          "doneWhen": "A mock of the switch between dark, light and the device, on Roadmapper's own roadmap, is reviewed and approved."
+                        },
                         {
-                          "id": "dark-and-light-tests",
-                          "name": "Dark and light tests",
-                          "icon": "sun-moon",
-                          "state": "done",
-                          "why": "Tests in a real browser for Dark and light, so a change cannot break it unseen.",
-                          "doneWhen": "npm test checks the switch between dark, light and the device, as designed."
+                          "name": "Dark and light build",
+                          "split": [
+                            {
+                              "name": "Code",
+                              "items": [
+                                {
+                                  "id": "dark-and-light-code",
+                                  "name": "Dark and light code",
+                                  "icon": "sun-moon",
+                                  "state": "done",
+                                  "why": "The switch works in the app, the lib and the export, as designed.",
+                                  "doneWhen": "On Roadmapper's own roadmap, the page draws in each of dark, light and the device, as picked in the switch."
+                                }
+                              ]
+                            },
+                            {
+                              "name": "Tests",
+                              "items": [
+                                {
+                                  "id": "dark-and-light-tests",
+                                  "name": "Dark and light tests",
+                                  "icon": "sun-moon",
+                                  "state": "done",
+                                  "why": "Tests in a real browser for Dark and light, so a change cannot break it unseen.",
+                                  "doneWhen": "npm test checks the switch between dark, light and the device, as designed."
+                                }
+                              ]
+                            }
+                          ]
                         }
                       ]
                     }
@@ -910,36 +936,45 @@
               "name": "Expand and collapse",
               "items": [
                 {
-                  "id": "expand-collapse",
-                  "name": "Expand and collapse design",
-                  "icon": "fold",
-                  "state": "canceled",
-                  "why": "At each level, a group opens or closes on its own, so a deep plan needs no extra level."
-                },
-                {
-                  "name": "Expand and collapse build",
+                  "name": "Expand and collapse",
                   "split": [
                     {
-                      "name": "Code",
                       "items": [
                         {
-                          "id": "expand-collapse-build",
-                          "name": "Expand and collapse code",
+                          "id": "expand-collapse",
+                          "name": "Expand and collapse design",
                           "icon": "fold",
                           "state": "canceled",
-                          "why": "Expand and collapse works in the app as designed."
-                        }
-                      ]
-                    },
-                    {
-                      "name": "Tests",
-                      "items": [
+                          "why": "At each level, a group opens or closes on its own, so a deep plan needs no extra level."
+                        },
                         {
-                          "id": "expand-collapse-tests",
-                          "name": "Expand and collapse tests",
-                          "icon": "fold",
-                          "state": "canceled",
-                          "why": "Tests in a real browser for Expand and collapse, so a change cannot break it unseen."
+                          "name": "Expand and collapse build",
+                          "split": [
+                            {
+                              "name": "Code",
+                              "items": [
+                                {
+                                  "id": "expand-collapse-build",
+                                  "name": "Expand and collapse code",
+                                  "icon": "fold",
+                                  "state": "canceled",
+                                  "why": "Expand and collapse works in the app as designed."
+                                }
+                              ]
+                            },
+                            {
+                              "name": "Tests",
+                              "items": [
+                                {
+                                  "id": "expand-collapse-tests",
+                                  "name": "Expand and collapse tests",
+                                  "icon": "fold",
+                                  "state": "canceled",
+                                  "why": "Tests in a real browser for Expand and collapse, so a change cannot break it unseen."
+                                }
+                              ]
+                            }
+                          ]
                         }
                       ]
                     }
@@ -951,39 +986,48 @@
               "name": "Links",
               "items": [
                 {
-                  "id": "links",
-                  "name": "Links design",
-                  "icon": "link",
-                  "state": "done",
-                  "why": "A step links to what it produced, like the approved mock, a doc or a demo. The 'Links' section of the side bar opens and closes.",
-                  "doneWhen": "A mock of the 'Links' part of the side bar, on Roadmapper's own roadmap, is reviewed and approved."
-                },
-                {
-                  "name": "Links build",
+                  "name": "Links",
                   "split": [
                     {
-                      "name": "Code",
                       "items": [
                         {
-                          "id": "links-build",
-                          "name": "Links code",
+                          "id": "links",
+                          "name": "Links design",
                           "icon": "link",
                           "state": "done",
-                          "why": "Links works in the app as designed.",
-                          "doneWhen": "On Roadmapper's own roadmap, a click on a link in the 'Links' part of the side bar opens it in a new tab."
-                        }
-                      ]
-                    },
-                    {
-                      "name": "Tests",
-                      "items": [
+                          "why": "A step links to what it produced, like the approved mock, a doc or a demo. The 'Links' section of the side bar opens and closes.",
+                          "doneWhen": "A mock of the 'Links' part of the side bar, on Roadmapper's own roadmap, is reviewed and approved."
+                        },
                         {
-                          "id": "links-tests",
-                          "name": "Links tests",
-                          "icon": "link",
-                          "state": "done",
-                          "why": "Tests in a real browser for Links, so a change cannot break it unseen.",
-                          "doneWhen": "npm test checks Links, as designed."
+                          "name": "Links build",
+                          "split": [
+                            {
+                              "name": "Code",
+                              "items": [
+                                {
+                                  "id": "links-build",
+                                  "name": "Links code",
+                                  "icon": "link",
+                                  "state": "done",
+                                  "why": "Links works in the app as designed.",
+                                  "doneWhen": "On Roadmapper's own roadmap, a click on a link in the 'Links' part of the side bar opens it in a new tab."
+                                }
+                              ]
+                            },
+                            {
+                              "name": "Tests",
+                              "items": [
+                                {
+                                  "id": "links-tests",
+                                  "name": "Links tests",
+                                  "icon": "link",
+                                  "state": "done",
+                                  "why": "Tests in a real browser for Links, so a change cannot break it unseen.",
+                                  "doneWhen": "npm test checks Links, as designed."
+                                }
+                              ]
+                            }
+                          ]
                         }
                       ]
                     }
@@ -995,39 +1039,48 @@
               "name": "Export in the app",
               "items": [
                 {
-                  "id": "export-in-the-app",
-                  "name": "Export in the app design",
-                  "icon": "download",
-                  "state": "done",
-                  "why": "'Export' in (i) downloads the export, with private items left out unless 'Include private items' is on.",
-                  "doneWhen": "A mock of 'Export' in (i), on Roadmapper's own roadmap, is reviewed and approved."
-                },
-                {
-                  "name": "Export in the app build",
+                  "name": "Export in the app",
                   "split": [
                     {
-                      "name": "Code",
                       "items": [
                         {
-                          "id": "export-in-the-app-build",
-                          "name": "Export in the app code",
+                          "id": "export-in-the-app",
+                          "name": "Export in the app design",
                           "icon": "download",
                           "state": "done",
-                          "why": "Export in the app works in the app as designed.",
-                          "doneWhen": "On Roadmapper's own roadmap, a click on 'Export' in (i) saves the export."
-                        }
-                      ]
-                    },
-                    {
-                      "name": "Tests",
-                      "items": [
+                          "why": "'Export' in (i) downloads the export, with private items left out unless 'Include private items' is on.",
+                          "doneWhen": "A mock of 'Export' in (i), on Roadmapper's own roadmap, is reviewed and approved."
+                        },
                         {
-                          "id": "export-in-the-app-tests",
-                          "name": "Export in the app tests",
-                          "icon": "download",
-                          "state": "done",
-                          "why": "Tests in a real browser for Export in the app, so a change cannot break it unseen.",
-                          "doneWhen": "npm test checks Export in the app, as designed."
+                          "name": "Export in the app build",
+                          "split": [
+                            {
+                              "name": "Code",
+                              "items": [
+                                {
+                                  "id": "export-in-the-app-build",
+                                  "name": "Export in the app code",
+                                  "icon": "download",
+                                  "state": "done",
+                                  "why": "Export in the app works in the app as designed.",
+                                  "doneWhen": "On Roadmapper's own roadmap, a click on 'Export' in (i) saves the export."
+                                }
+                              ]
+                            },
+                            {
+                              "name": "Tests",
+                              "items": [
+                                {
+                                  "id": "export-in-the-app-tests",
+                                  "name": "Export in the app tests",
+                                  "icon": "download",
+                                  "state": "done",
+                                  "why": "Tests in a real browser for Export in the app, so a change cannot break it unseen.",
+                                  "doneWhen": "npm test checks Export in the app, as designed."
+                                }
+                              ]
+                            }
+                          ]
                         }
                       ]
                     }
@@ -1036,39 +1089,54 @@
               ]
             },
             {
-              "name": "Timeline",
+              "name": "Long text",
               "items": [
                 {
-                  "id": "timeline",
-                  "name": "Timeline design",
-                  "icon": "timeline",
-                  "why": "The timeline is a layout to turn on over a range: today, this week, this month or custom. It shows what is going on now, what is late (past its end) and what is missed (past its deadline). Late and missed show only with the timeline on. An export has the timeline only when an option includes it, as with private items. Strangers can then turn it on.",
-                  "doneWhen": "A mock of the timeline, on Roadmapper's own roadmap, is reviewed and approved."
-                },
-                {
-                  "name": "Timeline build",
+                  "name": "Long text",
                   "split": [
                     {
-                      "name": "Code",
                       "items": [
                         {
-                          "id": "timeline-build",
-                          "name": "Timeline code",
-                          "icon": "timeline",
-                          "why": "The timeline works in the app, the lib and the export, as designed.",
-                          "doneWhen": "On Roadmapper's own roadmap with the timeline turned on, the timeline is reviewed and approved."
-                        }
-                      ]
-                    },
-                    {
-                      "name": "Tests",
-                      "items": [
+                          "id": "long-text",
+                          "name": "Long text design",
+                          "icon": "text-wrap",
+                          "state": "done",
+                          "why": "Long names, long links and long lists of items, links among them, fit everywhere on the page.",
+                          "doneWhen": "A mock of how long names, long links and long lists fit on the page, on Roadmapper's own roadmap, is reviewed and approved."
+                        },
                         {
-                          "id": "timeline-tests",
-                          "name": "Timeline tests",
-                          "icon": "timeline",
-                          "why": "Tests in a real browser for the timeline, so a change cannot break it unseen.",
-                          "doneWhen": "npm test checks the timeline, as designed."
+                          "name": "Long text build",
+                          "split": [
+                            {
+                              "name": "Code",
+                              "items": [
+                                {
+                                  "id": "long-text-code",
+                                  "name": "Long text code",
+                                  "icon": "text-wrap",
+                                  "state": "done",
+                                  "waitsFor": [
+                                    "links-build"
+                                  ],
+                                  "why": "Long text works in the app as designed.",
+                                  "doneWhen": "On Roadmapper's own roadmap, long names, long links and long lists fit everywhere on the page."
+                                }
+                              ]
+                            },
+                            {
+                              "name": "Tests",
+                              "items": [
+                                {
+                                  "id": "long-text-tests",
+                                  "name": "Long text tests",
+                                  "icon": "text-wrap",
+                                  "state": "done",
+                                  "why": "Tests in a real browser for Long text, so a change cannot break it unseen.",
+                                  "doneWhen": "npm test checks Long text, as designed."
+                                }
+                              ]
+                            }
+                          ]
                         }
                       ]
                     }
@@ -1077,7 +1145,68 @@
               ]
             },
             {
-              "name": "Remember the view",
+              "name": "Tools button",
+              "items": [
+                {
+                  "name": "Tools button",
+                  "split": [
+                    {
+                      "items": [
+                        {
+                          "id": "tools-button",
+                          "name": "Tools button design",
+                          "icon": "settings",
+                          "state": "done",
+                          "why": "(i) becomes a gear button, with parts that open and close: the key, the view and export.",
+                          "doneWhen": "A mock of the tools button and its sections, on Roadmapper's own roadmap, is reviewed and approved."
+                        },
+                        {
+                          "name": "Tools button build",
+                          "split": [
+                            {
+                              "name": "Code",
+                              "items": [
+                                {
+                                  "id": "tools-button-code",
+                                  "name": "Tools button code",
+                                  "icon": "settings",
+                                  "state": "done",
+                                  "waitsFor": [
+                                    "export-in-the-app-build",
+                                    "dark-and-light-code"
+                                  ],
+                                  "why": "Tools button works in the app as designed.",
+                                  "doneWhen": "On Roadmapper's own roadmap, each part of the gear button opens and closes."
+                                }
+                              ]
+                            },
+                            {
+                              "name": "Tests",
+                              "items": [
+                                {
+                                  "id": "tools-button-tests",
+                                  "name": "Tools button tests",
+                                  "icon": "settings",
+                                  "state": "done",
+                                  "why": "Tests in a real browser for Tools button, so a change cannot break it unseen.",
+                                  "doneWhen": "npm test checks the tools button, as designed."
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Remember the view",
+          "split": [
+            {
               "items": [
                 {
                   "id": "remember-the-view",
@@ -1116,34 +1245,33 @@
                   ]
                 }
               ]
-            },
+            }
+          ]
+        },
+        {
+          "name": "Edit on page",
+          "split": [
             {
-              "name": "Long text",
               "items": [
                 {
-                  "id": "long-text",
-                  "name": "Long text design",
-                  "icon": "text-wrap",
-                  "state": "done",
-                  "why": "Long names, long links and long lists of items, links among them, fit everywhere on the page.",
-                  "doneWhen": "A mock of how long names, long links and long lists fit on the page, on Roadmapper's own roadmap, is reviewed and approved."
+                  "id": "edit-on-page",
+                  "name": "Edit on page design",
+                  "icon": "pencil",
+                  "why": "The roadmap is changed on the page, not in a file.",
+                  "doneWhen": "A mock of how the roadmap is changed on the page, on Roadmapper's own roadmap, is reviewed and approved."
                 },
                 {
-                  "name": "Long text build",
+                  "name": "Edit on page build",
                   "split": [
                     {
                       "name": "Code",
                       "items": [
                         {
-                          "id": "long-text-code",
-                          "name": "Long text code",
-                          "icon": "text-wrap",
-                          "state": "done",
-                          "waitsFor": [
-                            "links-build"
-                          ],
-                          "why": "Long text works in the app as designed.",
-                          "doneWhen": "On Roadmapper's own roadmap, long names, long links and long lists fit everywhere on the page."
+                          "id": "edit-on-page-build",
+                          "name": "Edit on page code",
+                          "icon": "pencil",
+                          "why": "Edit on page works in the app as designed.",
+                          "doneWhen": "On Roadmapper's own roadmap, roadmap.json holds each change made on the page."
                         }
                       ]
                     },
@@ -1151,47 +1279,44 @@
                       "name": "Tests",
                       "items": [
                         {
-                          "id": "long-text-tests",
-                          "name": "Long text tests",
-                          "icon": "text-wrap",
-                          "state": "done",
-                          "why": "Tests in a real browser for Long text, so a change cannot break it unseen.",
-                          "doneWhen": "npm test checks Long text, as designed."
+                          "id": "edit-on-page-tests",
+                          "name": "Edit on page tests",
+                          "icon": "pencil",
+                          "why": "Tests in a real browser for Edit on page, so a change cannot break it unseen.",
+                          "doneWhen": "npm test checks Edit on page, as designed."
                         }
                       ]
                     }
                   ]
                 }
               ]
-            },
+            }
+          ]
+        },
+        {
+          "name": "Error fixer",
+          "split": [
             {
-              "name": "Tools button",
               "items": [
                 {
-                  "id": "tools-button",
-                  "name": "Tools button design",
-                  "icon": "settings",
-                  "state": "done",
-                  "why": "(i) becomes a gear button, with parts that open and close: the key, the view and export.",
-                  "doneWhen": "A mock of the tools button and its sections, on Roadmapper's own roadmap, is reviewed and approved."
+                  "id": "error-fixer-design",
+                  "name": "Error fixer design",
+                  "icon": "wand",
+                  "state": "tbd",
+                  "why": "Each error the error list shows comes with a way to fix it on the page. The fix writes the file, so it comes after Edit on page."
                 },
                 {
-                  "name": "Tools button build",
+                  "name": "Error fixer build",
                   "split": [
                     {
                       "name": "Code",
                       "items": [
                         {
-                          "id": "tools-button-code",
-                          "name": "Tools button code",
-                          "icon": "settings",
-                          "state": "done",
-                          "waitsFor": [
-                            "export-in-the-app-build",
-                            "dark-and-light-code"
-                          ],
-                          "why": "Tools button works in the app as designed.",
-                          "doneWhen": "On Roadmapper's own roadmap, each part of the gear button opens and closes."
+                          "id": "error-fixer-code",
+                          "name": "Error fixer code",
+                          "icon": "wand",
+                          "state": "tbd",
+                          "why": "The error fixer works in the app as designed."
                         }
                       ]
                     },
@@ -1199,21 +1324,114 @@
                       "name": "Tests",
                       "items": [
                         {
-                          "id": "tools-button-tests",
-                          "name": "Tools button tests",
-                          "icon": "settings",
-                          "state": "done",
-                          "why": "Tests in a real browser for Tools button, so a change cannot break it unseen.",
-                          "doneWhen": "npm test checks the tools button, as designed."
+                          "id": "error-fixer-tests",
+                          "name": "Error fixer tests",
+                          "icon": "wand",
+                          "state": "tbd",
+                          "why": "Tests in a real browser for the error fixer, so a change cannot break it unseen."
                         }
                       ]
                     }
                   ]
                 }
               ]
-            },
+            }
+          ]
+        },
+        {
+          "name": "Themes",
+          "split": [
             {
-              "name": "npm package",
+              "items": [
+                {
+                  "id": "themes",
+                  "name": "Themes design",
+                  "icon": "palette",
+                  "why": "A button of its own opens a picker of themes, like the picker of branches: it has a search, and each row shows a small picture of its theme, light and dark among them. Each theme is a folder of its own in themes/, so no theme depends on another. We add a new theme easily; users do not make their own.",
+                  "doneWhen": "A mock of the picker of themes, on Roadmapper's own roadmap, is reviewed and approved."
+                },
+                {
+                  "name": "Themes build",
+                  "split": [
+                    {
+                      "name": "Code",
+                      "items": [
+                        {
+                          "id": "themes-build",
+                          "name": "Themes code",
+                          "icon": "palette",
+                          "why": "The picker of themes picks the theme in the app, the lib and the export, as designed.",
+                          "doneWhen": "On Roadmapper's own roadmap, the page draws in the theme picked in the picker."
+                        }
+                      ]
+                    },
+                    {
+                      "name": "Tests",
+                      "items": [
+                        {
+                          "id": "themes-tests",
+                          "name": "Themes tests",
+                          "icon": "palette",
+                          "why": "Tests in a real browser for Themes, so a change cannot break it unseen.",
+                          "doneWhen": "npm test checks the picker of themes, as designed."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Timeline",
+          "split": [
+            {
+              "items": [
+                {
+                  "id": "timeline",
+                  "name": "Timeline design",
+                  "icon": "timeline",
+                  "why": "The timeline is a layout to turn on over a range: today, this week, this month or custom. It shows what is going on now, what is late (past its end) and what is missed (past its deadline). Late and missed show only with the timeline on. An export has the timeline only when an option includes it, as with private items. Strangers can then turn it on.",
+                  "doneWhen": "A mock of the timeline, on Roadmapper's own roadmap, is reviewed and approved."
+                },
+                {
+                  "name": "Timeline build",
+                  "split": [
+                    {
+                      "name": "Code",
+                      "items": [
+                        {
+                          "id": "timeline-build",
+                          "name": "Timeline code",
+                          "icon": "timeline",
+                          "why": "The timeline works in the app, the lib and the export, as designed.",
+                          "doneWhen": "On Roadmapper's own roadmap with the timeline turned on, the timeline is reviewed and approved."
+                        }
+                      ]
+                    },
+                    {
+                      "name": "Tests",
+                      "items": [
+                        {
+                          "id": "timeline-tests",
+                          "name": "Timeline tests",
+                          "icon": "timeline",
+                          "why": "Tests in a real browser for the timeline, so a change cannot break it unseen.",
+                          "doneWhen": "npm test checks the timeline, as designed."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "npm package",
+          "split": [
+            {
               "items": [
                 {
                   "id": "npm-package-design",

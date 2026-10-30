@@ -99,14 +99,27 @@ To choose, try to name the whole split as one step, in the owner's words. If one
 - Name each top-level branch, group, track and branch of a branching by what it holds, in the owner's words.
 - When a step joins a branch, a track or a group, rename that branch, track or group if its name no longer covers all that it holds.
 - The page shows a branching by the names of its branches, so a branching needs no `name`.
-- Keep groups shallow where you can. At the level 'Tracks', every group is open, so each group inside a group makes that level more crowded.
+
+A group can hold a group. When one piece of work has a step and then parts side by side, the parts go in a group inside the group of that work. The level 'Main steps' then shows the whole piece of work as one step. Say the owner wants 'Draw the shop plan' before the kitchen and the front:
+
+```json
+{ "name": "Fit out the shop", "split": [ { "items": [
+  { "id": "draw-the-shop-plan", "name": "Draw the shop plan" },
+  { "name": "Build the shop", "split": [
+    { "name": "Kitchen", "items": [ { "id": "install-ovens", "name": "Install ovens" } ] },
+    { "name": "Front", "items": [ { "id": "build-the-counter", "name": "Build the counter" } ] }
+  ] }
+] } ] }
+```
+
+A branch that holds only one piece of work needs no group around it, because its name already names that work. Add no group inside a group for any other reason. At the level 'Tracks', every group is open, so each group inside a group makes that level more crowded.
 
 ## Place each step after what comes before it
 
 The rules of a line hold at every depth. Steps in a row inside a track also come next by a wait or by priority.
 
 - The branches of a split can all start at once. So a step that waits for a step on another branch of the same split is in the wrong place. Put it on that other branch, after the step that it waits for, or put the two branches in a row.
-- Keep the steps of one piece of work together, in one group, such as 'Pick the recipes' and 'Print the menu' in 'Menu'.
+- Keep the steps of one piece of work together, in one group, such as 'Pick the recipes' and 'Print the menu' in 'Menu'. A group among those steps goes in that group too, as [Groups and branchings](#groups-and-branchings) shows.
 - A step that waits for two steps goes after both. 'Make the sign' waits for 'Sign the lease' and 'Pick a name'. Both come before it on the row, so it needs no `waitsFor`.
 
 ## The test of a good plan
@@ -114,6 +127,7 @@ The rules of a line hold at every depth. Steps in a row inside a track also come
 The owner asks: "What do we work on now, and what comes after it?" The page alone must answer that question.
 
 - At the level 'Main steps', each top-level branch reads as a row of main steps in priority order. In the bakery plan, 'First shop' reads 'Sign the lease', 'Fit out the shop', 'Name and sign', 'Hire bakers', 'Menu', 'Town gives the food permit' and 'Opening day'.
+- Each main step is a whole piece of work, not a part of one.
 - The work for now is the first item on each top-level branch that is neither done nor canceled. When that item is a split, it is the first such step on each of its branches. A step that is blocked or `"tbd"` is not in the answer. In the bakery plan, the answer is 'Install ovens' and 'Build the counter'.
 - No line and no split on the page is wrong.
 
@@ -133,7 +147,7 @@ Decide each wait and the order before you save, in a new plan and in each change
 - When the owner names a part of the plan but no step in it, ask the owner one short question about its steps. Such a part can be a phase or a year.
 - When the owner names the things that a part of the plan brings, write a step for each thing. When the owner says that 'Fit out the shop' brings the ovens and the counter, write 'Install ovens' and 'Build the counter'. Make each such step exact or "tbd", as [Make near steps exact and far steps "tbd"](#make-near-steps-exact-and-far-steps-tbd) says.
 - Never save a plan with a wait or an order that you are not sure of. Never give the owner a list of doubts in place of the plan.
-- Where a wait or an order is not plain from the names, write it in the `why` of the step that comes after. Then the next person who reshapes the plan keeps it.
+- Where a wait is not plain from the names, write it in the `why` of the step that waits. Then the next person who reshapes the plan keeps it. Write no order in a `why`, because the row shows the order.
 
 ## Add to a plan that has wrong lines
 
@@ -163,6 +177,7 @@ In a new plan, place a done step by its waits and its priority, as any other ste
 | Steps where each one waits for the one before, or comes after it by priority | The items of one branch, in order. |
 | One piece of work, such as the name and the sign | A group with a `name` and one track, which holds the steps in order. At 'Main steps', it shows as one step. |
 | Parts of one piece of work that may go side by side, such as the kitchen and the front of 'Fit out the shop' | A group with a track for each part: a `split` with no `"branching": true` and no branch with `"ends": true`. Give it a `name`. |
+| One piece of work with a step, then parts side by side, such as 'Draw the shop plan', then the kitchen and the front | A group with a `name` and one track. The track holds the step, then a group with a track for each part. |
 | Separate pieces of work that may go side by side, such as a website and a delivery van that the owner rates the same | A branching that comes back: a `split` with `"branching": true`. |
 | A side branch that leaves and does not come back, such as a stall at the summer market | A branching that ends: a `split` with a branch that has `"ends": true`. |
 | Parts of the plan that the owner plans on their own, such as the first shop and a second shop. One part may wait for another. | Top-level `branches`. |
@@ -203,7 +218,7 @@ Write each `why` and `doneWhen` as a plain fact in the third person, such as 'Th
 
 ## Make near steps exact and far steps "tbd"
 
-A step is near when it is in progress or can start now. A step can start now when each step that it waits for is done or canceled, wherever the priority order puts it. A step is near too when each step that it waits for is done, canceled or in progress, or can start now. Every other step is far. In the bakery plan, 'Print the menu' is near, because it waits only for 'Pick the recipes', which can start now. 'Second shop' is far.
+A step is near when it is in progress or can start now. A step can start now when each step that it waits for is done or canceled, wherever the priority order puts it. A step is near too when each step that it waits for is done, canceled or in progress, or can start now. Every other step is far. In the bakery plan, 'Make the sign' is near, because 'Sign the lease' is done and 'Pick a name' can start now. 'Print the menu' is far, because it waits for 'Pick the recipes', which waits for 'Hire bakers'. 'Second shop' is far too.
 
 - Give each near step a clear `why` and a `doneWhen`.
 - When the owner gave no check, write the simplest check that fits the name of the step. For 'Make the sign', that check is 'The sign hangs over the door.' Write no count, name or day that the owner did not give.

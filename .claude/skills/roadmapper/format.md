@@ -33,7 +33,7 @@ This roadmap file plans the opening of a bakery. Every example in [SKILL.md](SKI
       { "name": "Menu", "split": [
         { "items": [
           { "id": "pick-the-recipes", "name": "Pick the recipes", "icon": "bread", "why": "The menu and the shopping list come from the recipes. The bakers help pick them.", "doneWhen": "The list of recipes for the first month is written down." },
-          { "id": "print-the-menu", "name": "Print the menu", "why": "People read the bread, the cakes and the prices on the menu.", "doneWhen": "The printed menu hangs behind the counter." }
+          { "id": "print-the-menu", "name": "Print the menu", "state": "tbd", "why": "People read the bread, the cakes and the prices on the menu." }
         ] }
       ] },
       { "id": "town-gives-the-food-permit", "name": "Town gives the food permit", "why": "The town inspects the finished shop before the bakery may sell food.", "doneWhen": "The town sends the signed permit." },
