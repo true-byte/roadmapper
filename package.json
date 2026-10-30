@@ -6,7 +6,7 @@
   "license": "MIT",
   "type": "module",
   "engines": {
-    "node": "^20.19.0 || >=22.12.0"
+    "node": ">=22.12.0"
   },
   "exports": {
     ".": {
@@ -38,13 +38,14 @@
     "preview": "vite preview --outDir ../../dist/app",
     "check": "tsc --noEmit",
     "validate": "node scripts/roadmapper.mjs validate",
-    "build:tests": "node scripts/roadmapper.mjs build tests/roadmapper.json dist/tests/app && vite build tests/page --config tests/page/vite.config.ts && vite build tests/embed --config tests/embed/vite.config.ts && node scripts/roadmapper.mjs export tests/export/plan.json dist/tests/export",
-    "test": "npm run build:lib && npm run build:cli && npm run build:tests && playwright test",
-    "build:lib": "tsc --noEmit && vite build --config vite.lib.config.ts --mode module && vite build --config vite.lib.config.ts --mode script && vite build --config vite.lib.config.ts --mode export && tsc -p tsconfig.lib.json",
-    "build:cli": "vite build --config vite.cli.config.ts && vite build",
-    "package": "npm run build:lib && npm run build:cli && node scripts/pack.mjs",
-    "prepack": "npm run build:lib && npm run build:cli",
-    "export": "npm run build:lib && node scripts/roadmapper.mjs export",
+    "build:tests": "node scripts/build.mjs tests",
+    "test": "node scripts/build.mjs lib cli tests && playwright test",
+    "test:push": "node scripts/build.mjs lib cli tests && node scripts/test-push.mjs",
+    "build:lib": "node scripts/build.mjs lib",
+    "build:cli": "node scripts/build.mjs cli",
+    "package": "node scripts/build.mjs lib cli && node scripts/pack.mjs",
+    "prepack": "node scripts/build.mjs lib cli",
+    "export": "node scripts/build.mjs lib && node scripts/roadmapper.mjs export",
     "export:preview": "node scripts/roadmapper.mjs export:preview"
   },
   "peerDependencies": {
@@ -66,6 +67,6 @@
     "react-dom": "^19.2.9",
     "typescript": "^7.0.2",
     "vite": "^8.3.3",
-    "vite-plugin-singlefile": "^2.3.3"
+    "vite-plugin-singlefile": "^2.3.4"
   }
 }

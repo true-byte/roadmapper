@@ -1,4 +1,4 @@
-// One roadmap view: the title, the key, the plan at each zoom level, the zoom control, the tip, the side bar and the error list.
+// One roadmap view: the title, the key, the plan at each zoom level, the zoom control, the tip, the side bar and the error list, and in the app the button 'Export'.
 // It gets the roadmap as text and does not know where the text comes from. All its state lives in the context that mountRoadmap() makes, so each view stands alone.
 // A step, a group or a branch answers the pointer: a short tip on a hover, and the side bar with its data on a click. A click never zooms.
 // Its look is view.css, which takes every color and font from the variables of the theme (src/themes/). The theme also names the icon set.
@@ -13,6 +13,7 @@ import { initialState, type ViewContext } from './context.js';
 import { makeDom } from './dom.js';
 import { drawPart } from './draw.js';
 import { errorListPart } from './error-list.js';
+import { exportPart } from './export.js';
 import { factsPart } from './facts.js';
 import { fontsPart } from './fonts.js';
 import { framePart } from './frame.js';
@@ -42,7 +43,7 @@ export interface RoadmapView {
 }
 
 export interface ViewOptions {
-  /** The name the view keeps its level, its view and its place under, in localStorage. With none, nothing is kept. */
+  /** The name the view keeps itself under in localStorage: each change the user makes to it, so a reload shows it as it was left (store.ts). With none, nothing is kept. */
   store?: string;
   /** Called after each good draw. */
   onDraw?: (roadmap: Roadmap) => void;
@@ -51,11 +52,15 @@ export interface ViewOptions {
   box?: HTMLElement;
   /** The icons of the set the theme names, for this view only, in place of the set on the page: those a page holds for its roadmap. */
   icons?: IconSet;
+  /** Makes the export of the roadmap shown, as one file to save, from the text of its file: the export for strangers, or with `private` the whole roadmap.
+   * It throws a RoadmapError for a roadmap it cannot export. With it, the popup ends with the part 'Export': the switch 'Include private items' and the button 'Export',
+   * which saves that file. With none, the popup has no part 'Export': only the app gives it (src/app/main.ts). */
+  exportFile?: (text: string, keep: { private: boolean }) => Promise<File>;
 }
 
 /** The parts of a view, in the order they are made. Each puts its listeners on the page as it is made: the input before touch, as each listens to a press on the view first. */
 const PARTS = [drawPart, framePart, placePart, tidyPart, openingPart, toolbarPart, branchesPart, movesPart, storePart, scalePart, scrollPart, inputPart, touchPart,
-  hoverPart, factsPart, sidePart, aimPart, blockersPart, resizePart, paintPart, errorListPart, fontsPart];
+  hoverPart, factsPart, sidePart, aimPart, blockersPart, resizePart, paintPart, errorListPart, fontsPart, exportPart];
 
 /** Puts one roadmap view into `host`. */
 export function mountRoadmap(host: HTMLElement, options: ViewOptions = {}): RoadmapView {
@@ -81,6 +86,8 @@ export function mountRoadmap(host: HTMLElement, options: ViewOptions = {}): Road
   // The context of this view. It is whole once each part is in it: no part calls another before that.
   const ctx = { host, options, off, once, keys, ...dom, frozen, frozenU, frozenT, frozenW, still, calm, ...initialState() } as ViewContext;
   for (const part of PARTS) Object.assign(ctx, part(ctx));
+  // the mode the user picked, or else the device's, from the first paint on: before the first draw, and also under the error list of a broken file
+  ctx.setMode(still ? null : ctx.kept()?.mode);
 
   function destroy(): void {
     if (off.signal.aborted) return;

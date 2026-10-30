@@ -44,7 +44,8 @@
           "state": "done",
           "why": "Ask V1 users what they miss most.",
           "doneWhen": "50 users answered, and their top three asks are listed.",
-          "waitsFor": ["release-v1"]
+          "waitsFor": ["release-v1"],
+          "links": [{ "name": "Survey results", "url": "https://example.com/", "icon": "clipboard-list" }]
         },
         {
           "branching": true,
@@ -57,7 +58,7 @@
                   "name": "Sharing design",
                   "icon": "share",
                   "state": "done",
-                  "why": "The top ask in the survey: people look after plants together.",
+                  "why": "One of the two top asks in the survey: people look after plants together.",
                   "doneWhen": "The screens to invite someone and share the watering are drawn and agreed."
                 },
                 {
@@ -171,7 +172,7 @@
                   "name": "Photo ID",
                   "icon": "camera",
                   "state": "tbd",
-                  "why": "The second ask in the survey: what is this plant?"
+                  "why": "The other top ask in the survey: what is this plant?"
                 }
               ]
             },

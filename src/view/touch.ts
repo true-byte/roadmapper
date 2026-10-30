@@ -6,7 +6,7 @@ import { clamp } from './math.js';
 export function touchPart(ctx: ViewContext): void {
   const { host, off, once, PAD, picker, popup, side, stage, svg, zoom } = ctx;
 
-  host.addEventListener('pointerdown', e => { ctx.lastPointer = e.pointerType; ctx.pressedAt = performance.now(); }, { capture: true, signal: off.signal });
+  host.addEventListener('pointerdown', e => { ctx.lastPointer = e.pointerType; ctx.pressedAt = e.timeStamp; }, { capture: true, signal: off.signal });
   /** Each finger on the view, by its id: did it come down on the side bar or the zoom control, which keep their own touch? */
   const fingers = new Map<number, boolean>();
   /** Where the two fingers were last: drawn once a frame. */

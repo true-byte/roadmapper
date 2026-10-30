@@ -1,6 +1,7 @@
 // The side bar: a click picks a step, a group or a branch; it stays lit, and the side bar shows what the plan says about it. A click never zooms.
 // What a thing is called across a redraw, so a pick and the way back outlive it.
-import { ARROW, BRANCHES } from '../icons/icons.js';
+import { ARROW, BRANCHES, LINKS } from '../icons/icons.js';
+import type { Link } from '../roadmap/types.js';
 import type { ViewContext } from './context.js';
 import { html } from './dom.js';
 import { drawn } from './draw.js';
@@ -32,7 +33,7 @@ function part(name: string, ...body: (Node | string)[]): HTMLElement {
 export const TAP = { MS: 300, PX: 30, HOLD: 500 };
 
 export function sidePart(ctx: ViewContext) {
-  const { fit, glyph, head, host, PAD, side, stage } = ctx;
+  const { art, fit, glyph, head, host, PAD, side, stage } = ctx;
 
   function thingOf(r: Ref): Thing | undefined {
     if (r.kind === 'step') return ctx.byId.get(r.key);
@@ -54,23 +55,69 @@ export function sidePart(ctx: ViewContext) {
   }
   /** A step, a group or a branch as one row to press: it picks that thing, and lights it on the plan while pointed at. */
   function row(t: Thing): HTMLElement {
-    // a step in a hidden branch is not on the plan: its name, and a pill with the name of its top-level branch, and it answers no pointer
+    // a step in a hidden branch is not on the plan: its name, and a pill with the name of its top-level branch, and it answers no pointer.
+    // A click shows neither name whole, so the browser's tip does while either is cut. Where nothing points without a touch, no tip shows, and the CSS cuts neither
     if (isStep(t) && t.hidden) {
       const r = html('div', 'row off'), pill = html('span', 'gone');
       let top = t.owner;
       while (top.parent) top = top.parent;
-      pill.append(glyph(BRANCHES.hidden, 14, ''), top.name ?? 'Branch');
-      r.append(drawMark(t.state), html('span', t.milestone ? 'strong' : '', t.node.name), pill);
+      const nm = html('span', t.milestone ? 'strong nm' : 'nm', t.node.name), branch = html('span', 'cut', top.name ?? 'Branch');
+      pill.append(glyph(BRANCHES.hidden, 14, ''), branch);
+      r.append(drawMark(t.state), nm, pill);
+      cuts.observe(nm);
+      cuts.observe(branch);
       return r;
     }
     const b = html('button', 'row');
-    if (isStep(t)) b.append(drawMark(t.state), html('span', t.milestone ? 'strong' : '', t.node.name));
-    else if (isBranch(t)) b.append(html('span', 'branch', t.name ?? 'Branch'), html('span', 'dim', count(t)));
-    else b.append(drawMark(sum(t)), html('span', '', t.name), html('span', 'dim', count(t)));
+    if (isStep(t)) b.append(drawMark(t.state), html('span', t.milestone ? 'strong nm' : 'nm', t.node.name));
+    else if (isBranch(t)) b.append(html('span', 'branch nm', t.name ?? 'Branch'), html('span', 'dim', count(t)));
+    else b.append(drawMark(sum(t)), html('span', 'nm', t.name), html('span', 'dim', count(t)));
     b.addEventListener('click', () => pick(t));
     b.addEventListener('pointerenter', e => { if (e.pointerType === 'touch') return; ctx.rowHot = t; ctx.light(t, 'hot', true); ctx.aim(t); });
     b.addEventListener('pointerleave', e => { if (e.pointerType === 'touch') return; ctx.rowHot = null; ctx.light(t, 'hot', t === ctx.hot); ctx.aim(null); });
     return b;
+  }
+  /** A row that a click does not show whole, a link or a step in a hidden branch, has its whole text in the browser's own tip while a part of it is cut with "…", and no tip while all of it is whole.
+   * The tip of a step in a hidden branch has the name of the step on its first line, and the name of its branch on the second.
+   * Asked again each time a cut part gets another size: as the side bar is filled, as 'Links' opens, as the view gets another size, or as a font loads. */
+  // only a part with a set number of lines is cut at its foot. Any other part is cut only sideways: its font can stand taller than its line, so its height tells nothing
+  const cut = (e: Element): boolean =>
+    e.scrollWidth > e.clientWidth || (getComputedStyle(e).webkitLineClamp !== 'none' && e.scrollHeight > e.clientHeight + 1);
+  const cuts = new ResizeObserver(es => {
+    for (const { target } of es) {
+      const r = target.closest<HTMLElement>('a.row, .row.off');
+      if (!r) continue;
+      const parts = [...r.querySelectorAll('.nm, .cut')];
+      if (parts.some(cut)) r.title = parts.map(p => p.textContent ?? '').join('\n');
+      else r.removeAttribute('title');
+    }
+  });
+  ctx.off.signal.addEventListener('abort', () => cuts.disconnect());
+  /** The 'Links' part of a step: a row for each link, which opens its page in a new tab. Its heading closes and opens it, and the view keeps which. */
+  function linksPart(links: Link[]): HTMLElement {
+    const rows: HTMLElement[] = [];
+    for (const l of links) {
+      const a = html('a', 'row'), go = html('span', 'go');
+      a.href = l.url; a.target = '_blank'; a.rel = 'noopener noreferrer';
+      go.append(glyph(LINKS.open, 16, '↗'));
+      const nm = html('span', 'strong nm', l.name);
+      a.append(glyph(l.icon && art(l.icon) ? l.icon : LINKS.link, 20, ''), nm, go);
+      cuts.observe(nm);
+      a.addEventListener('click', e => { if (e.timeStamp < ctx.noClick) e.preventDefault(); });
+      rows.push(a);
+    }
+    const { part, head: fold, setOpen } = ctx.foldPart('Links', LINKS.fold, ...rows);
+    fold.addEventListener('click', e => {
+      ctx.linksOpen = !ctx.linksOpen;
+      setOpen(ctx.linksOpen);
+      // where the side bar is a sheet at the bottom, its top moves: the second click of a double click, or of a double tap, lands on what moved under it, and does nothing there,
+      // and the picked thing stays clear of the sheet
+      if (fit.bottom) ctx.noClick = e.timeStamp + 500;
+      ctx.uncover();
+      ctx.save();
+    });
+    setOpen(ctx.linksOpen);
+    return part;
   }
   /** What is in a branch, in the order of the plan: its own steps, each group that is one step far out, and the branches of a branching or of a group inside a group. */
   const inIt = (b: TBranch): Thing[] => b.items.flatMap((it): Thing[] => (isKids(it) && !ctx.byPod.has(it.key) ? it.kids : [it]));
@@ -87,8 +134,16 @@ export function sidePart(ctx: ViewContext) {
       if (b.pod?.kids.includes(b)) around.push(b.pod);
     }
     for (const at of around) {
-      const crumb = html('button', 'crumb', at.name ?? 'Branch');
+      // a crumb is text in the line of the path, so a long name wraps between its words, as a <button> never does. Tab reaches it, and Enter or Space presses it
+      const crumb = html('span', 'crumb', at.name ?? 'Branch');
+      crumb.setAttribute('role', 'button');
+      crumb.tabIndex = 0;
       crumb.addEventListener('click', () => pick(at));
+      crumb.addEventListener('keydown', e => {
+        if (e.key !== 'Enter' && e.key !== ' ') return;
+        e.preventDefault();
+        pick(at);
+      });
       path.prepend(crumb);
     }
     // back to what the side bar showed before, at the top left, across from the close button
@@ -116,6 +171,7 @@ export function sidePart(ctx: ViewContext) {
         // 'Show only blockers' shows only those on the plan
         out.push(part('Blocked by', ...holds.map(row), ...(holds.some(h => !h.hidden) ? [button] : [])));
       }
+      if (d.links?.length) out.push(linksPart(d.links));
       if (d.why) out.push(part('Why', html('p', '', d.why)));
       if (d.doneWhen) out.push(part('Done when', html('p', '', d.doneWhen)));
       const start = day(d.start), end = day(d.end), due = day(d.deadline);
@@ -128,8 +184,9 @@ export function sidePart(ctx: ViewContext) {
     } else out.push(part('In it', ...(sole(t.kids[0]) ? inIt(t.kids[0]) : t.kids).map(row)));
     return out;
   }
-  /** Keeps the picked thing in sight, clear of the side bar, by scrolling the plan. Its size never changes. */
-  function uncover(): void {
+  /** Keeps the picked thing in sight, clear of the side bar, by scrolling the plan. Its size never changes.
+   * With `whole`, the plan also scrolls up or down to it where the side bar is at the side: for a pick that is not where the user clicked it, as a reload brings it back. */
+  function uncover(whole = false): void {
     // a plan that runs under the side bar scrolls, up to its last step clear of it, and one that fits the room again when the side bar closes does not
     ctx.clear();
     if (!ctx.picked) return;
@@ -152,6 +209,7 @@ export function sidePart(ctx: ViewContext) {
       if (dx || dy) ctx.glide(dx, dy);
       return;
     }
+    if (whole) return ctx.sight(r);
     const dx = r.right + 24 > s.left ? r.right + 24 - s.left : r.left - 24 < st.left ? r.left - 24 - st.left : 0;
     if (dx) ctx.glide(dx, 0);
   }
@@ -160,6 +218,7 @@ export function sidePart(ctx: ViewContext) {
     if (t === ctx.picked) return;
     // a switch after a pick holds the plan by the picked step, from where it is now
     ctx.been = null;
+    if (!quiet) ctx.sideAsked = null;
     // the side bar takes the place of the popup and of the list of branches; a redraw that picks again leaves them
     if (t && !quiet) { ctx.setPopup(false); ctx.setBranches(false); }
     // all comes back first, around a step picked among those that show
@@ -178,6 +237,7 @@ export function sidePart(ctx: ViewContext) {
     ctx.light(ctx.picked, 'picked', true);
     side.hidden = !t;
     if (t) {
+      cuts.disconnect();
       side.replaceChildren(...sideOf(t));
       side.scrollTop = 0;
     }
@@ -185,14 +245,15 @@ export function sidePart(ctx: ViewContext) {
     if (home) ctx.glide(home[0] - stage.scrollLeft, home[1] - stage.scrollTop);
     // the tip of what is under the pointer goes when that is picked, and comes back when it is let go
     ctx.hover(ctx.hot);
+    ctx.save();
   }
   for (const where of [stage, head]) {
     where.addEventListener('click', e => {
-      if (ctx.dragged || performance.now() < ctx.noClick) return;
+      if (ctx.dragged || e.timeStamp < ctx.noClick) return;
       // asked of the view's own root, which may be a shadow root: there the page would answer with the box itself
       const t = ctx.thingAt((host.getRootNode() as Document | ShadowRoot).elementFromPoint(e.clientX, e.clientY));
       // a finger held down is no tap: a long press does nothing
-      if (ctx.lastPointer === 'touch' && performance.now() - ctx.pressedAt > TAP.HOLD) return;
+      if (ctx.lastPointer === 'touch' && e.timeStamp - ctx.pressedAt > TAP.HOLD) return;
       if (ctx.lastPointer !== 'touch') {
         if (ctx.only && !t) ctx.endOnly();
         else pick(t);
@@ -207,14 +268,14 @@ export function sidePart(ctx: ViewContext) {
       };
       const was = ctx.tapWait;
       if (was) { window.clearTimeout(was.timer); ctx.tapWait = null; }
-      if (was && performance.now() - was.t < TAP.MS && Math.hypot(e.clientX - was.x, e.clientY - was.y) < TAP.PX) {
+      if (was && e.timeStamp - was.t < TAP.MS && Math.hypot(e.clientX - was.x, e.clientY - was.y) < TAP.PX) {
         // the step under the finger stays put, and so does the sheet: the move ends with no glide for what it shows
         if (ctx.plan && ctx.all.length && ctx.target < ctx.K && !ctx.only) { ctx.setPopup(false); ctx.go(ctx.target + 1, ctx.nearest(ctx.all, was.x, was.y), false); }
         return;
       }
       // a tap somewhere else: the one before it acts now
       was?.act();
-      ctx.tapWait = { x: e.clientX, y: e.clientY, t: performance.now(), act, timer: window.setTimeout(() => { ctx.tapWait = null; act(); }, TAP.MS) };
+      ctx.tapWait = { x: e.clientX, y: e.clientY, t: e.timeStamp, act, timer: window.setTimeout(() => { ctx.tapWait = null; act(); }, TAP.MS) };
     });
   }
   /** A tap that waits to pick is dropped when the plan moves before it picks: a swipe that comes right after it, or a pinch. */
@@ -224,6 +285,13 @@ export function sidePart(ctx: ViewContext) {
     ctx.tapWait = null;
   }
   stage.addEventListener('pointercancel', e => { if (e.pointerType === 'touch') dropTap(); });
+  // how far down the side bar is scrolled is kept once the scroll rests, as the place of the plan is
+  side.addEventListener('scroll', () => {
+    // a scroll to another point than the one the start asked for, as far as the side bar goes, is the user's
+    if (ctx.sideAsked !== null && Math.abs(side.scrollTop - Math.min(ctx.sideAsked, side.scrollHeight - side.clientHeight)) >= 1) ctx.sideAsked = null;
+    window.clearTimeout(ctx.saving);
+    ctx.saving = window.setTimeout(ctx.save, 200);
+  });
   /** Shows again what the side bar showed before, that is still in the plan. */
   function goBack(): void {
     while (ctx.past.length) {

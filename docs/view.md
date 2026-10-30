@@ -80,15 +80,31 @@ The words "as far as the plan allows" mean that two rules come first:
 
 When either rule stops the plan, the point that should keep its place moves.
 
-## The popup
+## Tools
+
+The button 'Tools' opens the popup. The popup holds three parts:
+
+| Part | What it holds |
+|---|---|
+| 'Key' | The legend of the marks |
+| 'View' | The switches 'Hide node icons' and 'Hide labels', then 'Device', 'Light' and 'Dark' at the left and 'Horizontal' and 'Vertical' at the right |
+| 'Export' | The switch 'Include private items', then the button 'Export' |
 
 | Do this | What happens |
 |---|---|
-| Click the (i) button at the right end of the zoom control. Its tip says 'Key'. | The popup opens. It holds the legend of the marks, and the switches 'Hide node icons', 'Hide labels', 'Horizontal' and 'Vertical'. A click on a switch changes only that setting, and the popup stays open. |
+| Click the button with a gear at the right end of the zoom control. Its tip says 'Tools'. | The popup opens. A click on a switch changes only that setting, and the popup stays open. |
+| Click the heading of a part, such as 'Key'. | The part closes, and only its heading shows. A second click on the heading opens the part again. |
 | Click outside the popup and the zoom control. | The popup closes. That click does nothing else on the plan, and neither does a double click or double tap that starts with it. |
 | Click 'Hide node icons'. | The steps switch between their icons and the marks of their states. The switch shows only when a step names an icon that is in the icon set. |
 | Click 'Hide labels'. | The plan hides every word except the names of the top-level branches, and the steps move closer together. The tip and the side bar still show every name. |
+| Click 'Device', 'Light' or 'Dark'. | 'Light' draws the whole page light, and 'Dark' draws it dark, whatever the device is set to. 'Device' draws the page light or dark as the device is set, and follows a change of that setting. |
 | Click 'Horizontal' or 'Vertical'. | 'Horizontal' makes the plan run across, with each name over its step. 'Vertical' makes the plan run down, with each name to the right of its step. The choice stays when the page changes size. |
+| Click 'Include private items'. | The switch turns on or off. With it on, the button 'Export' saves the whole roadmap, with its private items. |
+| Click the button 'Export'. | The browser saves `roadmap.zip`, the HTML export of the roadmap, as [export.md, section "Export from the app"](export.md#export-from-the-app) says. The button shows a check and 'Saved' for 2 seconds. |
+
+Each part is open the first time the page opens. A part that you close stays closed until you open it again, also when the page opens again.
+
+When you open the popup with the keyboard, the focus goes to the first switch in 'View'. While 'View' is closed, the focus goes to the heading 'Key'.
 
 The legend lists only the states that are on the plan. It also lists the milestone when the plan has one. [format.md, section "States"](https://github.com/true-byte/roadmapper/blob/main/.claude/skills/roadmapper/format.md#states) gives each mark.
 
@@ -96,7 +112,7 @@ The legend lists only the states that are on the plan. It also lists the milesto
 
 | Do this | What happens |
 |---|---|
-| Click the button with a stack of layers, to the left of the (i) button. Its tip says 'Branches'. | The list of top-level branches opens over the zoom control. It holds a search box, then one row for each branch. Each row holds a check box, the mark of the branch's state, its name, and how many of its steps are done. The check box is ticked while the branch shows. The button shows only when the plan has two or more top-level branches. |
+| Click the button with a stack of layers, to the left of the button 'Tools'. Its tip says 'Branches'. | The list of top-level branches opens over the zoom control. It holds a search box, then one row for each branch. Each row holds a check box, the mark of the branch's state, its name, and how many of its steps are done. The check box is ticked while the branch shows. The button shows only when the plan has two or more top-level branches. |
 | Click a row. | That branch shows or hides, and the list stays open. The last branch that shows cannot be hidden. |
 | Type in the search box. | The list keeps only the rows whose names contain the text. The search ignores upper and lower case. |
 | Click outside the list and the zoom control. | The list closes. |
@@ -116,6 +132,8 @@ The legend lists only the states that are on the plan. It also lists the milesto
 | Click or tap empty space, or click '×'. | The side bar closes. |
 | Point at a name in the side bar. | A ring shows around the step, group or branch of that name on the plan. When that step, group or branch is out of sight, an arrow at the edge of the page points to it. A step in a hidden branch is not on the plan, so it gets no ring and no arrow. In the side bar, that step has a tag with the name of its top-level branch. |
 | Click the back arrow at the top left of the side bar. | The side bar shows what it showed before. When the side bar closes, it forgets what it showed. |
+| Click a link under 'Links' in the side bar. | The page of the link opens in a new tab. In 'Plant care app', 'User survey' has the link 'Survey results'. |
+| Click 'Links' in the side bar. | The links of every step hide, or show again. |
 
 ## Blockers
 
@@ -138,7 +156,7 @@ A key pressed with Ctrl, Alt or Cmd does nothing in the app. While the error lis
 
 ## What it remembers
 
-The app remembers these settings, and opens with them the next time:
+When you reload the app, or open it again, the page shows the plan as you left it. The app remembers these settings:
 
 - the level
 - icons or marks
@@ -148,8 +166,19 @@ The app remembers these settings, and opens with them the next time:
 - the place of the plan
 - the top-level branches that you showed or hid in the list
 - whether the zoom control is hidden
+- the picked step, group or branch, with its side bar
+- what the back arrow of the side bar goes back to
+- how far down the side bar is scrolled
+- whether the links in the side bar are hidden
+- whether 'Show only blockers' is on
+- whether the popup is open, and which of its parts are closed
+- 'Device', 'Light' or 'Dark'
+- whether 'Include private items' is on
+- whether the list of branches is open
 
-The app keeps them in the browser's local storage, under the same name for every roadmap file. So every app page on the same site shares the same settings.
+The app keeps them in the browser's local storage, apart for each roadmap file, by the full path of the file. So a save of the file keeps them, and two roadmap files never share them.
+
+When a setting names a step, group or branch that is gone from the roadmap file, that setting starts as it does the first time. The other settings come back.
 
 The first time, the app opens this way:
 
@@ -158,10 +187,19 @@ The first time, the app opens this way:
 | Level | 'Main steps', or 'Every step' in a plan with no group |
 | Scale | Reading size |
 | Icons and labels | Shown |
+| Side bar | Closed |
+| Links in the side bar | Shown |
+| 'Show only blockers' | Off |
+| Popup | Closed, with each part open |
+| 'Include private items' | Off |
+| Light or dark | 'Device' |
+| List of branches | Closed |
 | Top-level branches | Shown, except each one whose steps are all done or canceled |
-| Place | Around the first step in progress, or, with no step in progress, around the first step that can start. The name of its branch shows in full. |
+| Place | Around the first step in progress, or, with no step in progress, around the first step that can start |
 
-When the page first opens, no name, step or pill is cut in two by an edge of the page. To do this near an end of the plan, the plan scrolls a little past that end.
+When the plan runs across, the name of that step's branch shows in full if the step is first on a top-level branch. It also shows in full if the step is on a branch of a branching.
+
+The plan can then move a short way. It moves to where the edges of the page and the zoom control cut the least of its names, steps and pills in two. The step stays whole in this move, and so does the name of its branch where that name shows in full. Near an end of the plan, this move can go a little past that end.
 
 ## Redraw on save
 
@@ -198,10 +236,30 @@ The next save with no error brings the plan back as it was.
 - With the labels hidden, a pill shows no count. It is a short rounded bar with the mark in the middle.
 - With icons shown, a step that names an icon is a circle with the icon on it. The mark of its state is on the edge of the circle. The icon is dimmer while the step has not started.
 - At 'Main steps', with icons shown, a group is such a circle too. Its drawing shows what the group holds: tracks side by side, such as 'Sharing build', or steps in a row, such as 'Beta test'.
-- A name wraps onto at most 3 lines. Each line is no wider than the space between two steps, measured in the theme's font.
+- A name of a step wraps between words. Each line is no wider than the space between two steps, measured in the theme's font.
 - When the plan runs down, a line of a name is as wide as the space to the right of its branch. That space is widest on a top-level branch and narrowest in a track.
-- A word too wide for a line breaks inside the word. Only a name longer than 3 lines is cut, and ends with `…`. The tip and the side bar show the full name.
 - The space over a branch grows for a name of 3 lines. So no name runs into another name, a step, a frame or a caption.
 - When the plan runs across, a name is much nearer to its own step than to the step of the branch over it.
-- The fonts come from Google Fonts, in the app, in the box of the lib and in the HTML export. With no network, the plan draws in fallback fonts. When a web font of the theme loads, the names wrap again in that font.
+- The fonts come from Google Fonts, in the app, in the box of the lib and in the HTML export. With no network, the plan draws in fallback fonts. When a web font of the theme loads, the names wrap again in that font. The rest of the page stays as it was, with 'Show only blockers' on or off.
 - When the system asks for reduced motion, the plan changes its level, layout, icons, labels and place at once, with no animation.
+
+## Long text
+
+The plan and the rows of the side bar cut a long text, and end it with `…`. The tip and the side bar show the whole text.
+
+| Place | How a long text shows |
+|---|---|
+| The title of the roadmap, at the top of the page | It takes one line, and a longer title is cut. The count of steps done is never cut. |
+| The name of a step on the plan | It takes 3 lines at most, and a longer name is cut. |
+| The name of a branch on the plan | It takes one line, and a longer name is cut. |
+| The name of a group, over its frame | It takes one line, and a longer name is cut. |
+| The tip | It shows the whole name. Its line about the step, group or branch takes 2 lines at most, and a longer line is cut. |
+| The path and the name at the top of the side bar, 'Why' and 'Done when' | They show the whole text. The path wraps between words. The side bar scrolls up and down. |
+| A row under 'In it' or 'Blocked by' | Its name takes 2 lines at most, and a longer name is cut. Its count is never cut. A click on the row shows the whole name, except on the row of a step in a hidden branch. Point at that row while its name or its tag is cut, and the browser's tip shows the whole name of the step and of its branch. |
+| A row under 'Links' | Its name takes one line, and a longer name is cut. The arrow comes right after the name. Point at a cut link, and the browser's tip shows its whole name. |
+| The tag of a step in a hidden branch | It takes one line, and a longer name is cut. The tag is at most half as wide as its row. |
+| A row in the list of branches | Its name takes 2 lines at most, and a longer name is cut. Its count is never cut. |
+
+A touch shows no browser tip. So on a phone or a tablet, a row under 'Links', the row of a step in a hidden branch and its tag show the whole name, on as many lines as it needs.
+
+A word too wide for its line, such as a web address, breaks inside the word. On the plan, the `…` never comes right after a space or a mark such as a comma. Nothing on the page or in the side bar scrolls sideways.

@@ -1,0 +1,57 @@
+{
+  "title": "Launch &amp; </title> <Grow>",
+  "about": "A made-up plan for the export tests: \"quotes\", <tags> and & in its words.",
+  "branches": [
+    {
+      "name": "V1",
+      "items": [
+        { "id": "idea", "name": "Idea", "state": "done", "icon": "bulb" },
+        { "id": "tricky", "name": "Ends </script><!-- here", "state": "done", "icon": "code" },
+        {
+          "name": "Build",
+          "split": [
+            { "name": "Code", "items": [
+              { "id": "code-1", "name": "Code one", "state": "in-progress", "icon": "code", "start": "2026-01-05", "end": "2026-01-09", "deadline": "2026-01-20" },
+              { "id": "code-2", "name": "Code two" },
+              { "id": "code-3", "name": "Code three" }
+            ] },
+            { "name": "Tests", "items": [
+              { "id": "tests-1", "name": "Tests one", "icon": "test-pipe" },
+              { "id": "tests-2", "name": "Tests two", "icon": "no-such-icon" }
+            ] },
+            { "name": "Docs", "items": [ { "id": "docs", "name": "Docs" } ] },
+            { "name": "Pricing track", "private": true, "items": [
+              { "id": "secret-price", "name": "Secret price", "icon": "coin", "why": "Only the owner reads this.", "links": [
+                { "name": "Price sheet", "url": "https://example.com/price-sheet", "icon": "receipt" }
+              ] }
+            ] }
+          ]
+        },
+        { "id": "release", "name": "Release", "milestone": true, "icon": "rocket", "links": [
+          { "name": "Release notes", "url": "https://example.com/notes", "icon": "book" },
+          { "name": "Tag", "url": "https://example.com/tag" }
+        ] }
+      ]
+    },
+    {
+      "name": "V2",
+      "items": [
+        { "id": "later", "name": "Later", "state": "tbd", "waitsFor": ["release"] }
+      ]
+    },
+    {
+      "name": "Internal branch",
+      "private": true,
+      "items": [
+        { "id": "payroll", "name": "Payroll", "icon": "cash" }
+      ]
+    },
+    {
+      "name": "V3",
+      "items": [
+        { "id": "hidden-prep", "name": "Hidden prep", "private": true, "icon": "ghost" },
+        { "id": "party", "name": "Launch party", "icon": "confetti" }
+      ]
+    }
+  ]
+}

@@ -25,8 +25,8 @@ export function inputPart(ctx: ViewContext): void {
     const p = press;
     if (p?.id === e.pointerId) press = null;
     // the click that may follow a press of two fingers goes too
-    if (p?.many) ctx.noClick = performance.now() + 500;
-    if (e.button !== 0 || !p || p.id !== e.pointerId || p.many || !e.isPrimary || performance.now() < ctx.noClick) return;
+    if (p?.many) ctx.noClick = e.timeStamp + 500;
+    if (e.button !== 0 || !p || p.id !== e.pointerId || p.many || !e.isPrimary || e.timeStamp < ctx.noClick) return;
     const r = stops.getBoundingClientRect();
     ctx.go(Math.floor(((e.clientX - r.left) / r.width) * (ctx.K + 1)));
   });
@@ -41,17 +41,23 @@ export function inputPart(ctx: ViewContext): void {
     if (popup.hidden && picker.hidden) return;
     const path = e.composedPath();
     if (path.includes(popup) || path.includes(picker) || path.includes(zoom)) return;
+    // the second press of a double click on a heading of the popup lands out of the popup that got shorter: the popup stays open, and the press does nothing there
+    if (ctx.afterFold(e)) {
+      ctx.noClick = e.timeStamp + 500;
+      return;
+    }
     ctx.setPopup(false);
     ctx.setBranches(false);
     eat = path.includes(stage) || path.includes(head);
   }, { capture: true, signal: off.signal });
   window.addEventListener('contextmenu', () => { eat = false; }, { capture: true, signal: off.signal });
   host.addEventListener('click', e => {
+    ctx.clickedAt = e.timeStamp;
     if (eat && e.detail > 0) {
       eat = false;
       pairEaten = true;
       // a tap: the next one as near as the second of a double tap is its second half
-      eatenTap = ctx.lastPointer === 'touch' ? { x: e.clientX, y: e.clientY, t: performance.now() } : null;
+      eatenTap = ctx.lastPointer === 'touch' ? { x: e.clientX, y: e.clientY, t: e.timeStamp } : null;
       e.stopPropagation();
       e.preventDefault();
       return;
@@ -59,7 +65,7 @@ export function inputPart(ctx: ViewContext): void {
     const tap = eatenTap;
     eatenTap = null;
     // the second click of a pair whose first was eaten: eaten too, and the pair stays eaten for its double click
-    if (pairEaten && e.detail > 0 && (e.detail === 2 || (!!tap && ctx.lastPointer === 'touch' && performance.now() - tap.t < TAP.MS && Math.hypot(e.clientX - tap.x, e.clientY - tap.y) < TAP.PX))) {
+    if (pairEaten && e.detail > 0 && (e.detail === 2 || (!!tap && ctx.lastPointer === 'touch' && e.timeStamp - tap.t < TAP.MS && Math.hypot(e.clientX - tap.x, e.clientY - tap.y) < TAP.PX))) {
       e.stopPropagation();
       e.preventDefault();
       return;
@@ -120,9 +126,9 @@ export function inputPart(ctx: ViewContext): void {
   }, { passive: false, signal: off.signal });
 
   // a double click goes one level in, around the point that was double clicked; its first click has picked, or let go, as a click does
-  // after a finger, a double tap does it: see the taps below
+  // after a finger, a double tap does it: see the taps below. A double click is as late as its second click
   stage.addEventListener('dblclick', e => {
-    if (ctx.dragged || ctx.lastPointer === 'touch' || !ctx.plan || !ctx.all.length || ctx.target === ctx.K || ctx.only || performance.now() < ctx.noClick) return;
+    if (ctx.dragged || ctx.lastPointer === 'touch' || !ctx.plan || !ctx.all.length || ctx.target === ctx.K || ctx.only || ctx.clickedAt < ctx.noClick) return;
     ctx.setPopup(false);
     ctx.go(ctx.target + 1, ctx.nearest(ctx.all, e.clientX, e.clientY));
   });

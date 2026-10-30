@@ -25,14 +25,16 @@ export function blockersPart(ctx: ViewContext) {
     for (const e of svg.querySelectorAll('.keep')) e.classList.remove('keep');
     if (ctx.only) for (const n of [ctx.only.n, ...ctx.only.keep]) for (const e of ctx.partsOf.get(n)!) e.classList.add('keep');
   }
-  function showOnly(n: TNode): void {
+  /** Shows only a blocked step and those of its blockers that are on the plan. `before` is the place that 'Show all' brings the plan back to, where that is not where the plan is now:
+   * a redraw of the same text, as when a web font loads, shows them again with the place they had before. */
+  function showOnly(n: TNode, before?: Pick<NonNullable<ViewContext['only']>, 'was' | 'place'>): void {
     const keep = blockers(n).filter(h => !h.hidden);
     if (ctx.only || !ctx.plan || !keep.length) return;
     ctx.setPopup(false);
     ctx.setBranches(false);
     ctx.endScale();
     const R = roomBox(), r = svg.getBoundingClientRect(), now = ctx.views[ctx.view][ctx.target].s / READ;
-    ctx.only = { n, keep, was: { mag: now, x: (R.left + R.width / 2 - r.left) / ctx.scale, y: (R.top + R.height / 2 - r.top) / ctx.scale } };
+    ctx.only = { n, keep, ...(before ?? { was: { mag: now, x: (R.left + R.width / 2 - r.left) / ctx.scale, y: (R.top + R.height / 2 - r.top) / ctx.scale }, place: ctx.placeNow() }) };
     host.classList.add('only');
     showAll.hidden = false;
     ctx.hover(null);
@@ -44,6 +46,7 @@ export function blockersPart(ctx: ViewContext) {
       names.hidden = false;
     }
     fitOnly();
+    ctx.save();
   }
   /** Scales the page out as far as the step and its blockers need to be all in sight, never further in than the scale it had before, and puts them in the middle of the room.
    * Again where the room gets another size while they show. */

@@ -15,7 +15,7 @@ import { refOf, type Ref } from './side.js';
 const FRESH_MS = 3000;
 
 export function paintPart(ctx: ViewContext) {
-  const { art, errorList, host, names, options, showAll, side, stage, still } = ctx;
+  const { art, errorList, host, layers, names, options, showAll, side, stage, still } = ctx;
 
   // the state of each step before this draw; null until the first draw, so nothing counts as changed on load
   let known: Map<string, State> | null = null;
@@ -78,11 +78,12 @@ export function paintPart(ctx: ViewContext) {
     const fonts = ctx.measure();
     ctx.measured = look(fonts);
     // the branches the user showed or hid the last time, before the first plan is read
-    if (!ctx.plan && !still) {
-      const kb = ctx.kept()?.branches;
-      if (kb && typeof kb === 'object') ctx.choices = new Map(Object.entries(kb).filter((e): e is [string, boolean] => typeof e[1] === 'boolean'));
-    }
+    if (!ctx.plan && !still) ctx.choices = new Map(Object.entries(ctx.kept()?.branches ?? {}));
     const next = readPlan(roadmap, art, fonts, (tag, over) => ctx.choices.get(tag) ?? !over);
+    // 'Saved', or an export that could not be made, was about the text before
+    if (source !== ctx.shown) ctx.resetExport();
+    // a redraw of the same text, as when a web font loads, keeps 'Show only blockers', at the scale it has, with the place that 'Show all' brings back
+    const stays = ctx.only && source === ctx.shown ? { id: ctx.only.n.node.id, before: { was: ctx.only.was, place: ctx.only.place } } : null;
     ctx.shown = source;
 
     const first = !ctx.plan;
@@ -93,12 +94,14 @@ export function paintPart(ctx: ViewContext) {
     let midZ: number | null = null, midU: number | null = null, midT: number | null = null, midW: number | null = null;
     const fresh = !first && !ctx.toggling && ctx.untouched();
     if (!first) {
-      // what is on its way ends at once, and a page that shows only some steps shows all again, at the scale it had
+      // what is on its way ends at once, and a page that shows only some steps shows all again, at the scale it had, unless the same text is drawn again
       ctx.endScale();
       if (ctx.only) {
-        ctx.mag = ctx.only.was.mag;
+        if (!stays) {
+          ctx.mag = ctx.only.was.mag;
+          ctx.floor = null;
+        }
         ctx.only = null;
-        ctx.floor = null;
         host.classList.remove('only');
         showAll.hidden = names.hidden = true;
         names.replaceChildren();
@@ -145,17 +148,21 @@ export function paintPart(ctx: ViewContext) {
       }
     }
 
+    // a plan of one top-level branch has no list of branches: the list closes once the plan is in place, as its close is kept
+    if (layers.hidden) ctx.setBranches(false);
     // the pick stays when its step, branch or group is still in the plan, with what the plan says now; else the side bar closes
     const again = keepPick ? ctx.thingOf(keepPick) : undefined;
     if (again) {
       ctx.pick(again, false, true);
-      side.scrollTop = sideTop;
+      side.scrollTop = ctx.sideAsked ?? sideTop;
     } else if (keepPick) {
       side.hidden = true;
       side.replaceChildren();
       ctx.past = [];
       ctx.uncover();
     }
+    const only = stays && ctx.byId.get(stays.id);
+    if (only) ctx.showOnly(only, stays.before);
 
     // the first thing that changed comes into sight: the step, or what stands for it at this level; the level stays
     const firstChanged = changed.map(id => ctx.byId.get(id)).find(n => !!n);

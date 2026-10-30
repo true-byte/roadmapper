@@ -3,9 +3,10 @@
 import type { AimPart } from './aim.js';
 import type { BlockersPart } from './blockers.js';
 import type { BranchesPart } from './branches.js';
-import type { Dom } from './dom.js';
+import type { Dom, Mode } from './dom.js';
 import type { DrawPart, NodeEls, PodEls } from './draw.js';
 import type { ErrorListPart } from './error-list.js';
+import type { ExportPart } from './export.js';
 import type { FactsPart } from './facts.js';
 import type { FontsPart } from './fonts.js';
 import type { FramePart } from './frame.js';
@@ -20,7 +21,7 @@ import type { ResizePart } from './resize.js';
 import type { ScalePart } from './scale.js';
 import type { ScrollPart } from './scroll.js';
 import type { Ref, SidePart } from './side.js';
-import type { StorePart } from './store.js';
+import type { KeptPlace, StorePart } from './store.js';
 import type { TidyPart } from './tidy.js';
 import type { ToolbarPart } from './toolbar.js';
 import type { ViewOptions } from './view.js';
@@ -61,6 +62,10 @@ export interface State {
   choices: Map<string, boolean>;
   /** Is the zoom control hidden down to its grip? */
   tucked: boolean;
+  /** Is the 'Links' part of the side bar open? */
+  linksOpen: boolean;
+  /** Is 'Include private items' on? Then 'Export' saves the whole roadmap. */
+  withPrivate: boolean;
   /** Is the plan drawn again for a branch shown or hidden? Then it keeps its place, as after a save of the file. */
   toggling: boolean;
   /** The layouts with the labels shown, then with them hidden. */
@@ -115,6 +120,8 @@ export interface State {
   /** Does the user want the labels shown; and how far the page is on its way from them shown, 0, to them hidden, 1. */
   labels: boolean;
   w: number;
+  /** The mode the view is drawn in: light, dark, or as the device is set. */
+  mode: Mode;
   /** Where the switches in the popup left the plan since the user last moved it: at a level and a scale, the step they hold it by, and where that step was in the room in each mix of
    * the labels, the view and the layout the plan was in. A switch back to one of those mixes puts the plan back where it was in it, so any way back comes back to the same place.
    * The user's scroll, a new size, a pick or a redraw lets them go. */
@@ -155,8 +162,8 @@ export interface State {
   /** While only a blocked step and its blockers show: the scale they need to all be in sight, which may be under LO. */
   floor: number | null;
   /** While only a blocked step and its blockers show: that step, its blockers, and where the page was, to go back to.
-   * `x` and `y` are the point of the plan that was in the middle of the room, at the scale `mag`. */
-  only: { n: TNode; keep: TNode[]; was: { mag: number; x: number; y: number } } | null;
+   * `x` and `y` are the point of the plan that was in the middle of the room, at the scale `mag`. `place` is that place as the view keeps it (store.ts). */
+  only: { n: TNode; keep: TNode[]; was: { mag: number; x: number; y: number }; place: KeptPlace } | null;
 
   // ---- what moves now, and the timers ----
 
@@ -177,12 +184,16 @@ export interface State {
 
   // ---- the pointer, and what it points at ----
 
-  /** A click before this time does nothing: the second click on the grip, as the zoom control moves under it, or the click after two fingers on the control. */
+  /** A click before this time does nothing: the second click on the grip, as the zoom control moves under it, the click after two fingers on the control,
+   * or the second click on a heading of the popup that lands out of the popup as it gets shorter.
+   * Each time of the pointer is the time of its event (timeStamp): when the user pressed, not when a busy page got to the event. */
   noClick: number;
+  /** When the last click on the view came, by the time of its event: a double click comes right after its second click, with no such time of its own. */
+  clickedAt: number;
   /** A drag of the plan with the mouse: where it started, and the scroll then. Is it a drag yet, and no click? */
   drag: { x: number; y: number; l: number; t: number } | null;
   dragged: boolean;
-  /** The kind of pointer that pressed last: after a finger, a tap picks a moment later, and nothing shows a tip. And when it pressed. */
+  /** The kind of pointer that pressed last: after a finger, a tap picks a moment later, and nothing shows a tip. And when it pressed, by the time of its event. */
   lastPointer: string;
   pressedAt: number;
   /** What the pointer lights, with its tip. */
@@ -193,6 +204,9 @@ export interface State {
   rowHot: Thing | null;
   /** What the side bar showed before what it shows now, the last one last. It is let go when the side bar closes. */
   past: Ref[];
+  /** How far down the start scrolled the side bar, as the view kept it, until the user scrolls the side bar or picks: a web font that loads later
+   * can make the side bar taller, and the redraw for it scrolls the side bar that far then. */
+  sideAsked: number | null;
   /** A tap that waits to pick, in case a second tap makes it a double tap. */
   tapWait: { x: number; y: number; t: number; timer: number; act: () => void } | null;
 }
@@ -203,17 +217,17 @@ export function initialState(): State {
   return {
     plan: null, all: [], K: 0, hasIcons: false,
     byId: new Map(), byKey: new Map(), byPod: new Map(), pods: [],
-    choices: new Map(), tucked: false, toggling: false,
+    choices: new Map(), tucked: false, linksOpen: true, withPrivate: false, toggling: false,
     setsBy, sets: setsBy[0], views: [],
     stopEls: [], pieceEls: new Map(), hitEls: new Map(), haloEls: new Map(), nodeEls: new Map(), podEls: new Map(), partsOf: new Map(),
     turnLines: null, shown: '', measured: '',
     z: 0, target: 0, raf: 0, scale: 1, wide: 0, tall: 0,
-    asked: 0, askedLast: false, view: 0, u: 0, flow: 'h', t: 0, pickFlow: null, prefer: true, labels: true, w: 0, been: null,
+    asked: 0, askedLast: false, view: 0, u: 0, flow: 'h', t: 0, pickFlow: null, prefer: true, labels: true, w: 0, mode: 'device', been: null,
     anchor: null, pin: null, beyond: { near: [0, 0], far: [0, 0] }, mine: [0, 0], heard: [0, 0], sheetFrom: null, stageSize: null,
     cur: new Map(), laid: { fits: true, right: 0, bottom: 0 }, opened: null, stageWas: [0, 0], roomWas: [1, 1],
     mag: 1, floor: null, only: null,
     sraf: 0, gliding: false, pinch: null, praf: 0, gesture: null, saving: 0, tidy: 0,
-    noClick: 0, drag: null, dragged: false, lastPointer: '', pressedAt: 0, hot: null, picked: null, rowHot: null, past: [], tapWait: null,
+    noClick: 0, clickedAt: 0, drag: null, dragged: false, lastPointer: '', pressedAt: 0, hot: null, picked: null, rowHot: null, past: [], sideAsked: null, tapWait: null,
   };
 }
 
@@ -231,13 +245,13 @@ export interface ViewContext extends Fixed, State {
   // opening.ts
   middle: OpeningPart['middle']; firstView: OpeningPart['firstView']; firstReach: OpeningPart['firstReach']; columnOf: OpeningPart['columnOf']; untouched: OpeningPart['untouched'];
   // toolbar.ts
-  controls: ToolbarPart['controls']; setPopup: ToolbarPart['setPopup']; placePopup: ToolbarPart['placePopup']; setTucked: ToolbarPart['setTucked'];
+  controls: ToolbarPart['controls']; setPopup: ToolbarPart['setPopup']; placePopup: ToolbarPart['placePopup']; setTucked: ToolbarPart['setTucked']; setMode: ToolbarPart['setMode']; afterFold: ToolbarPart['afterFold'];
   // branches.ts
   fillBranches: BranchesPart['fillBranches']; setBranches: BranchesPart['setBranches']; placeBranches: BranchesPart['placeBranches'];
   // moves.ts
   flowT: MovesPart['flowT']; isDown: MovesPart['isDown']; labW: MovesPart['labW']; setFlow: MovesPart['setFlow']; endTurn: MovesPart['endTurn']; go: MovesPart['go']; setIcons: MovesPart['setIcons']; setLabels: MovesPart['setLabels']; endFlip: MovesPart['endFlip'];
   // store.ts
-  save: StorePart['save']; kept: StorePart['kept']; start: StorePart['start'];
+  save: StorePart['save']; kept: StorePart['kept']; start: StorePart['start']; placeNow: StorePart['placeNow'];
   // scale.ts
   scaleBy: ScalePart['scaleBy']; scaleTo: ScalePart['scaleTo']; endScale: ScalePart['endScale'];
   // scroll.ts
@@ -260,4 +274,6 @@ export interface ViewContext extends Fixed, State {
   list: ErrorListPart['list'];
   // fonts.ts
   measure: FontsPart['measure'];
+  // export.ts
+  resetExport: ExportPart['resetExport'];
 }

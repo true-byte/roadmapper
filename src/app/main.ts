@@ -2,16 +2,31 @@
 // the view's own CSS, then the theme's variables: the theme comes last, as it does in the lib
 import '../view/view.css';
 import '../themes/theme.css';
-// the text of the file and its name: a typo in the file then lands in the view's error list, not in the dev server's error screen
-import raw, { file, live } from 'virtual:roadmap';
+// the text of the file, its name and its key: a typo in the file then lands in the view's error list, not in the dev server's error screen
+import raw, { file, key, live } from 'virtual:roadmap';
 import { useIconSet } from '../icons/icons.js';
 import { tabler } from '../icons/tabler.js';
 import { mountRoadmap } from '../view/view.js';
 
 useIconSet('tabler', tabler);
+/** The name the view of this page is kept under: one name for each roadmap file, by the key of the file. */
+const store = `roadmapper.app.${key || file}`;
+/** The one name that the view of every file was kept under before. The first page that finds it starts from it, where its file has nothing kept yet, and removes it:
+ * a user loses nothing, and no other file starts from it. */
+const shared = 'roadmapper.app';
+try {
+  const was = localStorage.getItem(shared);
+  if (was !== null) {
+    if (localStorage.getItem(store) === null) localStorage.setItem(store, was);
+    localStorage.removeItem(shared);
+  }
+} catch {
+  // no storage: nothing is kept
+}
 const view = mountRoadmap(document.querySelector<HTMLDivElement>('#app')!, {
-  // the level, the view and the place of this page are kept under this name
-  store: 'roadmapper.app',
+  store,
+  // 'Export' in the popup saves roadmap.zip, with the files of `npx roadmapper export` in it; the code that makes it loads at the first press
+  exportFile: async (text, keep) => (await import('./export.js')).exportZip(text, keep),
   onDraw: roadmap => {
     document.title = `${roadmap.title} · roadmap`;
   },

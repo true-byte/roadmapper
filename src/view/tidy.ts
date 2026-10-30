@@ -71,8 +71,9 @@ export function tidyPart(ctx: ViewContext) {
     const cx = hx - g.x * L.s, cy = hy - g.y * L.s, [fx, fy] = ctx.ends(L, keep, { near: [0, 0], far: [0, 0] });
     const rx: [number, number] = [Math.max(-o.reach[0], ax[0] - cx), Math.min(o.reach[0], ax[1] - cx)];
     const ry: [number, number] = [Math.max(-o.reach[1], ay[0] - cy), Math.min(o.reach[1], ay[1] - cy)];
-    // E: how near an edge counts as at it. GONE: how far past an edge a thing must be to be out of sight, so not a pixel of its ring or of a letter shows
-    const E = 2, GONE = 1;
+    // E: how near an edge counts as at it. GONE: how far past an edge a thing must be to be out of sight, so not a pixel of its ring or of a letter shows.
+    // IN: how far past an edge of the stage a thing may go and still be whole. The box of a name starts at the edge of its first letter, so a pixel past cuts that letter
+    const E = 2, GONE = 1, IN = 0.5;
     // only what can come into sight in reach
     const ws = wholes().filter(w => w.r + o.reach[0] > V.l && w.l - o.reach[0] < V.r && w.b + o.reach[1] > V.t && w.t - o.reach[1] < V.b);
     // the held step, or what stands for it where it is not drawn: the pill of its closed track, or far out the step of its group
@@ -87,7 +88,7 @@ export function tidyPart(ctx: ViewContext) {
       if (ir - il <= -GONE || ib - it <= -GONE) return 0;
       // what shows of it lies under the zoom control or the side bar: it is not in sight
       if (over.some(c => il >= c.left - E && ir <= c.right + E && it >= c.top - E && ib <= c.bottom + E)) return 0;
-      if (l < V.l - E || r > V.r + E || t < V.t - E || b > V.b + E) return 2;
+      if (l < V.l - IN || r > V.r + IN || t < V.t - IN || b > V.b + IN) return 2;
       return over.some(c => Math.min(r, c.right) - Math.max(l, c.left) > E && Math.min(b, c.bottom) - Math.max(t, c.top) > E) ? 2 : 1;
     };
     /** What a fault costs: the top of a group only where the top edge of the stage cuts it, and a body cut under a whole name less than a name. */
@@ -120,7 +121,7 @@ export function tidyPart(ctx: ViewContext) {
       w.top ? w.t + dy >= V.t - E && w.t + dy < V.b - 24 && Math.min(w.r + dx, V.r) - Math.max(w.l + dx, V.l) > 24 && fault(w, dx, dy) === 0 : how(w, dx, dy) === 1;
     // What a thing costs, and how it shows, changes only at a move where an edge of it, of its name or of its body meets a side of the stage, of the zoom control, of the side bar
     // or of the popup, or comes as near to one as the rules above look: OFF from it. So each is reckoned once for each stretch of moves between those, across and down, and looked up for every move in them.
-    const OFF = [-24, -12, -E, -GONE, 0, GONE, E, 12, 24];
+    const OFF = [-24, -12, -E, -GONE, -IN, 0, IN, GONE, E, 12, 24];
     /** The stretch each of the moves `ds` is in, for things with these edges, against these sides: a new one starts at each move with a meeting at it or since the move before. */
     const stretch = (edges: number[], sides: number[], ds: number[]): { at: Int32Array; n: number } => {
       const meets = edges.flatMap(e => sides.flatMap(p => OFF.map(k => p + k - e))).sort((a, b) => a - b);

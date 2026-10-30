@@ -5,7 +5,7 @@ This doc covers the rules for a Claude session that works on Roadmapper itself, 
 | What | Where |
 |---|---|
 | What Roadmapper is for, and the list of the docs on using it | [docs/README.md](docs/README.md) |
-| How to set up a clone, build, check and test the code, add a theme, and find each folder | [CONTRIBUTING.md](CONTRIBUTING.md) |
+| How to set up a clone, build, check and test the code, add a theme, send a change, make a release, and find each folder | [CONTRIBUTING.md](CONTRIBUTING.md) |
 | The rules that every edit to a doc follows | [CONTRIBUTING.md, section "Write docs"](CONTRIBUTING.md#write-docs) |
 | Every command that draws, checks or exports a roadmap file, or packs Roadmapper | [docs/commands.md](docs/commands.md) |
 | The roadmap file format | [.claude/skills/roadmapper/format.md](.claude/skills/roadmapper/format.md) |
@@ -43,11 +43,12 @@ npm run validate -- data/roadmap.json
 
 This project adds these rules to the skill:
 
-- Each feature has the shape that the Icons feature has in `data/roadmap.json`: the step 'Icons design', then the group 'Icons build'. That group has two tracks: 'Code', with the step 'Icons code', and 'Tests', with the step 'Icons tests'.
+- No text of the roadmap file names a person or a role who acts. Write what is done, such as "A mock of the 'Links' part of the side bar is reviewed and approved."
+- Each feature has the shape that the Icons feature has in `data/roadmap.json`: the group 'Icons', which holds the step 'Icons design', then the group 'Icons build'. 'Icons build' has two tracks: 'Code', with the step 'Icons code', and 'Tests', with the step 'Icons tests'.
 - The 'Code' track of a feature also holds the feature's docs, where it has any.
-- Features that do not need each other go side by side in a branching.
+- Features go in a row in priority order. Two features go side by side in a branching only when they have the same priority and two sessions can build them at once without conflict.
 - A step can take many sessions.
-- Each version is a top-level branch. Its first step waits for the release of the version before it, with `waitsFor`.
+- Each version is a top-level branch. Its name is `v` followed by the version, such as 'v1.0.0'. Its first step waits for the release of the version before it, with `waitsFor`.
 - A build step writes the keys that its feature adds to the roadmap file format into `format.md`, when the step is done.
 - `format.md` never gets a key before the feature that draws it.
 

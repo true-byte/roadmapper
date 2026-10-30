@@ -1,10 +1,13 @@
 // The HTML export: the files that show one roadmap on a landing page. They sit side by side in one folder of the site.
 // roadmap.json is the roadmap a stranger sees, with no private item, or the whole roadmap when the owner asks, and the icons it names. roadmapper.js is the lib, which reads it and draws it.
 // roadmap.html is the whole page: the lib and the tag that reads roadmap.json. Another page shows the roadmap with the same two lines.
-// So a new roadmap is a new roadmap.json. The page changes only with the title or the about line, and the lib only with Roadmapper.
-// It gets the roadmap as text and does not know where the text comes from: the command `export` (src/cli/cli.ts) reads the file and writes the files.
+// The tag also holds a copy of roadmap.json, which it draws when it cannot read the file, as from disk, where the browser does not let the page read it.
+// On a site roadmap.json wins over the copy, but anyone can still read the copy in the page. So a new roadmap is a new roadmap.json and a new roadmap.html,
+// and the lib changes only with Roadmapper.
+// It gets the roadmap as text and does not know where the text comes from: the command `export` (src/cli/cli.ts) reads the file and writes the files,
+// and 'Export' in the app (src/app/export.ts) saves them in one zip file.
 import picked from '../themes/theme.css?raw';
-import { ARROW, BRANCHES, GRIP, INFO, type IconSet } from '../icons/icons.js';
+import { ARROW, BRANCHES, GRIP, LINKS, MODE, TOOLS, type IconSet } from '../icons/icons.js';
 import { SET_LOADERS } from '../icons/sets.js';
 import type { OwnIcons } from '../lib/element.js';
 import { checkRoadmap } from '../roadmap/check.js';
@@ -32,12 +35,16 @@ export async function exportFiles(text: string, keep: { private?: boolean } = {}
   if (!whole) throw new Error(sayError(errors[0]));
   const roadmap = keep.private ? whole : publicRoadmap(whole);
 
-  // the icons of the set the theme names, only those the roadmap names and those the view draws itself, with the license of the set
-  const named = new Set<string>([ARROW, INFO, BRANCHES, GRIP].flatMap(o => Object.values(o)));
+  // the icons of the set the theme names, only those the roadmap names and those the view draws itself, with the license of the set;
+  // those of the 'Links' part of the side bar only where a step has a link
+  const named = new Set<string>([ARROW, TOOLS, MODE, BRANCHES, GRIP].flatMap(o => Object.values(o)));
   const walk = (b: Branch): void => {
     for (const item of b.items) {
       if ('split' in item) item.split.forEach(walk);
-      else if (item.icon) named.add(item.icon);
+      else {
+        if (item.icon) named.add(item.icon);
+        for (const l of item.links ?? []) [l.icon, ...Object.values(LINKS)].forEach(name => name && named.add(name));
+      }
     }
   };
   roadmap.branches.forEach(walk);
@@ -48,6 +55,7 @@ export async function exportFiles(text: string, keep: { private?: boolean } = {}
   }
   const own: OwnIcons | undefined = set && setName && Object.keys(icons).length ? { set: setName, size: set.size, license: set.license, icons } : undefined;
 
+  const json = JSON.stringify(own ? { ...roadmap, icons: own } : roadmap);
   const fail = `The roadmap could not load: ${FILES.lib} did not run.`;
   const page = `<!doctype html>
 <html lang="en">
@@ -57,18 +65,19 @@ export async function exportFiles(text: string, keep: { private?: boolean } = {}
 <meta name="color-scheme" content="dark light">
 <title>${esc(roadmap.title)} · roadmap</title>
 ${roadmap.about ? `<meta name="description" content="${esc(roadmap.about)}">\n` : ''}<noscript><style>#roadmapper-wait{display:none}</style></noscript>
-<!-- Made with Roadmapper. The code is in ${FILES.lib} and the roadmap in ${FILES.roadmap}, which sit next to this page. -->
+<!-- Made with Roadmapper. The code is in ${FILES.lib} and the roadmap in ${FILES.roadmap}, which sit next to this page. The page holds a copy of the roadmap for when it is opened from disk. -->
 <script src="${FILES.lib}" defer onerror="document.getElementById('roadmapper-wait').textContent=${esc(JSON.stringify(fail))}" onload="if(!customElements.get('roadmapper-view'))this.onerror()"></script>
 </head>
 <body>
 <roadmapper-view page src="${FILES.roadmap}">
+<script type="application/json">${inScript(json)}</script>
 <p id="roadmapper-wait" style="margin:24px">Loading the roadmap…</p>
 <noscript><p style="margin:24px">This roadmap needs JavaScript.</p></noscript>
 </roadmapper-view>
 </body>
 </html>
 `;
-  return { page, roadmap: `${JSON.stringify(own ? { ...roadmap, icons: own } : roadmap)}\n` };
+  return { page, roadmap: `${json}\n` };
 }
 
 /** A variable a theme sets, from the text of its theme.css: its first value, without quotes. */
@@ -78,5 +87,8 @@ function themeValue(css: string, name: string): string | undefined {
   const v = new RegExp(`${name}\\s*:\\s*("[^"]*"|'[^']*'|[^;}]+)[;}]`).exec(bare)?.[1].trim();
   return v?.replace(/^(["'])(.*)\1$/, '$2') || undefined;
 }
+
+/** JSON as a <script> holds it: each "<" as \u003c, which JSON reads as the same "<", so no text of the roadmap can end the tag or open a comment in it. */
+const inScript = (json: string): string => json.replace(/</g, '\\u003c');
 
 const esc = (s: string): string => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');

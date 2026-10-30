@@ -1,11 +1,12 @@
 // The tag another page writes to show a roadmap: <roadmapper-view>. It is the view in a box on that page.
 // Its look lives in a shadow root, so nothing of the page gets in and nothing of the view gets out. The page sets only its size, with its own CSS.
 // The roadmap comes in as data: the `roadmap` property (the object of a roadmap file, or its text), a `src` address to read it from,
-// or the text of the file in a <script type="application/json"> inside the tag. The box keeps nothing: each visit starts at the first level.
+// or the text of the file in a <script type="application/json"> inside the tag, which it draws also when it cannot read src, as from disk, where the browser does not let the page read it.
+// The box keeps nothing: each visit starts at the first level.
 // With the attribute `page`, the tag is the whole page, as the app is: the HTML export. Then the wheel and the keys are the view's, with no click first.
 // The icons come from a <script type="application/json" data-icons> inside the tag, when the page holds them, or else from a set the lib loads,
-// or else, for the export's lib, which holds no set, from the file at src, which the export writes with the icons it names.
-// the view's own CSS, then the theme's variables: the theme comes last, so its color-scheme wins over the view's `all: initial`
+// or else, for the export's lib, which holds no set, from the file at src, or the copy of it inside the tag, which the export writes with the icons it names.
+// the view's own CSS, then the theme's variables: the theme comes last, as it does on the app's page
 import viewCss from '../view/view.css?inline';
 import themeCss from '../themes/theme.css?inline';
 import { iconSet, useIconSet, type IconSet } from '../icons/icons.js';
@@ -41,7 +42,7 @@ export function defineRoadmapper(loads: Record<string, () => Promise<IconSet>> =
     #data: RoadmapInput | undefined;
     /** The text last given to the view: the same text again is not drawn again. */
     #text: string | undefined;
-    /** The name of the file the roadmap came from, for the error list: the last part of src. None for a roadmap given in the page. */
+    /** The name of the file the roadmap came from, for the error list: the last part of src. None for a roadmap given in the page, or held inside the tag. */
     #file: string | undefined;
     #fetching: AbortController | null = null;
     #root = this.attachShadow({ mode: 'open' });
@@ -113,7 +114,7 @@ export function defineRoadmapper(loads: Record<string, () => Promise<IconSet>> =
       const name = getComputedStyle(inner).getPropertyValue('--icon-set').trim();
       if (name) await parsed();
       let own = name ? this.#ownIcons(name) : undefined;
-      // or else, in a lib with no set, as the export's, the icons in the file at src, which the export writes with the icons it names.
+      // or else, in a lib with no set, as the export's, the icons in the file at src, or in the copy inside the tag, which the export writes with the icons it names.
       // That file is read before the view is made, and a src that changes meanwhile is read in its place.
       if (name && !own && !iconSet(name) && !Object.hasOwn(loads, name)) this.#fromFile = name;
       let got: Got | undefined;
@@ -161,9 +162,14 @@ export function defineRoadmapper(loads: Record<string, () => Promise<IconSet>> =
     /** The text of the file in a <script type="application/json"> inside the tag: read once the page is all there, as the tag can come before what it holds. */
     #inside(): void {
       void parsed().then(() => {
-        const text = this.querySelector('script[type="application/json"]:not([data-icons])')?.textContent;
-        if (text != null && this.#data === undefined) this.roadmap = text;
+        const text = this.#held();
+        if (text !== undefined && this.#data === undefined) this.roadmap = text;
       });
+    }
+
+    /** The text of the roadmap the tag holds inside, if it holds one. */
+    #held(): string | undefined {
+      return this.querySelector('script[type="application/json"]:not([data-icons])')?.textContent ?? undefined;
     }
 
     /** The icons of the set `name` that the page holds inside the tag, if it holds any. */
@@ -198,7 +204,7 @@ export function defineRoadmapper(loads: Record<string, () => Promise<IconSet>> =
         return;
       }
       this.#data = got.text;
-      this.#file = fileName(got.src);
+      this.#file = got.held ? undefined : fileName(got.src);
       // a view that takes its icons from its files is made again for a file with other icons, at its first level, as a new visit is
       if (this.#fromFile && this.#view && fileIcons(got.text, this.#fromFile).key !== this.#fileArt) {
         const page = this.hasAttribute('page');
@@ -212,7 +218,8 @@ export function defineRoadmapper(loads: Record<string, () => Promise<IconSet>> =
       this.#draw();
     }
 
-    /** Gets the file at `src`: its text, or no text when it did not come. Nothing, when a newer read or a roadmap given since took its place. */
+    /** Gets the file at `src`: its text, or the roadmap the tag holds when the file did not come, or no text when the tag holds none.
+     * Nothing, when a newer read or a roadmap given since took its place. */
     async #fetch(src: string): Promise<Got | undefined> {
       this.#fetching?.abort();
       const fetching = (this.#fetching = new AbortController());
@@ -224,6 +231,11 @@ export function defineRoadmapper(loads: Record<string, () => Promise<IconSet>> =
         return fetching.signal.aborted ? undefined : { src, text };
       } catch (e) {
         if (fetching.signal.aborted) return undefined;
+        // as from disk, where the browser does not let the page read src: the roadmap the tag holds takes its place, with no error
+        await parsed();
+        if (fetching.signal.aborted) return undefined;
+        const held = this.#held();
+        if (held !== undefined) return { src, text: held, held: true };
         console.error(`Roadmapper: the roadmap at ${src} did not come.`, e);
         return { src };
       }
@@ -248,10 +260,12 @@ export function defineRoadmapper(loads: Record<string, () => Promise<IconSet>> =
 /** The name of the file at an address: its last part. */
 const fileName = (src: string): string => src.split(/[?#]/)[0].split('/').filter(Boolean).pop() ?? src;
 
-/** What came from a src: the text of the file, or none when it did not come. */
+/** What came from a src: the text of the file, or else the text of the roadmap the tag holds, or none. */
 interface Got {
   src: string;
   text?: string;
+  /** Is the text the roadmap the tag holds, as the file did not come? */
+  held?: boolean;
 }
 
 /** Icons of the set `name`, as a page or a file holds them, read as a set. None when they are of another set or not icons at all. */

@@ -48,7 +48,7 @@ import roadmap from './roadmap.json';
 
 ## Claude Code skill
 
-The `roadmapper` skill tells Claude how to write and keep a roadmap file. With it, Claude puts each step right after the steps that it needs. To install the skill, run this command in your project's folder:
+The `roadmapper` skill tells Claude how to write and keep a roadmap file. With it, Claude writes the plan as a row of main steps in priority order. To install the skill, run this command in your project's folder:
 
 ```sh
 npx skills add https://github.com/true-byte/roadmapper --skill roadmapper -a claude-code --copy
@@ -62,7 +62,7 @@ npx skills add https://github.com/true-byte/roadmapper --skill roadmapper -a cla
 
 ## Contributing
 
-[CONTRIBUTING.md](https://github.com/true-byte/roadmapper/blob/main/CONTRIBUTING.md) says how to set up a clone, run the tests and add a theme. It also gives the rules for code and docs, and where each part of the code is.
+[CONTRIBUTING.md](https://github.com/true-byte/roadmapper/blob/main/CONTRIBUTING.md) says how to set up a clone, run the tests, add a theme, send a change and make a release. It also gives the rules for code and docs, and what each folder of the clone holds.
 
 ## License
 

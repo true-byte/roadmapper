@@ -1,4 +1,4 @@
-// The list of top-level branches: the button left of (i) opens it and closes it. A press anywhere else closes it, and so does Escape, as for the popup.
+// The list of top-level branches: the button left of the tools button opens it and closes it. A press anywhere else closes it, and so does Escape, as for the popup.
 // Each row shows or hides its branch, and the search finds rows by their names.
 import type { ViewContext } from './context.js';
 import { html } from './dom.js';
@@ -50,8 +50,9 @@ export function branchesPart(ctx: ViewContext) {
     }
     ctx.save();
   }
-  /** Opens or closes the list of branches. Open, the search is empty, and takes the focus unless a finger opened it: a keyboard would come up over the list. */
-  function setBranches(open: boolean, focus = false): void {
+  /** Opens or closes the list of branches. Open, the search is empty, and takes the focus unless a finger opened it: a keyboard would come up over the list.
+   * `quiet` opens it with no focus, as the start does where it was left open. */
+  function setBranches(open: boolean, focus = false, quiet = false): void {
     if (open === !picker.hidden) return;
     // while only a blocked step and its blockers show, the zoom control rests, and so does the list
     if (open && (ctx.only || !ctx.plan)) return;
@@ -65,8 +66,9 @@ export function branchesPart(ctx: ViewContext) {
     picker.hidden = !open;
     placeBranches();
     ctx.controls();
-    if (open && (focus || ctx.lastPointer !== 'touch')) find.focus({ preventScroll: true });
+    if (open && !quiet && (focus || ctx.lastPointer !== 'touch')) find.focus({ preventScroll: true });
     else if (!open && focus) layers.focus();
+    ctx.save();
   }
   /** Puts the list by the end of the zoom control, OVER it, as the popup: the width of the view less 8 px at each side where the side bar is a sheet at the bottom. */
   function placeBranches(): void {

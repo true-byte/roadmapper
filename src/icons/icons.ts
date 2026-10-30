@@ -12,10 +12,16 @@ export interface IconSet {
 
 /** The icons the view draws itself, from the set the theme names: the arrows of the side bar and of the edge of the page. */
 export const ARROW = { left: 'arrow-left', right: 'arrow-right' };
-/** The glyph of the button that opens the popup with the key, the 'Hide node icons' switch and the layout. */
-export const INFO = { open: 'info-circle' };
+/** The glyphs of the tools button: the gear that opens the popup with the parts 'Key', 'View' and 'Export', and the chevron of the heading of each part. */
+export const TOOLS = { open: 'settings', fold: 'chevron-down' };
+/** The glyphs of the mode in the popup: the device's setting, light and dark. */
+export const MODE = { device: 'device-desktop', light: 'sun', dark: 'moon' };
 /** The glyphs of the list of top-level branches: the button that opens it, its search, and the pill of a step in a hidden branch. */
 export const BRANCHES = { open: 'stack-2', search: 'search', hidden: 'eye-off' };
+/** The glyphs of the 'Links' part of the side bar: the icon of a link that names no icon of the set, the arrow that says a link opens in a new tab, and the chevron of its heading. */
+export const LINKS = { link: 'link', open: 'external-link', fold: 'chevron-down' };
+/** The glyphs of the button 'Export' in the popup of the app: before a click, and for 2 s after, while it says 'Saved'. */
+export const EXPORT = { save: 'download', saved: 'check' };
 /** The glyphs of the grip that hides the zoom control and brings it back. */
 export const GRIP = { hide: 'chevron-down', show: 'chevron-up' };
 

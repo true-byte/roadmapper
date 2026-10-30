@@ -12,8 +12,8 @@ The examples come from the sample roadmap file, 'Plant care app'.
 | Command | `npx roadmapper build` | `npx roadmapper export` |
 | Files | `index.html` | `roadmap.html`, `roadmap.json` and `roadmapper.js` |
 | Private items | Shown | Left out, unless you add `--private` |
-| Opens from disk | Yes | No. Open it from a site, as [Why it must be opened from a site](#why-it-must-be-opened-from-a-site) says. |
-| Remembers its level and place | Yes, as the app does | No |
+| Opens from disk | Yes | Yes |
+| Remembers the view | Yes, as the app does | No |
 
 ## The HTML file
 
@@ -26,9 +26,21 @@ The examples come from the sample roadmap file, 'Plant care app'.
 
 | File | What it is |
 |---|---|
-| `roadmap.html` | The page of the export. |
+| `roadmap.html` | The page of the export. It holds a copy of `roadmap.json`, which it draws only when it cannot read `roadmap.json`, as when you open it from disk. |
 | `roadmap.json` | The roadmap that a stranger sees, with no private item, and the drawings of the icons that it names. |
 | `roadmapper.js` | The lib of the export, which reads `roadmap.json` and draws it. It is not the `roadmapper.js` of the lib: [embed.md, section "Which roadmapper.js is which"](embed.md#which-roadmapperjs-is-which) tells them apart. |
+
+## Export from the app
+
+The app and the HTML file can also save the export, as one file.
+
+1. Click the button 'Tools' at the right end of the zoom control.
+2. To export the whole roadmap, turn on 'Include private items' in the part 'Export'.
+3. Click the button 'Export' under that switch.
+
+The browser saves `roadmap.zip`. It holds the three files that `npx roadmapper export` writes for the same roadmap file. With 'Include private items' on, it holds the files that `npx roadmapper export --private` writes. Unzip it. Then open its `roadmap.html`, or upload its three files as [Put the export on a site](#put-the-export-on-a-site) says.
+
+When every item is private, the export for strangers has nothing to show. With 'Include private items' off, the button then shows the mark of a blocked step and the error `Nothing public` in red. The browser saves nothing. Turn on 'Include private items' to export the whole roadmap.
 
 ## Put the export on a site
 
@@ -65,19 +77,15 @@ After each change in this table, export again, then upload the files that the ta
 
 | After a change to | Upload |
 |---|---|
-| The roadmap file | `roadmap.json` |
-| The `title` or the `about` of the roadmap | `roadmap.json` and `roadmap.html` |
+| The roadmap file | `roadmap.json` and `roadmap.html` |
 | Roadmapper | All three files |
 
 The browser asks the site each time whether `roadmap.json` has changed. So a stranger sees the new roadmap on the next visit.
 
-## Why it must be opened from a site
-
-When a browser opens the page from disk, it cannot read the `roadmap.json` next to it. The page then shows the error `Unreadable file`. Open the page from a site, or with `npx roadmapper preview`.
-
 ## The page of the export
 
 - The page fills the whole window and works like the app. Each visit opens it the way the app opens the first time, as [view.md, section "What it remembers"](view.md#what-it-remembers) says.
+- The popup holds the parts 'Key' and 'View'.
 - The title of the page is the `title` of the roadmap followed by ` · roadmap`, such as 'Plant care app · roadmap'.
 - The `about` of the roadmap is the `<meta name="description">` of the page.
 - Until the lib runs, the page shows 'Loading the roadmap…'.
