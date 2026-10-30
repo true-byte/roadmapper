@@ -1,8 +1,9 @@
 // A save draws the new text at the same level and place, and a page held still by its address stays held.
+// A redraw of the same text, as when a web font of the theme loads after the first draw, leaves 'Show only blockers' and the side bar scroll as they were.
 // A step whose state changed has the just-changed look, a ring, for 3 s: on its pill or its group step where it is not drawn.
 import type { Locator, Page } from '@playwright/test';
-import { expect, group, level, levels, openPlan, pill, play, save, step, stopClock, test } from '../support/helpers';
-import { edit, flat, nested, nodeOf, plain } from '../support/plans';
+import { expect, group, level, levels, nameSize, openPlan, pill, play, READ_PX, save, settle, side, step, stopClock, stored, test, zoomTo } from '../support/helpers';
+import { edit, flat, full, long, nested, nodeOf, plain } from '../support/plans';
 
 /** The plan 'plain' with a group inside its group, in the track 'Left'. It has the same three levels. */
 const deeper = edit(plain, p => {
@@ -114,4 +115,40 @@ test('a save draws the new text in place, with the just-changed look', async ({ 
     expect(await fresh('p-5'), 'the second step loses its look 3 s after its own change').toBe(false);
     await expect(page.locator('svg.plan .halo, svg.plan .fresh')).toHaveCount(0);
   });
+});
+
+test("a web font that loads keeps 'Show only blockers'", async ({ page }) => {
+  await openPlan(page, full, { store: 'paint.only' });
+  await zoomTo(page, 'Every step');
+  await step(page, 'review').click();
+  await side(page).getByRole('button', { name: 'Show only blockers' }).click();
+  await settle(page);
+  // the theme's font draws wider, as a web font may once it has loaded
+  await page.addStyleTag({ content: '.label { letter-spacing: 3px; }' });
+  await page.evaluate(() => document.fonts.dispatchEvent(new Event('loadingdone')));
+  await expect.poll(() => page.evaluate(() => window.draws.length), 'drawn again').toBe(2);
+  await settle(page);
+  await expect(page.locator('.roadmap')).toHaveClass(/\bonly\b/);
+  await expect(page.locator('.roadmap .names div')).toHaveText(['Review', 'Quad four', 'Path B one']);
+  await expect(page.locator('svg.plan .keep').first()).toBeAttached();
+  expect(await stored(page, 'paint.only'), 'the scale before is kept').toMatchObject({ only: 'review', scale: 1 });
+  await page.getByRole('button', { name: 'Show all' }).click();
+  await settle(page);
+  expect(await nameSize(page), 'the scale before').toBeCloseTo(READ_PX, 1);
+  await expect(side(page).locator('h2')).toHaveText('Review');
+});
+
+test('a web font that loads keeps the side bar scroll', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 700 });
+  await openPlan(page, long, { store: 'paint.side', kept: { level: 1, pick: { kind: 'step', key: 'long-text', ids: [] }, sideTop: 5000 } });
+  const end = (): Promise<number[]> => side(page).evaluate(s => [s.scrollTop, s.scrollHeight - s.clientHeight]);
+  const [top, most] = await end();
+  expect(top, 'as far down as it goes').toBeCloseTo(most, 0);
+  // the theme's font draws taller, as a web font may once it has loaded
+  await page.addStyleTag({ content: '.label { letter-spacing: 3px; } .side { line-height: 3; }' });
+  await page.evaluate(() => document.fonts.dispatchEvent(new Event('loadingdone')));
+  await expect.poll(() => page.evaluate(() => window.draws.length), 'drawn again').toBe(2);
+  const [now, more] = await end();
+  expect(more).toBeGreaterThan(most);
+  expect(now, 'as far down as it goes now').toBeCloseTo(more, 0);
 });

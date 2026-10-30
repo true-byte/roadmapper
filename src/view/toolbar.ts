@@ -48,6 +48,7 @@ export function toolbarPart(ctx: ViewContext) {
     controls();
     if (focus) (open ? (viewPart.isOpen() ? (ctx.hasIcons ? hide : hideL) : parts[0].head) : tools).focus();
     ctx.seek();
+    ctx.save();
   }
   /** Puts the popup by the end of the zoom control, OVER it: as wide as the control where the side bar is a sheet at the bottom, else its own width with its right edge on the control's.
    * A control of few levels is narrower than the row of switches: there the popup is as wide as that row, and stays 8 px in from the left of the view. The list of branches goes the same way. */
@@ -115,10 +116,11 @@ export function toolbarPart(ctx: ViewContext) {
   hideL.addEventListener('click', () => ctx.setLabels(!ctx.labels));
   // a press from the keyboard has no pointer: the focus goes into the popup
   tools.addEventListener('click', e => setPopup(popup.hidden === true, e.detail === 0));
-  // the heading of each part of the popup closes and opens it. The view does not keep which: each part is open again on the next visit
+  // the heading of each part of the popup closes and opens it, and the view keeps which
   for (const p of parts) p.head.addEventListener('click', e => {
     p.setOpen(!p.isOpen());
     if (e.detail > 0) foldAt = { x: e.clientX, y: e.clientY, t: e.timeStamp };
+    ctx.save();
   });
   // the second click of a double click on a heading does nothing on the button of the popup that moved under it; a click from the keyboard is never eaten
   popup.addEventListener('click', e => {

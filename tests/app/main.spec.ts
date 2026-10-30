@@ -1,6 +1,16 @@
 // The app page (src/app/main.ts), as npm test builds it on tests/fixtures/roadmap.json: it draws the roadmap file, names the page after it,
 // and opens in the mode it keeps before its first paint.
-import { errorList, expect, level, levels, openApp, test } from '../support/helpers';
+// The view of each roadmap file is kept apart, under the key of the file (src/cli/key.ts), so a save of the file keeps its view.
+// The view kept under the one name of every file before is read once: the first page opened starts from it, where its file has nothing kept yet.
+/// <reference types="node" />
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
+import { folder, removeFolders, roadmapper } from '../support/cli';
+import { BLANK, errorList, expect, level, levels, openApp, openTools, popup, settle, test } from '../support/helpers';
+import { plain } from '../support/plans';
+
+test.afterEach(removeFolders);
 
 test('the app page draws its roadmap file in the kept mode', async ({ page }) => {
   // when the root of the view gets its mode
@@ -25,4 +35,38 @@ test('the app page draws its roadmap file in the kept mode', async ({ page }) =>
     const [modeAt, painted] = await page.evaluate(() => [(window as unknown as { modeAt: number }).modeAt, performance.getEntriesByName('first-paint')[0]?.startTime]);
     expect(painted).toBeGreaterThan(modeAt);
   });
+});
+
+test('each roadmap file keeps a view of its own, by its path', async ({ page }) => {
+  const dir = folder();
+  /** Writes the roadmap file of a folder and builds its app page there, as `roadmapper build` does. Gives the address of the page. */
+  const build = async (name: string, title: string): Promise<string> => {
+    const here = join(dir, name);
+    mkdirSync(here, { recursive: true });
+    writeFileSync(join(here, 'roadmap.json'), JSON.stringify({ ...plain, title }));
+    expect((await roadmapper(['build'], here)).code).toBe(0);
+    return pathToFileURL(join(here, 'dist/app/index.html')).href;
+  };
+  const open = async (url: string): Promise<void> => {
+    await page.goto(url);
+    await expect(page.locator('.roadmap .head .title')).toBeVisible();
+    await settle(page);
+  };
+  const view = async (): Promise<(string | null)[]> => [await level(page), await page.locator('.roadmap').getAttribute('data-mode')];
+  await page.goto(BLANK);
+  await page.evaluate(() => localStorage.setItem('roadmapper.app', JSON.stringify({ level: 2, mode: 'light' })));
+  // two files with the same text, in two folders
+  const shop = await build('shop', 'Plain plan'), bakery = await build('bakery', 'Plain plan');
+  await open(shop);
+  expect(await view(), 'the view kept under the old name').toEqual(['Every step', 'light']);
+  expect(await page.evaluate(() => localStorage.getItem('roadmapper.app')), 'the old name, read once').toBeNull();
+  await openTools(page);
+  await popup(page).getByRole('radio', { name: 'Dark' }).click();
+  await open(bakery);
+  expect(await view(), 'a first visit').toEqual(['Main steps', 'device']);
+  // a save of the file, and a new build of its page
+  await build('shop', 'Plain plan, saved');
+  await open(shop);
+  await expect(page.locator('.roadmap .head .title')).toHaveText('Plain plan, saved');
+  expect(await view(), 'its own view').toEqual(['Every step', 'dark']);
 });

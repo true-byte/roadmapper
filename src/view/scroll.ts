@@ -49,10 +49,10 @@ export function scrollPart(ctx: ViewContext) {
     ctx.saving = window.setTimeout(ctx.save, 200);
   });
 
-  /** Scrolls a thing into the middle of the room where it is not in sight, clear of the side bar. */
-  function sight(e: Element): void {
+  /** Scrolls a thing, or a box on the screen, into the middle of the room where it is not in sight, clear of the side bar. */
+  function sight(e: Element | DOMRect): void {
     if (stage.style.overflow === 'hidden') return;
-    const r = e.getBoundingClientRect(), st = stage.getBoundingClientRect();
+    const r = e instanceof DOMRect ? e : e.getBoundingClientRect(), st = stage.getBoundingClientRect();
     const l = st.left + PAD.l, t = st.top + PAD.t, low = fit.bottom && !side.hidden;
     const b = low ? Math.min(st.bottom - (PAD.y - PAD.t), side.getBoundingClientRect().top - 24) : st.bottom - (PAD.y - PAD.t);
     const ri = side.hidden || low ? st.right - (PAD.x - PAD.l) : Math.min(st.right - (PAD.x - PAD.l), side.getBoundingClientRect().left - 24);

@@ -13,7 +13,7 @@ The examples come from the sample roadmap file, 'Plant care app'.
 | Files | `index.html` | `roadmap.html`, `roadmap.json` and `roadmapper.js` |
 | Private items | Shown | Left out, unless you add `--private` |
 | Opens from disk | Yes | Yes |
-| Remembers its level and place | Yes, as the app does | No |
+| Remembers the view | Yes, as the app does | No |
 
 ## The HTML file
 

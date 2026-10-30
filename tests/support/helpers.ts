@@ -1,7 +1,11 @@
 // What the browser tests share: the built pages, ways to open and drive them, and the parts of the view to look at.
 // npm test builds the pages and the lib first. No server: the pages open from disk. A test that needs no page uses Playwright's own test, in a .test.ts file.
+/// <reference types="node" />
+import { fileURLToPath } from 'node:url';
 import { test as base, expect, type Locator, type Page } from '@playwright/test';
+import { fileKey } from '../../src/cli/key';
 import type { Roadmap } from '../../src/roadmap/types';
+import type { Kept } from '../../src/view/store';
 
 /** The app page, on the roadmap tests/fixtures/roadmap.json: `npm run build:tests`. */
 export const APP = new URL('../../dist/tests/app/index.html', import.meta.url).href;
@@ -12,38 +16,16 @@ export const EMBED = new URL('../../dist/tests/embed/index.html', import.meta.ur
 /** A page with no bundler, with two <roadmapper-view> tags and the lib as one plain script: `npm run build:lib`. */
 export const PLAIN = new URL('../pages/embed/plain.html', import.meta.url).href;
 /** A page with nothing on it, where `kept` is written. */
-const BLANK = new URL('../pages/blank.html', import.meta.url).href;
-/** The name the app page keeps its level, its view and its place under. */
-export const APP_STORE = 'roadmapper.app';
+export const BLANK = new URL('../pages/blank.html', import.meta.url).href;
+/** The roadmap file of the app page. */
+export const APP_FILE = fileURLToPath(new URL('../fixtures/roadmap.json', import.meta.url));
+/** The name the app page keeps its view under: the one of its roadmap file (src/app/main.ts). */
+export const APP_STORE = `roadmapper.app.${fileKey(APP_FILE)}`;
 /** The name the plan page keeps them under, unless a test says otherwise. */
 export const STORE = 'roadmapper.test';
 
 /** What a view keeps in localStorage. */
-export interface Kept {
-  level: number;
-  /** Is the level the last one, 'Every step'? */
-  last?: boolean;
-  icons?: boolean;
-  /** Are the labels shown? Not there in what an older page kept: that page opens with them shown. */
-  labels?: boolean;
-  /** The layout the user picked, 'h' across or 'v' down; null until a pick, while the size of the view picks it. */
-  flow?: 'h' | 'v' | null;
-  /** The scale against reading size. */
-  scale?: number;
-  /** The top-level branches the user showed or hid against what they get by default, by their tags: the name, or the place, as '#2', where the name is not unique. */
-  branches?: Record<string, boolean>;
-  /** Is the zoom control hidden down to its grip? */
-  tucked?: boolean;
-  /** Is the 'Links' part of the side bar open? Not there in what an older page kept: that page opens it. */
-  links?: boolean;
-  /** Is 'Include private items' on? */
-  private?: boolean;
-  /** The mode the user picked: 'light', 'dark', or 'device', as the device is set. */
-  mode?: 'device' | 'light' | 'dark';
-  id: string;
-  fx: number;
-  fy: number;
-}
+export type { Kept } from '../../src/view/store';
 
 /** How big a step's name is on the screen at reading size, in px: 13 × 1.2. */
 export const READ_PX = 15.6;

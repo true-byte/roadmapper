@@ -61,7 +61,7 @@ export function makeDom(host: HTMLElement, options: ViewOptions) {
       head.setAttribute('aria-expanded', String(open));
       inner.hidden = !open;
     };
-    return { part, head, setOpen, isOpen: (): boolean => !inner.hidden };
+    return { name, part, head, setOpen, isOpen: (): boolean => !inner.hidden };
   }
 
   const head = html('header', 'head');
@@ -159,7 +159,7 @@ export function makeDom(host: HTMLElement, options: ViewOptions) {
   const exportButton = html('button', 'export');
   const exporting = html('div', 'exporting');
   exporting.append(keepPrivate, exportButton);
-  // 'Key': what the marks mean. 'View': the switches, the mode and the layouts. 'Export': the switch and the button. Each is open when the view starts
+  // 'Key': what the marks mean. 'View': the switches, the mode and the layouts. 'Export': the switch and the button. Each is open, unless the view kept it closed (store.ts)
   const viewPart = foldPart('View', TOOLS.fold, opts);
   const parts = [foldPart('Key', TOOLS.fold, keyList), viewPart, ...(options.exportFile ? [foldPart('Export', TOOLS.fold, exporting)] : [])];
   parts.forEach(p => p.setOpen(true));

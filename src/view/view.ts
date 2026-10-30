@@ -43,7 +43,7 @@ export interface RoadmapView {
 }
 
 export interface ViewOptions {
-  /** The name the view keeps its level, its view and its place under, in localStorage. With none, nothing is kept. */
+  /** The name the view keeps itself under in localStorage: each change the user makes to it, so a reload shows it as it was left (store.ts). With none, nothing is kept. */
   store?: string;
   /** Called after each good draw. */
   onDraw?: (roadmap: Roadmap) => void;

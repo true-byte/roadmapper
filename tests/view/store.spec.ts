@@ -1,10 +1,12 @@
-// What the view keeps under its store: the level, the scale, the layout, the labels, the mode, 'Links' and 'Include private items', all brought back by a reload.
-// What an older page kept, with fewer of them, opens with the rest as a first visit has them. With no store, nothing is kept.
+// What the view keeps under its store: the level, the scale, the layout, the labels, the mode, 'Links', 'Include private items', the pick with its side bar,
+// the popup with its parts, the list of branches and 'Show only blockers', all brought back by a reload, with nothing on the page that says so.
+// What an older page kept, with fewer of them, opens with the rest as a first visit has them. A kept thing that the plan or the page no longer has
+// starts as the first visit has it, and the rest comes back. With no store, nothing is kept.
 import type { Locator, Page } from '@playwright/test';
 import {
-  expect, flowOf, labelsSwitch, level, nameOf, nameSize, openPlan, openTools, pickLayout, popup, READ_PX, reload, settle, showLabels, side, step, stored, test, words, zoomTo,
+  expect, flowOf, labelsSwitch, level, nameOf, nameSize, openApp, openPlan, openTools, pickLayout, popup, READ_PX, reload, settle, showLabels, side, step, stored, test, words, zoomTo,
 } from '../support/helpers';
-import { edit, full, nodeOf, plain } from '../support/plans';
+import { edit, full, long, nodeOf, plain } from '../support/plans';
 
 /** The plan 'full' with links on 'Plan', so its side bar has the part 'Links'. */
 const linked = edit(full, p => { nodeOf(p, 'plan').links = [{ name: 'Plan doc', url: 'https://example.com/plan' }]; });
@@ -167,4 +169,97 @@ test('an older store opens with the rest as a first visit', async ({ page }) => 
     await reload(page);
     expect(await level(page)).toBe('Main steps');
   });
+});
+
+/** What a reload must bring back: the side bar with its name, its back arrow and its scroll, the popup with its parts, the mode, 'Include private items',
+ * the list of branches, 'Show only blockers' and the level. */
+const shown = (page: Page) =>
+  page.evaluate(() => {
+    const host = document.querySelector<HTMLElement>('.roadmap')!, bar = host.querySelector<HTMLElement>('.side')!, pop = host.querySelector<HTMLElement>('.popup')!;
+    return {
+      side: bar.hidden ? null : (bar.querySelector('h2')?.textContent ?? null),
+      back: bar.hidden ? null : (bar.querySelector('.back')?.getAttribute('title') ?? null),
+      sideTop: bar.scrollTop,
+      popup: !pop.hidden,
+      parts: [...pop.querySelectorAll('button.fold')].map(b => `${b.textContent} ${b.getAttribute('aria-expanded')}`),
+      mode: host.dataset.mode,
+      private: pop.querySelector('[aria-label="Include private items"]')?.getAttribute('aria-checked') ?? null,
+      list: !host.querySelector<HTMLElement>('.picker')!.hidden,
+      only: host.classList.contains('only'),
+      level: host.querySelector('.zoom .stop[aria-current="true"]')?.textContent,
+    };
+  });
+
+test("a reload brings back side bar, popup, 'Show only blockers' and list", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 700 });
+  await openPlan(page, long, { store: 'store.reload', exporting: true });
+  await zoomTo(page, 'Tracks');
+  await step(page, 'remember').click();
+  await step(page, 'long-text').click();
+  await settle(page);
+  await side(page).evaluate(s => s.scrollTo(0, 120));
+  await openTools(page);
+  await popup(page).locator('button.fold', { hasText: 'Key' }).click();
+  await popup(page).getByRole('radio', { name: 'Light' }).click();
+  await popup(page).getByRole('switch', { name: 'Include private items' }).click();
+  const before = await shown(page);
+  expect(before).toMatchObject({ back: 'Back to Remember the view design: zoom, pan, the picked step and open parts stay after a reload', sideTop: 120, popup: true, parts: ['Key false', 'View true', 'Export true'], mode: 'light', private: 'true', level: 'Tracks' });
+  await reload(page);
+  expect(await shown(page)).toEqual(before);
+
+  await test.step("'Show only blockers', and 'Show all' after it brings back the place before", async () => {
+    await page.keyboard.press('Escape');
+    await expect(popup(page)).toBeHidden();
+    const size = await nameSize(page), at = (await step(page, 'long-text').boundingBox())!;
+    await side(page).getByRole('button', { name: 'Show only blockers' }).click();
+    await settle(page);
+    await reload(page);
+    expect(await shown(page)).toMatchObject({ only: true, side: before.side, popup: false });
+    await expect(page.locator('.roadmap .names div')).toHaveCount(3);
+    await page.getByRole('button', { name: 'Show all' }).click();
+    await settle(page);
+    expect(await nameSize(page)).toBeCloseTo(size, 1);
+    const now = (await step(page, 'long-text').boundingBox())!;
+    expect(Math.abs(now.x - at.x) + Math.abs(now.y - at.y)).toBeLessThan(2);
+  });
+
+  await test.step('the list of branches, with no focus in its search', async () => {
+    await page.locator('.zoom').getByRole('button', { name: 'Branches' }).click();
+    await reload(page);
+    expect(await shown(page)).toMatchObject({ list: true, popup: false, only: false, side: before.side, mode: 'light' });
+    await expect(page.getByRole('searchbox', { name: 'Search' })).not.toBeFocused();
+  });
+});
+
+test('a kept thing that is gone starts as on a first visit', async ({ page }) => {
+  await openPlan(page, plain, {
+    store: 'store.gone',
+    kept: { level: 1, mode: 'light', id: 'gone', fx: 0.5, fy: 0.5, pick: { kind: 'branch', key: '7', name: 'Gone', ids: ['nope'] }, back: [{ kind: 'step', key: 'nope', ids: [] }],
+      sideTop: 300, only: 'gone', list: true, parts: { Key: false, Export: false } },
+  });
+  expect(await shown(page)).toMatchObject({ side: null, popup: false, list: false, only: false, mode: 'light', level: 'Tracks' });
+  await openTools(page);
+  expect((await shown(page)).parts).toEqual(['Key false', 'View true']);
+});
+
+test('a kept pick whose place is gone comes into sight', async ({ page }) => {
+  /** Is the step in the room of the plan: clear of the side bar beside it, or over the sheet at the bottom? */
+  const clear = (bottom: boolean): Promise<boolean> =>
+    step(page, 'timeline-tests').evaluate((e, bottom) => {
+      const r = e.getBoundingClientRect(), st = document.querySelector('.roadmap .stage')!.getBoundingClientRect(), s = document.querySelector('.roadmap .side')!.getBoundingClientRect();
+      return r.left >= st.left && r.top >= st.top && r.right <= (bottom ? st.right : s.left) && r.bottom <= (bottom ? s.top : st.bottom);
+    }, bottom);
+  const scroll = (): Promise<number[]> => page.locator('.roadmap .stage').evaluate(s => [s.scrollLeft, s.scrollTop]);
+  const kept = { level: 2, id: 'gone', fx: 0.5, fy: 0.5, pick: { kind: 'step', key: 'timeline-tests', ids: [] } };
+  await openApp(page, { kept });
+  await expect(side(page)).toBeVisible();
+  expect(await clear(false), 'beside the side bar').toBe(true);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await openApp(page, { kept });
+  expect(await clear(true), 'over the sheet').toBe(true);
+  const at = await scroll();
+  await side(page).getByRole('button', { name: 'Close' }).click();
+  await expect(side(page)).toBeHidden();
+  await settle(page);
+  expect(await scroll(), 'the plan stays as the sheet closes').toEqual(at);
 });

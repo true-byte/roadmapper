@@ -21,7 +21,7 @@ import type { ResizePart } from './resize.js';
 import type { ScalePart } from './scale.js';
 import type { ScrollPart } from './scroll.js';
 import type { Ref, SidePart } from './side.js';
-import type { StorePart } from './store.js';
+import type { KeptPlace, StorePart } from './store.js';
 import type { TidyPart } from './tidy.js';
 import type { ToolbarPart } from './toolbar.js';
 import type { ViewOptions } from './view.js';
@@ -162,8 +162,8 @@ export interface State {
   /** While only a blocked step and its blockers show: the scale they need to all be in sight, which may be under LO. */
   floor: number | null;
   /** While only a blocked step and its blockers show: that step, its blockers, and where the page was, to go back to.
-   * `x` and `y` are the point of the plan that was in the middle of the room, at the scale `mag`. */
-  only: { n: TNode; keep: TNode[]; was: { mag: number; x: number; y: number } } | null;
+   * `x` and `y` are the point of the plan that was in the middle of the room, at the scale `mag`. `place` is that place as the view keeps it (store.ts). */
+  only: { n: TNode; keep: TNode[]; was: { mag: number; x: number; y: number }; place: KeptPlace } | null;
 
   // ---- what moves now, and the timers ----
 
@@ -204,6 +204,9 @@ export interface State {
   rowHot: Thing | null;
   /** What the side bar showed before what it shows now, the last one last. It is let go when the side bar closes. */
   past: Ref[];
+  /** How far down the start scrolled the side bar, as the view kept it, until the user scrolls the side bar or picks: a web font that loads later
+   * can make the side bar taller, and the redraw for it scrolls the side bar that far then. */
+  sideAsked: number | null;
   /** A tap that waits to pick, in case a second tap makes it a double tap. */
   tapWait: { x: number; y: number; t: number; timer: number; act: () => void } | null;
 }
@@ -224,7 +227,7 @@ export function initialState(): State {
     cur: new Map(), laid: { fits: true, right: 0, bottom: 0 }, opened: null, stageWas: [0, 0], roomWas: [1, 1],
     mag: 1, floor: null, only: null,
     sraf: 0, gliding: false, pinch: null, praf: 0, gesture: null, saving: 0, tidy: 0,
-    noClick: 0, clickedAt: 0, drag: null, dragged: false, lastPointer: '', pressedAt: 0, hot: null, picked: null, rowHot: null, past: [], tapWait: null,
+    noClick: 0, clickedAt: 0, drag: null, dragged: false, lastPointer: '', pressedAt: 0, hot: null, picked: null, rowHot: null, past: [], sideAsked: null, tapWait: null,
   };
 }
 
@@ -248,7 +251,7 @@ export interface ViewContext extends Fixed, State {
   // moves.ts
   flowT: MovesPart['flowT']; isDown: MovesPart['isDown']; labW: MovesPart['labW']; setFlow: MovesPart['setFlow']; endTurn: MovesPart['endTurn']; go: MovesPart['go']; setIcons: MovesPart['setIcons']; setLabels: MovesPart['setLabels']; endFlip: MovesPart['endFlip'];
   // store.ts
-  save: StorePart['save']; kept: StorePart['kept']; start: StorePart['start'];
+  save: StorePart['save']; kept: StorePart['kept']; start: StorePart['start']; placeNow: StorePart['placeNow'];
   // scale.ts
   scaleBy: ScalePart['scaleBy']; scaleTo: ScalePart['scaleTo']; endScale: ScalePart['endScale'];
   // scroll.ts

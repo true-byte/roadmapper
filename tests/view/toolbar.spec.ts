@@ -315,7 +315,7 @@ test('the gear opens a popup that fits at every size', async ({ page }) => {
   });
 });
 
-test('the popup parts fold, and open again on each visit', async ({ page }) => {
+test('the popup parts fold, and stay as left through a reload', async ({ page }) => {
   await openPlan(page, linked, { exporting: true });
 
   await test.step("the popup holds 'Key', 'View' and 'Export', a hairline between each two", async () => {
@@ -412,24 +412,19 @@ test('the popup parts fold, and open again on each visit', async ({ page }) => {
     await expect(heading(page, 'Key'), "'Key' closed too").toBeFocused();
   });
 
-  await test.step('a folded part stays folded until a reload, and nothing is kept', async () => {
+  await test.step('a folded part stays folded as the popup closes, and after a reload', async () => {
+    const open = (): Promise<(string | null)[]> => headings(page).evaluateAll(h => h.map(b => b.getAttribute('aria-expanded')));
     await toolsButton(page).click();
     await expect(popup(page)).toBeHidden();
     await openTools(page);
-    expect(await headings(page).evaluateAll(h => h.map(b => b.getAttribute('aria-expanded')))).toEqual(['false', 'false', 'true']);
-    // the view keeps itself as the page goes: two reloads keep the same
+    expect(await open()).toEqual(['false', 'false', 'true']);
+    await toolsButton(page).click();
     await reload(page);
-    const keys = Object.keys((await stored(page)) ?? {}).sort();
-    expect(keys, 'the view is kept').not.toEqual([]);
-    await expect(popup(page), 'shut after the reload').toBeHidden();
-    await openTools(page);
-    expect((await folds(page)).parts).toEqual(PARTS.map(n => told(n, true)));
-    await heading(page, 'Key').click();
-    await reload(page);
-    expect(Object.keys((await stored(page)) ?? {}).sort(), 'nothing kept for the parts').toEqual(keys);
+    await expect(popup(page), 'shut after the reload, as it was left').toBeHidden();
+    expect((await stored(page))?.parts).toEqual({ Key: false, View: false, Export: true });
     expect(await page.evaluate(() => [Object.keys(localStorage), sessionStorage.length]), 'nothing else is kept').toEqual([[STORE], 0]);
     await openTools(page);
-    await expect(heading(page, 'Key')).toHaveAttribute('aria-expanded', 'true');
+    expect(await open()).toEqual(['false', 'false', 'true']);
   });
 });
 

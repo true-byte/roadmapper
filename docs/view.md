@@ -102,7 +102,7 @@ The button 'Tools' opens the popup. The popup holds three parts:
 | Click 'Include private items'. | The switch turns on or off. With it on, the button 'Export' saves the whole roadmap, with its private items. |
 | Click the button 'Export'. | The browser saves `roadmap.zip`, the HTML export of the roadmap, as [export.md, section "Export from the app"](export.md#export-from-the-app) says. The button shows a check and 'Saved' for 2 seconds. |
 
-Each part is open each time the page opens. A part that you close stays closed while the popup closes and opens again.
+Each part is open the first time the page opens. A part that you close stays closed until you open it again, also when the page opens again.
 
 When you open the popup with the keyboard, the focus goes to the first switch in 'View'. While 'View' is closed, the focus goes to the heading 'Key'.
 
@@ -156,7 +156,7 @@ A key pressed with Ctrl, Alt or Cmd does nothing in the app. While the error lis
 
 ## What it remembers
 
-The app remembers these settings, and opens with them the next time:
+When you reload the app, or open it again, the page shows the plan as you left it. The app remembers these settings:
 
 - the level
 - icons or marks
@@ -166,11 +166,19 @@ The app remembers these settings, and opens with them the next time:
 - the place of the plan
 - the top-level branches that you showed or hid in the list
 - whether the zoom control is hidden
+- the picked step, group or branch, with its side bar
+- what the back arrow of the side bar goes back to
+- how far down the side bar is scrolled
 - whether the links in the side bar are hidden
-- whether 'Include private items' is on
+- whether 'Show only blockers' is on
+- whether the popup is open, and which of its parts are closed
 - 'Device', 'Light' or 'Dark'
+- whether 'Include private items' is on
+- whether the list of branches is open
 
-The app keeps them in the browser's local storage, under the same name for every roadmap file. So every app page on the same site shares the same settings.
+The app keeps them in the browser's local storage, apart for each roadmap file, by the full path of the file. So a save of the file keeps them, and two roadmap files never share them.
+
+When a setting names a step, group or branch that is gone from the roadmap file, that setting starts as it does the first time. The other settings come back.
 
 The first time, the app opens this way:
 
@@ -179,9 +187,13 @@ The first time, the app opens this way:
 | Level | 'Main steps', or 'Every step' in a plan with no group |
 | Scale | Reading size |
 | Icons and labels | Shown |
+| Side bar | Closed |
 | Links in the side bar | Shown |
+| 'Show only blockers' | Off |
+| Popup | Closed, with each part open |
 | 'Include private items' | Off |
 | Light or dark | 'Device' |
+| List of branches | Closed |
 | Top-level branches | Shown, except each one whose steps are all done or canceled |
 | Place | Around the first step in progress, or, with no step in progress, around the first step that can start |
 
@@ -228,7 +240,7 @@ The next save with no error brings the plan back as it was.
 - When the plan runs down, a line of a name is as wide as the space to the right of its branch. That space is widest on a top-level branch and narrowest in a track.
 - The space over a branch grows for a name of 3 lines. So no name runs into another name, a step, a frame or a caption.
 - When the plan runs across, a name is much nearer to its own step than to the step of the branch over it.
-- The fonts come from Google Fonts, in the app, in the box of the lib and in the HTML export. With no network, the plan draws in fallback fonts. When a web font of the theme loads, the names wrap again in that font.
+- The fonts come from Google Fonts, in the app, in the box of the lib and in the HTML export. With no network, the plan draws in fallback fonts. When a web font of the theme loads, the names wrap again in that font. The rest of the page stays as it was, with 'Show only blockers' on or off.
 - When the system asks for reduced motion, the plan changes its level, layout, icons, labels and place at once, with no animation.
 
 ## Long text

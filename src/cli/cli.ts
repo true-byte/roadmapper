@@ -9,6 +9,7 @@ import { basename, dirname, extname, join, relative, resolve } from 'node:path';
 import { checkRoadmap } from '../roadmap/check.js';
 import { RoadmapError, sayError, sayFailure, type ErrorName, type FileError } from '../roadmap/errors.js';
 import { exportFiles, FILES } from './export.js';
+import { fileKey } from './key.js';
 
 /** What a command uses, as the one who runs it gives it. */
 export interface Setup {
@@ -80,7 +81,7 @@ export async function run(command: string | undefined, words: string[], s: Setup
       if (text === undefined) return 1;
       const page = read(s.page);
       if (page === undefined) return fail(to(s.page), 'Unreadable file');
-      const html = fillPage(page, { text, file: basename(file) });
+      const html = fillPage(page, { text, file: basename(file), key: fileKey(file) });
       mkdirSync(folder, { recursive: true });
       writeFileSync(join(folder, 'index.html'), html);
       console.log(`${to(folder)}/index.html  ${kb(html)}`);
@@ -127,8 +128,8 @@ export async function run(command: string | undefined, words: string[], s: Setup
       if (page === undefined) return fail(to(s.page), 'Unreadable file');
       // a file with errors still serves: the page shows its error list, as it does for each broken save
       let text = first;
-      const name = basename(file);
-      const live = devServer(page, () => ({ text, file: name }));
+      const name = basename(file), key = fileKey(file);
+      const live = devServer(page, () => ({ text, file: name, key }));
       // a save that replaces the file, as many editors do, is seen in its folder, not on the file
       let wait: ReturnType<typeof setTimeout> | undefined;
       watch(dirname(file), (_, changed) => {
@@ -214,8 +215,8 @@ function refusal(folder: string, files: string[]): { error: ErrorName; value: st
 /** The slot of the app page that holds the roadmap: src/app/index.html has it empty, and src/app/slot.ts reads it. */
 const SLOT = '<script type="application/json" id="roadmap"></script>';
 
-/** The app page with a roadmap in its slot: the text of the file, the name of the file, and for `dev` the address that sends each save. */
-function fillPage(page: string, roadmap: { text: string; file: string; live?: string }): string {
+/** The app page with a roadmap in its slot: the text of the file, the name of the file, the key of the file (key.ts), and for `dev` the address that sends each save. */
+function fillPage(page: string, roadmap: { text: string; file: string; key?: string; live?: string }): string {
   // the page's own script comes before the slot, in its head
   const at = page.lastIndexOf(SLOT);
   if (at < 0) throw new Error(`the app page has no ${SLOT}`);
@@ -228,7 +229,7 @@ function fillPage(page: string, roadmap: { text: string; file: string; live?: st
 const EVENTS = '/events';
 
 /** What `dev` serves: the app page at /, with the roadmap file as it is now, and at /events each save of the file, as the page's src/app/main.ts reads it. */
-export function devServer(page: string, now: () => { text: string; file: string }): { listener: RequestListener; send: (roadmap: { text: string; file: string }) => void } {
+export function devServer(page: string, now: () => { text: string; file: string; key?: string }): { listener: RequestListener; send: (roadmap: { text: string; file: string }) => void } {
   const pages = new Set<ServerResponse>();
   const listener: RequestListener = (req, res) => {
     const path = (req.url ?? '/').split('?')[0];

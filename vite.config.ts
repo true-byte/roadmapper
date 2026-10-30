@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { gzipSync } from 'node:zlib';
 import { build, defineConfig, type Plugin } from 'vite';
 import { viteSingleFile } from 'vite-plugin-singlefile';
+import { fileKey } from './src/cli/key.ts';
 
 // The app page, src/app/index.html.
 // `npm run dev` serves it on one roadmap file: the one in ROADMAP_FILE, which `npm run dev -- [file]` names (scripts/dev.mjs), or else data/roadmap.json.
@@ -11,7 +12,7 @@ import { viteSingleFile } from 'vite-plugin-singlefile';
 // `roadmapper build` and `roadmapper dev` put a roadmap in its slot (src/cli/cli.ts), and the page reads it from there (src/app/slot.ts).
 const file = process.env.ROADMAP_FILE ?? fileURLToPath(new URL('data/roadmap.json', import.meta.url));
 
-/** The text of the roadmap file, and its name, as the module 'virtual:roadmap'. Text, not a module of its own: a typo in the file then lands in the view's error list,
+/** The text of the roadmap file, its name and its key (src/cli/key.ts), as the module 'virtual:roadmap'. Text, not a module of its own: a typo in the file then lands in the view's error list,
  * not in the dev server's error screen. The dev server watches the file, also outside this folder, and sends the new text when it is saved. */
 function roadmapFile(file: string): Plugin {
   const id = '\0virtual:roadmap';
@@ -21,7 +22,7 @@ function roadmapFile(file: string): Plugin {
     load(source) {
       if (source !== id) return;
       this.addWatchFile(file);
-      return `export default ${JSON.stringify(readFileSync(file, 'utf8'))};\nexport const file = ${JSON.stringify(basename(file))};\nexport const live = undefined;`;
+      return `export default ${JSON.stringify(readFileSync(file, 'utf8'))};\nexport const file = ${JSON.stringify(basename(file))};\nexport const key = ${JSON.stringify(fileKey(file))};\nexport const live = undefined;`;
     },
   };
 }

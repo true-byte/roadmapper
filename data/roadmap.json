@@ -1212,6 +1212,7 @@
                   "id": "remember-the-view",
                   "name": "Remember the view design",
                   "icon": "device-floppy",
+                  "state": "done",
                   "why": "The browser keeps every change the user makes to the view, so a reload or a new visit shows the page as the user left it.",
                   "doneWhen": "A mock of how the page keeps the view through a reload, on Roadmapper's own roadmap, is reviewed and approved."
                 },
@@ -1225,6 +1226,7 @@
                           "id": "remember-the-view-code",
                           "name": "Remember the view code",
                           "icon": "device-floppy",
+                          "state": "done",
                           "why": "Remember the view works in the app as designed.",
                           "doneWhen": "On Roadmapper's own roadmap, a reload of the page keeps the view as it was left."
                         }
@@ -1237,6 +1239,7 @@
                           "id": "remember-the-view-tests",
                           "name": "Remember the view tests",
                           "icon": "device-floppy",
+                          "state": "done",
                           "why": "Tests in a real browser for Remember the view, so a change cannot break it unseen.",
                           "doneWhen": "npm test checks Remember the view, as designed."
                         }

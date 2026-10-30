@@ -105,7 +105,6 @@ export function drawPart(ctx: ViewContext) {
     head.replaceChildren(html('h1', 'title', roadmap.title), html('span', 'progress', `${ctx.all.filter(n => n.state === 'done').length} of ${ctx.all.filter(n => n.state !== 'canceled').length} steps done`));
     // the list of top-level branches, where there are two or more
     layers.hidden = p.every.length < 2;
-    if (layers.hidden) ctx.setBranches(false);
     ctx.fillBranches();
     svg.setAttribute('aria-label', `${roadmap.title}: the roadmap as a tree`);
 

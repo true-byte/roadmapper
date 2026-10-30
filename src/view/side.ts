@@ -184,8 +184,9 @@ export function sidePart(ctx: ViewContext) {
     } else out.push(part('In it', ...(sole(t.kids[0]) ? inIt(t.kids[0]) : t.kids).map(row)));
     return out;
   }
-  /** Keeps the picked thing in sight, clear of the side bar, by scrolling the plan. Its size never changes. */
-  function uncover(): void {
+  /** Keeps the picked thing in sight, clear of the side bar, by scrolling the plan. Its size never changes.
+   * With `whole`, the plan also scrolls up or down to it where the side bar is at the side: for a pick that is not where the user clicked it, as a reload brings it back. */
+  function uncover(whole = false): void {
     // a plan that runs under the side bar scrolls, up to its last step clear of it, and one that fits the room again when the side bar closes does not
     ctx.clear();
     if (!ctx.picked) return;
@@ -208,6 +209,7 @@ export function sidePart(ctx: ViewContext) {
       if (dx || dy) ctx.glide(dx, dy);
       return;
     }
+    if (whole) return ctx.sight(r);
     const dx = r.right + 24 > s.left ? r.right + 24 - s.left : r.left - 24 < st.left ? r.left - 24 - st.left : 0;
     if (dx) ctx.glide(dx, 0);
   }
@@ -216,6 +218,7 @@ export function sidePart(ctx: ViewContext) {
     if (t === ctx.picked) return;
     // a switch after a pick holds the plan by the picked step, from where it is now
     ctx.been = null;
+    if (!quiet) ctx.sideAsked = null;
     // the side bar takes the place of the popup and of the list of branches; a redraw that picks again leaves them
     if (t && !quiet) { ctx.setPopup(false); ctx.setBranches(false); }
     // all comes back first, around a step picked among those that show
@@ -242,6 +245,7 @@ export function sidePart(ctx: ViewContext) {
     if (home) ctx.glide(home[0] - stage.scrollLeft, home[1] - stage.scrollTop);
     // the tip of what is under the pointer goes when that is picked, and comes back when it is let go
     ctx.hover(ctx.hot);
+    ctx.save();
   }
   for (const where of [stage, head]) {
     where.addEventListener('click', e => {
@@ -281,6 +285,13 @@ export function sidePart(ctx: ViewContext) {
     ctx.tapWait = null;
   }
   stage.addEventListener('pointercancel', e => { if (e.pointerType === 'touch') dropTap(); });
+  // how far down the side bar is scrolled is kept once the scroll rests, as the place of the plan is
+  side.addEventListener('scroll', () => {
+    // a scroll to another point than the one the start asked for, as far as the side bar goes, is the user's
+    if (ctx.sideAsked !== null && Math.abs(side.scrollTop - Math.min(ctx.sideAsked, side.scrollHeight - side.clientHeight)) >= 1) ctx.sideAsked = null;
+    window.clearTimeout(ctx.saving);
+    ctx.saving = window.setTimeout(ctx.save, 200);
+  });
   /** Shows again what the side bar showed before, that is still in the plan. */
   function goBack(): void {
     while (ctx.past.length) {
