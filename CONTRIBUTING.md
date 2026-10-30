@@ -42,22 +42,39 @@ npm test
 `npm test` runs three steps:
 
 1. It builds the lib, the commands and the app page of the package.
-2. It builds the pages that the tests open into `dist/tests/`. They are the app page on `tests/roadmapper.json`, the test page in `tests/page/`, the pages in `tests/embed/`, and the export of `tests/export/plan.json`.
-3. It runs the browser tests in `tests/` on those pages. Each core of the computer runs one test at a time. Chromium opens each page from disk.
+2. It builds the pages that the browser tests open into `dist/tests/`. They are the app page on `tests/fixtures/roadmap.json`, the plan page in `tests/pages/plan/`, the pages in `tests/pages/embed/`, and the export of `tests/fixtures/export.json`.
+3. It runs every test in `tests/`. Each core of the computer runs one test at a time.
+
+`scripts/build.mjs` runs the builds of steps 1 and 2. Each build starts once the builds that it needs have ended, so builds that need nothing of each other run at the same time.
+
+The folders of `tests/` are the folders of `src/`, and `tests/scripts/` tests the scripts in `scripts/`. Each test file is named after the source file that it tests: `tests/view/toolbar.spec.ts` tests `src/view/toolbar.ts`. The end of the file name says what kind of tests the file holds:
+
+- A `.test.ts` file runs the code in Node, and opens no page. Each of its tests takes milliseconds, unless it starts a process.
+- A `.spec.ts` file opens the built pages in Chromium, from disk.
+
+A test that can run in Node goes in a `.test.ts` file. A test opens a page only for what needs one: the pointer, the keys, touch, the focus, a scroll, the CSS, or a reload. A browser test opens its page once, and checks each thing on it as a `test.step()`. A test name says what the code does, in 12 words or fewer.
+
+| Folder | What it holds |
+|---|---|
+| `tests/support/` | The helpers of the browser tests, the plans that the tests draw, and the Vite plugins of the test pages. The plan page holds only the icons that the plans in `tests/support/plans.ts` name, so that it opens fast. A test that needs another icon names it in a plan there. |
+| `tests/fixtures/` | The roadmap files that `npm test` builds pages from: `roadmap.json`, a copy of a real roadmap, and `export.json`, a made-up roadmap with private items and a `</script>` in a name. |
+| `tests/pages/` | The test pages: `plan/`, which draws the plan that a test gives, and `embed/`, two made-up pages of another project. One page in `embed/` is a React app with `<Roadmap>`. The other page has no bundler and loads `dist/lib/roadmapper.js`. |
+
+`tests/cli/bin.test.ts` packs Roadmapper, and installs the package into a new project in the system's temp folder. It runs `npx roadmapper` there, then deletes that project.
+
+To run only the tests that open no page, run this command:
+
+```sh
+npx playwright test --project=plain
+```
 
 To run one test file on the pages that were built last, name the file:
 
 ```sh
-npx playwright test tests/cli.spec.ts
+npx playwright test tests/view/toolbar.spec.ts
 ```
 
-| Part | What it is |
-|---|---|
-| `tests/cli.spec.ts` | It packs Roadmapper, and installs the package into a new project in the system's temp folder. It runs `npx roadmapper` there, then deletes that project. Through Playwright's routes, it checks what `dev` and `preview` would serve, so it starts no server. |
-| `tests/embed/` | It holds two made-up pages of another project: a React app with `<Roadmap>`, and a page with no bundler that loads `dist/lib/roadmapper.js`. Each page has CSS of its own, and that CSS must not change the box of the lib. |
-| `tests/export/` | It holds a made-up roadmap with a `</script>` in a name and with private items. The tests open its export from a made-up page of a site, which the tests serve themselves. |
-| `tests/page/` | It holds the test page, which has only the icons that the plans in `tests/plans.ts` name, so that it opens fast. A test that needs another icon names it in a plan there. |
-| `playwright.config.ts` | It runs the tests offline, so the pages draw in the fallback fonts. It runs them in the dark color scheme, at 1440 × 900, with reduced motion. A test that checks a move turns motion on. |
+`playwright.config.ts` runs the browser tests offline, so the pages draw in the fallback fonts. It runs them in the dark color scheme, at 1440 × 900, with reduced motion. A test that checks a move turns motion on.
 
 A test waits for what the page does, such as an attribute, a text or an event that the page sets. It never waits for a set time. Where the page does not set the order of two events, the test passes in either order.
 
@@ -76,9 +93,9 @@ To find a test that passes at one speed and fails at another, run `npm run test:
 To run one test file as a round runs it, on the pages that were built last, run the line of that round below. The lines are for rounds 1, 2 and 3, in that order. `<cpus>` is the list of 4 CPUs that the output of the check gives.
 
 ```sh
-taskset -c <cpus> npx playwright test --workers=4 tests/<file>
-SLOW_CPU=4 npx playwright test --workers=4 tests/<file>
-taskset -c <cpus> npx playwright test --workers=8 tests/<file>
+taskset -c <cpus> npx playwright test --workers=4 tests/<folder>/<file>
+SLOW_CPU=4 npx playwright test --workers=4 tests/<folder>/<file>
+taskset -c <cpus> npx playwright test --workers=8 tests/<folder>/<file>
 ```
 
 ## Hold the page still
@@ -180,7 +197,7 @@ To add an icon set, put it into `src/icons/`, and add a loader by its name to `s
 
    If no release branch fits the change, open an issue at https://github.com/true-byte/roadmapper/issues that says which release the change is for. Go on to step 3 when the command lists the release branch.
 
-3. From that release branch, make a branch for one change. `<version>` is the version of that release branch, and `<branch>` is the name of the new branch. Name a fix `fix/<version>-` followed by a short name, such as `fix/1.0.0-npm-audit`. Name any other change `feature/<version>-` followed by a short name, such as `feature/1.0.0-links`.
+3. From that release branch, make a branch for one change. `<version>` is the version of that release branch, and `<branch>` is the name of the new branch. Name a fix `fix/<version>-` followed by a short name, such as `fix/1.0.0-npm-audit`. Name any other change `feature/<version>-` followed by a short name, such as `feature/1.0.0-links`. A `fix/` branch only fixes a bug of a released version, or of a change that is already merged. It holds nothing else.
 
    ```sh
    git fetch origin
@@ -339,7 +356,7 @@ A patch fixes a release with a lower version than the release that `main` holds.
 | `src/lib/` | The lib: the tag `<roadmapper-view>` and the React component `Roadmap`. |
 | `src/cli/` | The commands of `npx roadmapper`, and the HTML export. |
 | `scripts/` | The scripts that `npm run` runs. |
-| `tests/` | The browser tests, the pages that they open, and the plans that those pages draw. |
+| `tests/` | The tests, in the folders of `src/`, and the pages, plans and roadmap files that they use. |
 | `dist/` | The files that the commands build, which Git ignores. |
 | `.tmp/` | The files of a check, such as screenshots, which Git ignores. |
 
