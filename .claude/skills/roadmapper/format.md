@@ -2,7 +2,7 @@
 
 This doc covers the roadmap file format: each key and its values, the states of a step, and the errors that `validate` finds.
 
-A roadmap file is one JSON file, such as `roadmap.json`. Roadmapper draws it as a tree on a page. [SKILL.md](SKILL.md) says where to put each step, so that each line on the page joins a step to a step that it needs.
+A roadmap file is one JSON file, such as `roadmap.json`. Roadmapper draws it as a tree on a page. [SKILL.md](SKILL.md) says where to put each step, so that the plan reads as a row of main steps in priority order.
 
 ## Example
 
@@ -13,33 +13,31 @@ This roadmap file plans the opening of a bakery. Every example in [SKILL.md](SKI
   "title": "Corner bakery",
   "about": "A small bakery on Main Street that sells bread and cakes.",
   "branches": [
-    { "name": "First shop", "holds": "Get the shop ready, hire the bakers, pick the recipes, and open the doors.", "items": [
-      { "branching": true, "split": [
-        { "name": "Shop", "items": [
-          { "id": "sign-the-lease", "name": "Sign the lease", "state": "done", "icon": "signature", "why": "Nothing goes into the shop before the lease is signed.", "doneWhen": "The owner and the landlord have both signed the lease." },
-          { "name": "Fit out the shop", "split": [
-            { "name": "Kitchen", "items": [
-              { "id": "install-ovens", "name": "Install ovens", "state": "in-progress", "start": "2027-03-01", "end": "2027-03-19", "why": "The bread needs two big ovens.", "doneWhen": "Both ovens bake a test batch." }
-            ] },
-            { "name": "Front", "items": [
-              { "id": "build-the-counter", "name": "Build the counter", "why": "People choose and pay at the counter.", "doneWhen": "The counter stands, with the till on it." }
-            ] }
-          ] },
-          { "id": "town-gives-the-food-permit", "name": "Town gives the food permit", "why": "The town inspects the finished shop before the bakery may sell food.", "doneWhen": "The town sends the signed permit." }
+    { "name": "First shop", "holds": "Fit out the shop, name it, hire the bakers, pick the recipes, and open the doors.", "items": [
+      { "id": "sign-the-lease", "name": "Sign the lease", "state": "done", "icon": "signature", "why": "Nothing goes into the shop before the lease is signed.", "doneWhen": "The owner and the landlord have both signed the lease." },
+      { "name": "Fit out the shop", "split": [
+        { "name": "Kitchen", "items": [
+          { "id": "install-ovens", "name": "Install ovens", "state": "in-progress", "start": "2027-03-01", "end": "2027-03-19", "why": "The bread needs two big ovens.", "doneWhen": "Both ovens bake a test batch." }
         ] },
-        { "name": "Staff", "items": [
-          { "id": "hire-bakers", "name": "Hire bakers", "why": "The bakery needs two bakers for the early shift.", "doneWhen": "Two bakers have signed a work contract." }
-        ] },
-        { "name": "Recipes", "items": [
-          { "id": "pick-the-recipes", "name": "Pick the recipes", "icon": "bread", "why": "The menu and the shopping list come from the recipes.", "doneWhen": "The list of recipes for the first month is written down." },
+        { "name": "Front", "items": [
+          { "id": "build-the-counter", "name": "Build the counter", "why": "People choose and pay at the counter.", "doneWhen": "The counter stands, with the till on it." }
+        ] }
+      ] },
+      { "name": "Name and sign", "split": [
+        { "items": [
+          { "id": "pick-a-name", "name": "Pick a name", "why": "The sign shows the name of the bakery.", "doneWhen": "The town has registered the name of the business." },
+          { "id": "make-the-sign", "name": "Make the sign", "why": "The sign shows the name and fits the front of the shop.", "doneWhen": "The sign hangs over the door." }
+        ] }
+      ] },
+      { "id": "hire-bakers", "name": "Hire bakers", "why": "The bakery needs two bakers for the early shift.", "doneWhen": "Two bakers have signed a work contract." },
+      { "name": "Menu", "split": [
+        { "items": [
+          { "id": "pick-the-recipes", "name": "Pick the recipes", "icon": "bread", "why": "The menu and the shopping list come from the recipes. The bakers help pick them.", "doneWhen": "The list of recipes for the first month is written down." },
           { "id": "print-the-menu", "name": "Print the menu", "why": "People read the bread, the cakes and the prices on the menu.", "doneWhen": "The printed menu hangs behind the counter." }
         ] }
       ] },
-      { "id": "opening-day", "name": "Opening day", "icon": "confetti", "milestone": true, "deadline": "2027-06-12", "waitsFor": ["make-the-sign"], "why": "The bakery opens to the public on this day.", "doneWhen": "The doors open and the first loaf is sold." }
-    ] },
-    { "name": "Name", "holds": "Pick the name of the bakery, and make the sign that shows it.", "items": [
-      { "id": "pick-a-name", "name": "Pick a name", "why": "The sign shows the name of the bakery.", "doneWhen": "The town has registered the name of the business." },
-      { "id": "make-the-sign", "name": "Make the sign", "waitsFor": ["sign-the-lease"], "why": "The sign shows the name and fits the front of the shop.", "doneWhen": "The sign hangs over the door." }
+      { "id": "town-gives-the-food-permit", "name": "Town gives the food permit", "why": "The town inspects the finished shop before the bakery may sell food.", "doneWhen": "The town sends the signed permit." },
+      { "id": "opening-day", "name": "Opening day", "icon": "confetti", "milestone": true, "deadline": "2027-06-12", "why": "The bakery opens to the public on this day.", "doneWhen": "The doors open and the first loaf is sold." }
     ] },
     { "name": "Second shop", "holds": "Open a second bakery across town.", "items": [
       { "id": "second-shop", "name": "Second shop", "state": "tbd", "waitsFor": ["opening-day"] }
