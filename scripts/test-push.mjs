@@ -4,7 +4,7 @@ import { spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { cpus } from 'node:os';
 
-/** Each round: its name, how many tests run at once, how many times slower each page runs (SLOW_CPU, in tests/helpers.ts), and whether they share 4 CPUs. */
+/** Each round: its name, how many tests run at once, how many times slower each page runs (SLOW_CPU, in tests/support/helpers.ts), and whether they share 4 CPUs. */
 const ROUNDS = [
   { name: '4 tests at once on 4 CPUs', workers: 4, slow: 1, pin: true },
   { name: '4 tests at once, each page 4 times slower', workers: 4, slow: 4, pin: false },
