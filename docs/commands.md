@@ -54,7 +54,7 @@ Run these scripts in a clone of Roadmapper. To use Roadmapper in another folder,
 ### The roadmap files of the clone
 
 - `data/roadmap.json` is the roadmap file of Roadmapper itself. A script that takes `[file]` reads it when you name no file.
-- `data/sample.roadmap.json` is the sample roadmap file, 'Plant care app'. [format.md, section "Example"](https://github.com/true-byte/roadmapper/blob/main/.claude/skills/roadmapper/format.md#example) says what the sample holds.
+- `data/sample.roadmap.json` is the sample roadmap file, 'Plant care app'. [format.md, section "Example"](https://github.com/true-byte/roadmapper/blob/master/.claude/skills/roadmapper/format.md#example) says what the sample holds.
 
 A script that takes `[file]` reads the roadmap file that you name, in `data/` or in any other folder. So one clone can hold many roadmap files and draw any one of them. This command draws the sample roadmap file:
 
@@ -80,7 +80,7 @@ npm run dev -- data/sample.roadmap.json
 
 ## The `validate` command
 
-`validate` checks a roadmap file. [format.md, section "Errors"](https://github.com/true-byte/roadmapper/blob/main/.claude/skills/roadmapper/format.md#errors) says what it prints and what each error means. When the file has errors, the command ends with exit code 1. When the file has no error, it ends with exit code 0.
+`validate` checks a roadmap file. [format.md, section "Errors"](https://github.com/true-byte/roadmapper/blob/master/.claude/skills/roadmapper/format.md#errors) says what it prints and what each error means. When the file has errors, the command ends with exit code 1. When the file has no error, it ends with exit code 0.
 
 ## Errors
 
@@ -90,8 +90,8 @@ When a command cannot do its work, it writes nothing and ends with exit code 1. 
 <where>  <error>  <value>
 ```
 
-- An error in the roadmap file prints the same way as in `validate`, and its `<where>` is `<file>:<line>  <path>  <key>`. [format.md, section "Errors"](https://github.com/true-byte/roadmapper/blob/main/.claude/skills/roadmapper/format.md#errors) says what each field and each error means.
-- The table below lists every other error. A long `<value>` is cut as [format.md, section "Errors"](https://github.com/true-byte/roadmapper/blob/main/.claude/skills/roadmapper/format.md#errors) says.
+- An error in the roadmap file prints the same way as in `validate`, and its `<where>` is `<file>:<line>  <path>  <key>`. [format.md, section "Errors"](https://github.com/true-byte/roadmapper/blob/master/.claude/skills/roadmapper/format.md#errors) says what each field and each error means.
+- The table below lists every other error. A long `<value>` is cut as [format.md, section "Errors"](https://github.com/true-byte/roadmapper/blob/master/.claude/skills/roadmapper/format.md#errors) says.
 
 | `<error>` | Printed by | `<where>` | `<value>` | What it means |
 |---|---|---|---|---|

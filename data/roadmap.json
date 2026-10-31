@@ -266,7 +266,7 @@
                           "links": [
                             {
                               "name": "The roadmap file format",
-                              "url": "https://github.com/true-byte/roadmapper/blob/main/.claude/skills/roadmapper/format.md",
+                              "url": "https://github.com/true-byte/roadmapper/blob/master/.claude/skills/roadmapper/format.md",
                               "icon": "file-text"
                             }
                           ]
@@ -333,7 +333,7 @@
                                   "links": [
                                     {
                                       "name": "Embed a roadmap",
-                                      "url": "https://github.com/true-byte/roadmapper/blob/main/docs/embed.md",
+                                      "url": "https://github.com/true-byte/roadmapper/blob/master/docs/embed.md",
                                       "icon": "file-text"
                                     }
                                   ]
@@ -388,7 +388,7 @@
                                   "links": [
                                     {
                                       "name": "The HTML export",
-                                      "url": "https://github.com/true-byte/roadmapper/blob/main/docs/export.md",
+                                      "url": "https://github.com/true-byte/roadmapper/blob/master/docs/export.md",
                                       "icon": "file-text"
                                     }
                                   ]

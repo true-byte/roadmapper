@@ -94,7 +94,7 @@ The browser asks the site each time whether `roadmap.json` has changed. So a str
 
 ## Private items
 
-Without `--private`, the private items stay on this computer. [format.md, section "Private items"](https://github.com/true-byte/roadmapper/blob/main/.claude/skills/roadmapper/format.md#private-items) says what the export leaves out, and what the words of a shown item must not name. The export also follows these rules:
+Without `--private`, the private items stay on this computer. [format.md, section "Private items"](https://github.com/true-byte/roadmapper/blob/master/.claude/skills/roadmapper/format.md#private-items) says what the export leaves out, and what the words of a shown item must not name. The export also follows these rules:
 
 - It leaves no gap, lock or count where a private item was.
 - It removes each group or branch that it leaves empty.

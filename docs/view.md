@@ -36,7 +36,7 @@ npm run dev -- data/sample.roadmap.json
 
 ## Levels
 
-A plan with a group has three levels: 'Main steps', 'Tracks' and 'Every step'. A plan with no group has one level, 'Every step'. [format.md, section "Groups and branchings"](https://github.com/true-byte/roadmapper/blob/main/.claude/skills/roadmapper/format.md#groups-and-branchings) says what a group is.
+A plan with a group has three levels: 'Main steps', 'Tracks' and 'Every step'. A plan with no group has one level, 'Every step'. [format.md, section "Groups and branchings"](https://github.com/true-byte/roadmapper/blob/master/.claude/skills/roadmapper/format.md#groups-and-branchings) says what a group is.
 
 | Level | What it shows |
 |---|---|
@@ -106,7 +106,7 @@ Each part is open the first time the page opens. A part that you close stays clo
 
 When you open the popup with the keyboard, the focus goes to the first switch in 'View'. While 'View' is closed, the focus goes to the heading 'Key'.
 
-The legend lists only the states that are on the plan. It also lists the milestone when the plan has one. [format.md, section "States"](https://github.com/true-byte/roadmapper/blob/main/.claude/skills/roadmapper/format.md#states) gives each mark.
+The legend lists only the states that are on the plan. It also lists the milestone when the plan has one. [format.md, section "States"](https://github.com/true-byte/roadmapper/blob/master/.claude/skills/roadmapper/format.md#states) gives each mark.
 
 ## Branches
 
@@ -144,7 +144,7 @@ The app that `npx roadmapper dev` or `npm run dev` serves has the button 'Edit' 
 | Click 'Save'. | The roadmap file gets the roadmap as the page shows it, and the page leaves edit mode. When the file check refuses the roadmap, 'Save' turns red and shows the name of the error. |
 
 - Each new branch and each new track holds one new step. The new step is picked, with its name ready to type over.
-- A new step gets its id from its name, as [SKILL.md, section "The keys of a step"](https://github.com/true-byte/roadmapper/blob/main/.claude/skills/roadmapper/SKILL.md#the-keys-of-a-step) says. In 'Plant care app', a new step named 'Plant shop design' gets the id `plant-shop-design`.
+- A new step gets its id from its name, as [SKILL.md, section "The keys of a step"](https://github.com/true-byte/roadmapper/blob/master/.claude/skills/roadmapper/SKILL.md#the-keys-of-a-step) says. In 'Plant care app', a new step named 'Plant shop design' gets the id `plant-shop-design`.
 - The side bar of a step holds its icon, its name, its state, 'Milestone', 'Private', 'Waits for', 'Links', 'Why', 'Done when', 'Planned' and 'Deadline'. A click on the icon opens a grid of icons with a search box.
 - A drag near an edge of the page scrolls the plan.
 - A finger does not drag. A tap near the line of a branch shows the gold diamond, and a tap where a branching or a group parts shows the dashed line.
@@ -165,7 +165,7 @@ The app that `npx roadmapper dev` or `npm run dev` serves has the button 'Edit' 
 
 ## Blockers
 
-[format.md, section "States"](https://github.com/true-byte/roadmapper/blob/main/.claude/skills/roadmapper/format.md#states) says what makes a step blocked. In 'Plant care app', the 'User survey' of 'V3' is blocked: it waits for 'Release V2'.
+[format.md, section "States"](https://github.com/true-byte/roadmapper/blob/master/.claude/skills/roadmapper/format.md#states) says what makes a step blocked. In 'Plant care app', the 'User survey' of 'V3' is blocked: it waits for 'Release V2'.
 
 - Click 'Show only blockers' in the side bar of a blocked step. Everything on the page fades, except the step and those of its blockers that are on the plan. Where the labels show, the names of these steps are at reading size. The plan shrinks as far as it must to bring them all into sight, even below a fourth of reading size. The level and the layout do not change, and the step and its blockers stay in sight.
 - Click 'Show all', or click empty space. The side bar, the scale and the place of the plan go back to how they were before 'Show only blockers'.
@@ -256,7 +256,7 @@ In edit mode, the plan does not redraw on save, as [Edit on the page](#edit-on-t
 
 ## How the plan draws
 
-[format.md](https://github.com/true-byte/roadmapper/blob/main/.claude/skills/roadmapper/format.md) says what each piece of the roadmap file means and how groups and branchings draw. [Levels](#levels) says what each level shows. The page also follows these rules:
+[format.md](https://github.com/true-byte/roadmapper/blob/master/.claude/skills/roadmapper/format.md) says what each piece of the roadmap file means and how groups and branchings draw. [Levels](#levels) says what each level shows. The page also follows these rules:
 
 - The top-level branches all start at the same place on the left.
 - At 'Main steps', with the labels shown, each top-level branch ends with how many of its steps are done. In 'Plant care app', 'V2' ends with '3 of 13 done'.

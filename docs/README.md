@@ -23,4 +23,4 @@ This doc covers what Roadmapper is for, and lists the docs on using it.
 | [The HTML file and the HTML export](export.md) | The HTML file for you, and the HTML export that puts a roadmap on a site for strangers. |
 | [Embed a roadmap](embed.md) | The lib, which shows a roadmap in a box on a page of another project. |
 | [The Claude Code skill](skill.md) | The skill that tells Claude how to write and keep a roadmap file. |
-| [The roadmap file format](https://github.com/true-byte/roadmapper/blob/main/.claude/skills/roadmapper/format.md) | Every key, value, state and error of a roadmap file. It is in the folder of the skill, so that the skill works when a project installs that folder alone. |
+| [The roadmap file format](https://github.com/true-byte/roadmapper/blob/master/.claude/skills/roadmapper/format.md) | Every key, value, state and error of a roadmap file. It is in the folder of the skill, so that the skill works when a project installs that folder alone. |

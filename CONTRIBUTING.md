@@ -179,7 +179,7 @@ To add an icon set, put it into `src/icons/`, and add a loader by its name to `s
 
 ## Send a change
 
-`main` holds the release with the highest version. The work for each release is on its release branch, which is named `release/` followed by the version, such as `release/1.0.0`. Each change is made on a branch of its own and goes into a release branch by a pull request. Only a finished release goes into `main`, by a pull request from its release branch, as [Finish a release](#finish-a-release) says.
+`master` holds the release with the highest version. The work for each release is on its release branch, which is named `release/` followed by the version, such as `release/1.0.0`. Each change is made on a branch of its own and goes into a release branch by a pull request. Only a finished release goes into `master`, by a pull request from its release branch, as [Finish a release](#finish-a-release) says.
 
 1. If you have no write access to `true-byte/roadmapper`, fork it on GitHub. Then add your fork as the remote `fork` of your clone, where `<you>` is your GitHub user name:
 
@@ -250,11 +250,11 @@ In [Start a release](#start-a-release) and [Finish a release](#finish-a-release)
 
 ### Start a release
 
-When the work on a release starts, make its release branch from `main`:
+When the work on a release starts, make its release branch from `master`:
 
 ```sh
-git switch main
-git pull origin main
+git switch master
+git pull origin master
 git switch -c release/<version>
 git push -u origin release/<version>
 ```
@@ -274,12 +274,12 @@ git push -u origin release/<version>
 
    Open `https://github.com/true-byte/roadmapper/compare/release/<version>...feature/<version>-version?expand=1`, and click 'Create pull request'. Merge the pull request when the check 'All tests' passes.
 
-2. Open `https://github.com/true-byte/roadmapper/compare/main...release/<version>?expand=1`, and click 'Create pull request'. When the check 'All tests' passes, merge the pull request with 'Create a merge commit', so that `main` keeps the commits of the release.
-3. Tag `main`, and push the tag:
+2. Open `https://github.com/true-byte/roadmapper/compare/master...release/<version>?expand=1`, and click 'Create pull request'. When the check 'All tests' passes, merge the pull request with 'Create a merge commit', so that `master` keeps the commits of the release.
+3. Tag `master`, and push the tag:
 
    ```sh
-   git switch main
-   git pull origin main
+   git switch master
+   git pull origin master
    git tag -a v<version> -m v<version>
    git push origin v<version>
    ```
@@ -294,7 +294,7 @@ git push -u origin release/<version>
 
 ### Patch an older release
 
-A patch fixes a release with a lower version than the release that `main` holds. For example, `1.1.1` fixes `1.1.0` while `main` holds `2.0.0`. In these steps, `<release>` is the version to fix, such as `1.1.0`, and `<patch>` is the version of the patch, such as `1.1.1`.
+A patch fixes a release with a lower version than the release that `master` holds. For example, `1.1.1` fixes `1.1.0` while `master` holds `2.0.0`. In these steps, `<release>` is the version to fix, such as `1.1.0`, and `<patch>` is the version of the patch, such as `1.1.1`.
 
 1. Make the release branch of the patch from the tag of the release to fix:
 
@@ -321,14 +321,14 @@ A patch fixes a release with a lower version than the release that `main` holds.
 5. Delete the release branch of the patch:
 
    ```sh
-   git switch main
+   git switch master
    git push origin --delete release/<patch>
    git branch -D release/<patch>
    ```
 
-   The branch never merges into `main`, so `git branch -d` refuses to delete it. `-D` deletes it, and the tag keeps its commits.
+   The branch never merges into `master`, so `git branch -d` refuses to delete it. `-D` deletes it, and the tag keeps its commits.
 
-6. If the release branch with the highest version needs the fix too, copy the fix into a new branch from it. `<newest>` is the highest version that step 2 of [Send a change](#send-a-change) lists, such as `2.1.0`. If no listed version is higher than the release that `main` holds, start the next release first, as [Start a release](#start-a-release) says. `<branch>` is the name of the new branch, named as step 3 of [Send a change](#send-a-change) says.
+6. If the release branch with the highest version needs the fix too, copy the fix into a new branch from it. `<newest>` is the highest version that step 2 of [Send a change](#send-a-change) lists, such as `2.1.0`. If no listed version is higher than the release that `master` holds, start the next release first, as [Start a release](#start-a-release) says. `<branch>` is the name of the new branch, named as step 3 of [Send a change](#send-a-change) says.
 
    ```sh
    git fetch --tags origin
