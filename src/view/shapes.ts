@@ -36,8 +36,8 @@ export const pathOf = (ms: Move[]): string =>
 export interface Rect { x: number; y: number; w: number; h: number }
 
 /** The box of a pill or a frame. Across, a pill lies centred on its line; down, it lies across its line, the mark of its state on the line. */
-export function rectOf(t: 'bar' | 'frame', v: number[], turned: boolean): Rect {
-  if (t === 'frame') return turned ? { x: v[2], y: v[0], w: Math.max(0, v[3] - v[2]), h: Math.max(0, v[1] - v[0]) } : { x: v[0], y: v[2], w: Math.max(0, v[1] - v[0]), h: Math.max(0, v[3] - v[2]) };
+export function rectOf(t: 'bar' | 'frame' | 'rule', v: number[], turned: boolean): Rect {
+  if (t === 'frame' || t === 'rule') return turned ? { x: v[2], y: v[0], w: Math.max(0, v[3] - v[2]), h: Math.max(0, v[1] - v[0]) } : { x: v[0], y: v[2], w: Math.max(0, v[1] - v[0]), h: Math.max(0, v[3] - v[2]) };
   return turned ? { x: v[2] - v[4], y: v[0], w: Math.max(0, v[3]), h: Math.max(0, v[1] - v[0]) } : { x: v[0], y: v[2] - v[3] / 2, w: Math.max(0, v[1] - v[0]), h: v[3] };
 }
 

@@ -81,6 +81,8 @@ test('a broken file shows its errors in place of the plan', async ({ page }) => 
     await expect(errorList(page)).toBeHidden();
     await expect(errorList(page).locator('.row')).toHaveCount(0);
     expect(await level(page)).toBe('Tracks');
-    expect(await step(page, 'kickoff').boundingBox()).toEqual(before);
+    // in the same place, to a twentieth of a pixel: the plan is held by its scale, kept to 3 decimals
+    const after = (await step(page, 'kickoff').boundingBox())!;
+    for (const k of ['x', 'y', 'width', 'height'] as const) expect(Math.abs(after[k] - before![k]), k).toBeLessThan(0.05);
   });
 });

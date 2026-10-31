@@ -203,14 +203,14 @@ test.describe('dev and preview', () => {
     expect(await roadmapper(['preview', '--hots'], here)).toEqual({ code: 1, out: '', err: 'preview  Unknown option  --hots\n' });
   });
 
-  test('dev serves the page at /, and each save at /events', async () => {
+  test('dev serves the page at /, each save at /events, and takes plans at /save', async () => {
     const { devServer } = await cliSource();
-    const dev = devServer(readFileSync(join(ROOT, 'dist/cli/app.html'), 'utf8'), () => ({ text: plan('First plan'), file: 'roadmap.json' }));
+    const dev = devServer(readFileSync(join(ROOT, 'dist/cli/app.html'), 'utf8'), () => ({ text: plan('First plan'), file: 'roadmap.json' }), join(folder(), 'roadmap.json'));
     const page = ask(dev.listener, '/');
     expect(page).toMatchObject({ status: 200, type: 'text/html; charset=utf-8' });
-    // the slot of the page holds the file, its name, and the address of the saves
+    // the slot of the page holds the file, its name, the address of the saves, and the address that 'Save' sends the plan to
     const slot = /<script type="application\/json" id="roadmap">([^<]*)<\/script>/.exec(page.body())?.[1];
-    expect(JSON.parse(slot ?? '')).toEqual({ text: plan('First plan'), file: 'roadmap.json', live: '/events' });
+    expect(JSON.parse(slot ?? '')).toEqual({ text: plan('First plan'), file: 'roadmap.json', live: '/events', save: '/save' });
     expect(ask(dev.listener, '/nope').status).toBe(404);
     const stream = ask(dev.listener, '/events');
     expect(stream).toMatchObject({ status: 200, type: 'text/event-stream' });

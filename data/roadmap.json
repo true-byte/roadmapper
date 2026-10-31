@@ -266,7 +266,7 @@
                           "links": [
                             {
                               "name": "The roadmap file format",
-                              "url": "https://github.com/true-byte/roadmapper/blob/main/.claude/skills/roadmapper/format.md",
+                              "url": "https://github.com/true-byte/roadmapper/blob/master/.claude/skills/roadmapper/format.md",
                               "icon": "file-text"
                             }
                           ]
@@ -333,7 +333,7 @@
                                   "links": [
                                     {
                                       "name": "Embed a roadmap",
-                                      "url": "https://github.com/true-byte/roadmapper/blob/main/docs/embed.md",
+                                      "url": "https://github.com/true-byte/roadmapper/blob/master/docs/embed.md",
                                       "icon": "file-text"
                                     }
                                   ]
@@ -388,7 +388,7 @@
                                   "links": [
                                     {
                                       "name": "The HTML export",
-                                      "url": "https://github.com/true-byte/roadmapper/blob/main/docs/export.md",
+                                      "url": "https://github.com/true-byte/roadmapper/blob/master/docs/export.md",
                                       "icon": "file-text"
                                     }
                                   ]
@@ -856,7 +856,7 @@
     {
       "name": "v1.0.0",
       "private": true,
-      "holds": "A switch between dark and light, links, export in the app, long text, a tools button, a remembered view, edit on page, an error fixer, themes, a timeline, and the npm package.",
+      "holds": "A switch between dark and light, links, export in the app, long text, a tools button, a remembered view, edit on page, and Roadmapper on npm.",
       "items": [
         {
           "id": "start-v1-0-0",
@@ -1260,6 +1260,7 @@
                   "id": "edit-on-page",
                   "name": "Edit on page design",
                   "icon": "pencil",
+                  "state": "done",
                   "why": "The roadmap is changed on the page, not in a file.",
                   "doneWhen": "A mock of how the roadmap is changed on the page, on Roadmapper's own roadmap, is reviewed and approved."
                 },
@@ -1273,6 +1274,7 @@
                           "id": "edit-on-page-build",
                           "name": "Edit on page code",
                           "icon": "pencil",
+                          "state": "done",
                           "why": "Edit on page works in the app as designed.",
                           "doneWhen": "On Roadmapper's own roadmap, roadmap.json holds each change made on the page."
                         }
@@ -1285,6 +1287,7 @@
                           "id": "edit-on-page-tests",
                           "name": "Edit on page tests",
                           "icon": "pencil",
+                          "state": "done",
                           "why": "Tests in a real browser for Edit on page, so a change cannot break it unseen.",
                           "doneWhen": "npm test checks Edit on page, as designed."
                         }
@@ -1297,86 +1300,131 @@
           ]
         },
         {
-          "name": "Error fixer",
+          "id": "publish-to-npm",
+          "name": "Publish to npm",
+          "icon": "package",
+          "state": "done",
+          "why": "Roadmapper is a public npm package, so a project adds it with npm install roadmapper.",
+          "doneWhen": "In a new project, npm install roadmapper installs Roadmapper v1.0.0 from the public npm registry, and npx roadmapper runs there."
+        },
+        {
+          "id": "release-v2",
+          "name": "Release v1.0.0",
+          "icon": "rocket",
+          "why": "v1.0.0 is out when each feature of v1.0.0 is designed, built and tested, and Roadmapper is on npm.",
+          "doneWhen": "master holds v1.0.0 with the tag v1.0.0, and the release of v1.0.0 is reviewed and approved."
+        }
+      ]
+    },
+    {
+      "name": "v1.1.0",
+      "items": [
+        {
+          "id": "review-v1-1-0-scope",
+          "name": "Review v1.1.0 scope",
+          "icon": "flag",
+          "state": "tbd",
+          "why": "The scope of v1.1.0 is reviewed once v1.0.0 is out.",
+          "waitsFor": [
+            "release-v2"
+          ]
+        },
+        {
+          "branching": true,
           "split": [
             {
+              "name": "Error fixer",
               "items": [
                 {
-                  "id": "error-fixer-design",
-                  "name": "Error fixer design",
-                  "icon": "wand",
-                  "state": "tbd",
-                  "why": "Each error the error list shows comes with a way to fix it on the page. The fix writes the file, so it comes after Edit on page."
-                },
-                {
-                  "name": "Error fixer build",
+                  "name": "Error fixer",
                   "split": [
                     {
-                      "name": "Code",
                       "items": [
                         {
-                          "id": "error-fixer-code",
-                          "name": "Error fixer code",
+                          "id": "error-fixer-design",
+                          "name": "Error fixer design",
                           "icon": "wand",
                           "state": "tbd",
-                          "why": "The error fixer works in the app as designed."
-                        }
-                      ]
-                    },
-                    {
-                      "name": "Tests",
-                      "items": [
+                          "why": "Each error the error list shows comes with a way to fix it on the page. The fix writes the file, so it comes after Edit on page."
+                        },
                         {
-                          "id": "error-fixer-tests",
-                          "name": "Error fixer tests",
-                          "icon": "wand",
-                          "state": "tbd",
-                          "why": "Tests in a real browser for the error fixer, so a change cannot break it unseen."
+                          "name": "Error fixer build",
+                          "split": [
+                            {
+                              "name": "Code",
+                              "items": [
+                                {
+                                  "id": "error-fixer-code",
+                                  "name": "Error fixer code",
+                                  "icon": "wand",
+                                  "state": "tbd",
+                                  "why": "The error fixer works in the app as designed."
+                                }
+                              ]
+                            },
+                            {
+                              "name": "Tests",
+                              "items": [
+                                {
+                                  "id": "error-fixer-tests",
+                                  "name": "Error fixer tests",
+                                  "icon": "wand",
+                                  "state": "tbd",
+                                  "why": "Tests in a real browser for the error fixer, so a change cannot break it unseen."
+                                }
+                              ]
+                            }
+                          ]
                         }
                       ]
                     }
                   ]
                 }
               ]
-            }
-          ]
-        },
-        {
-          "name": "Themes",
-          "split": [
+            },
             {
+              "name": "Themes",
               "items": [
                 {
-                  "id": "themes",
-                  "name": "Themes design",
-                  "icon": "palette",
-                  "why": "A button of its own opens a picker of themes, like the picker of branches: it has a search, and each row shows a small picture of its theme, light and dark among them. Each theme is a folder of its own in themes/, so no theme depends on another. We add a new theme easily; users do not make their own.",
-                  "doneWhen": "A mock of the picker of themes, on Roadmapper's own roadmap, is reviewed and approved."
-                },
-                {
-                  "name": "Themes build",
+                  "name": "Themes",
                   "split": [
                     {
-                      "name": "Code",
                       "items": [
                         {
-                          "id": "themes-build",
-                          "name": "Themes code",
+                          "id": "themes",
+                          "name": "Themes design",
                           "icon": "palette",
-                          "why": "The picker of themes picks the theme in the app, the lib and the export, as designed.",
-                          "doneWhen": "On Roadmapper's own roadmap, the page draws in the theme picked in the picker."
-                        }
-                      ]
-                    },
-                    {
-                      "name": "Tests",
-                      "items": [
+                          "state": "tbd",
+                          "why": "A button of its own opens a picker of themes, like the picker of branches: it has a search, and each row shows a small picture of its theme, light and dark among them. Each theme is a folder of its own in themes/, so no theme depends on another. We add a new theme easily; users do not make their own."
+                        },
                         {
-                          "id": "themes-tests",
-                          "name": "Themes tests",
-                          "icon": "palette",
-                          "why": "Tests in a real browser for Themes, so a change cannot break it unseen.",
-                          "doneWhen": "npm test checks the picker of themes, as designed."
+                          "name": "Themes build",
+                          "split": [
+                            {
+                              "name": "Code",
+                              "items": [
+                                {
+                                  "id": "themes-build",
+                                  "name": "Themes code",
+                                  "icon": "palette",
+                                  "state": "tbd",
+                                  "why": "The picker of themes picks the theme in the app, the lib and the export, as designed."
+                                }
+                              ]
+                            },
+                            {
+                              "name": "Tests",
+                              "items": [
+                                {
+                                  "id": "themes-tests",
+                                  "name": "Themes tests",
+                                  "icon": "palette",
+                                  "state": "tbd",
+                                  "why": "Tests in a real browser for Themes, so a change cannot break it unseen."
+                                }
+                              ]
+                            }
+                          ]
                         }
                       ]
                     }
@@ -1395,8 +1443,8 @@
                   "id": "timeline",
                   "name": "Timeline design",
                   "icon": "timeline",
-                  "why": "The timeline is a layout to turn on over a range: today, this week, this month or custom. It shows what is going on now, what is late (past its end) and what is missed (past its deadline). Late and missed show only with the timeline on. An export has the timeline only when an option includes it, as with private items. Strangers can then turn it on.",
-                  "doneWhen": "A mock of the timeline, on Roadmapper's own roadmap, is reviewed and approved."
+                  "state": "tbd",
+                  "why": "The timeline is a layout to turn on over a range: today, this week, this month or custom. It shows what is going on now, what is late (past its end) and what is missed (past its deadline). Late and missed show only with the timeline on. An export has the timeline only when an option includes it, as with private items. Strangers can then turn it on."
                 },
                 {
                   "name": "Timeline build",
@@ -1408,8 +1456,8 @@
                           "id": "timeline-build",
                           "name": "Timeline code",
                           "icon": "timeline",
-                          "why": "The timeline works in the app, the lib and the export, as designed.",
-                          "doneWhen": "On Roadmapper's own roadmap with the timeline turned on, the timeline is reviewed and approved."
+                          "state": "tbd",
+                          "why": "The timeline works in the app, the lib and the export, as designed."
                         }
                       ]
                     },
@@ -1420,8 +1468,8 @@
                           "id": "timeline-tests",
                           "name": "Timeline tests",
                           "icon": "timeline",
-                          "why": "Tests in a real browser for the timeline, so a change cannot break it unseen.",
-                          "doneWhen": "npm test checks the timeline, as designed."
+                          "state": "tbd",
+                          "why": "Tests in a real browser for the timeline, so a change cannot break it unseen."
                         }
                       ]
                     }
@@ -1432,58 +1480,63 @@
           ]
         },
         {
-          "name": "npm package",
-          "split": [
-            {
-              "items": [
-                {
-                  "id": "npm-package-design",
-                  "name": "npm package design",
-                  "icon": "package",
-                  "why": "Another project adds Roadmapper to its package.json with npm install, and runs it with npx roadmapper, in place of npm --prefix ../roadmapper run.",
-                  "doneWhen": "The design of the package is reviewed and approved. In that design, npx roadmapper runs dev, build, validate, export and preview. A project installs the package from the packed file, and the package holds the skill."
-                },
-                {
-                  "name": "npm package build",
-                  "split": [
-                    {
-                      "name": "Code",
-                      "items": [
-                        {
-                          "id": "npm-package-code",
-                          "name": "npm package code",
-                          "icon": "package",
-                          "why": "Another project installs Roadmapper from its packed file and runs each command with npx roadmapper, as designed.",
-                          "doneWhen": "In a new folder, the file that npm run package writes is installed. There, npx roadmapper dev prints an address, and the page at that address redraws on each save of roadmap.json."
-                        }
-                      ]
-                    },
-                    {
-                      "name": "Tests",
-                      "items": [
-                        {
-                          "id": "npm-package-tests",
-                          "name": "npm package tests",
-                          "icon": "package",
-                          "why": "Tests that a project installs the package and runs each command, so a change cannot break it unseen.",
-                          "doneWhen": "npm test packs Roadmapper, installs it into a new project outside this folder, and checks validate, build, export and their errors there."
-                        }
-                      ]
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "id": "release-v2",
-          "name": "Release v1.0.0",
+          "id": "v1-1-0-release",
+          "name": "Release v1.1.0",
           "icon": "rocket",
           "state": "tbd",
-          "why": "v1.0.0 is out when editing on the page and themes are designed, built and tested."
+          "why": "v1.1.0 is out when the error fixer, themes and the timeline are designed, built and tested."
         }
-      ]
+      ],
+      "holds": "An error fixer, themes, and a timeline."
+    },
+    {
+      "name": "Quality improvements",
+      "items": [
+        {
+          "branching": true,
+          "split": [
+            {
+              "name": "Test coverage",
+              "items": [
+                {
+                  "id": "unit-tests",
+                  "name": "Unit test coverage",
+                  "icon": "percentage",
+                  "why": "A coverage report shows which lines of src/ the unit tests run, so code with no unit test stands out.",
+                  "doneWhen": "A coverage report shows, for each file in src/, the share of its lines that the unit tests run."
+                },
+                {
+                  "id": "playwright-tests",
+                  "name": "Playwright test coverage",
+                  "icon": "percentage",
+                  "why": "A coverage report shows which lines of src/ the Playwright tests run in the browser, so code with no test stands out.",
+                  "doneWhen": "A coverage report shows, for each file in src/, the share of its lines that the Playwright tests run."
+                }
+              ]
+            },
+            {
+              "name": "Code quality",
+              "items": [
+                {
+                  "id": "sonarqube",
+                  "name": "SonarQube",
+                  "icon": "zoom-code",
+                  "why": "SonarQube reads the code of src/ and lists the issues it finds, such as bugs and repeated code.",
+                  "doneWhen": "A SonarQube report of the code of src/ lists its issues."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "github-actions",
+          "name": "GitHub Actions",
+          "icon": "git-pull-request",
+          "state": "tbd",
+          "why": "On each push and pull request, GitHub Actions runs the coverage reports and SonarQube, as it runs npm test."
+        }
+      ],
+      "holds": "Test coverage and code quality."
     }
   ]
 }

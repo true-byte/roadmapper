@@ -10,8 +10,8 @@ Claude Code loads the skill for each request that makes, changes or reviews a ro
 
 The skill has two files:
 
-- [SKILL.md](https://github.com/true-byte/roadmapper/blob/main/.claude/skills/roadmapper/SKILL.md) says when to put a step after another step, and when to use a group or a branching. It says which steps get a `why` and a `doneWhen`, and which steps get the state `"tbd"`. It also gives the checks that Claude runs before it answers you.
-- [format.md](https://github.com/true-byte/roadmapper/blob/main/.claude/skills/roadmapper/format.md) is the roadmap file format: every key, value, state and error.
+- [SKILL.md](https://github.com/true-byte/roadmapper/blob/master/.claude/skills/roadmapper/SKILL.md) says when to put a step after another step, and when to use a group or a branching. It says which steps get a `why` and a `doneWhen`, and which steps get the state `"tbd"`. It also gives the checks that Claude runs before it answers you.
+- [format.md](https://github.com/true-byte/roadmapper/blob/master/.claude/skills/roadmapper/format.md) is the roadmap file format: every key, value, state and error.
 
 ## Install it in your project
 

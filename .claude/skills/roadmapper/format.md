@@ -74,7 +74,7 @@ The tables below name two parts of the page. The tip is the short box that shows
 | Key | Value | What it means |
 |---|---|---|
 | `title` | A text that is not empty. Needed. | The name of the roadmap. The page shows it at the top. |
-| `branches` | A list of one or more branches. Needed. | The top-level branches. The page draws them one under the other, in the order of the list. No line joins one top-level branch to another. |
+| `branches` | A list of one or more branches. Needed. | The top-level branches. The page draws them one under the other, in the order of the list, with a faint line across the page between two of them. No line joins one top-level branch to another. |
 | `about` | A text. | One line on what the plan is. The HTML export makes it the description of its page. Search results and link previews can show that description. |
 | `icons` | An object. | The drawings of the icons that the steps name. Only the HTML export writes this key. |
 
@@ -142,7 +142,7 @@ A split is either a group or a branching.
 | How the file says it | A split with no `"branching": true`, and no branch with `"ends": true`. | A split with `"branching": true`, or with a branch that has `"ends": true`. |
 | How the page draws it | It changes with the level. At the level 'Main steps', it shows as one step. At the level 'Tracks', it opens into a frame. | Its branches are open at every level, each with its `name` as a caption. |
 
-[view.md, section "Levels"](https://github.com/true-byte/roadmapper/blob/main/docs/view.md#levels) says what each level shows. In a project that has Roadmapper installed, that doc is `node_modules/roadmapper/docs/view.md`.
+[view.md, section "Levels"](https://github.com/true-byte/roadmapper/blob/master/docs/view.md#levels) says what each level shows. In a project that has Roadmapper installed, that doc is `node_modules/roadmapper/docs/view.md`.
 
 ## States
 

@@ -50,8 +50,9 @@ export function hoverPart(ctx: ViewContext) {
     }
     // a closed track is small, so its tip stands over it, as over a step
     const track = t && isBranch(t) ? t : null, pill = track && ctx.shut(track);
-    // what is picked has the side bar and needs no tip; the tip of an open branch waits for the pointer to say where it goes
-    const show = !!t && t !== ctx.picked && (!isBranch(t) || !!e || !!pill);
+    // what is picked has the side bar and needs no tip; the tip of an open branch waits for the pointer to say where it goes,
+    // and in edit mode shows not at all: its line holds the add mark, and a drop on it ends with the pointer on it
+    const show = !!t && t !== ctx.picked && (!isBranch(t) || (!!e && !host.classList.contains('editing')) || !!pill);
     if (t && show && (fresh || tip.hidden)) {
       const line = isStep(t) ? text(t.node.why) : isBranch(t) ? t.holds : opens(t);
       tip.replaceChildren(ctx.heading(t, 'strong', 20), facts(t), ...(line ? [html('p', '', line)] : []));

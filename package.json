@@ -1,9 +1,20 @@
 {
   "name": "roadmapper",
-  "private": true,
-  "version": "1.0.0-beta",
+  "version": "1.0.0",
   "description": "Roadmapper draws a roadmap, kept in one JSON file, as a tree: zoomed out, anyone can read it, and zooming in shows more detail.",
   "license": "MIT",
+  "keywords": [
+    "roadmap",
+    "tree",
+    "plan",
+    "svg"
+  ],
+  "homepage": "https://github.com/true-byte/roadmapper#readme",
+  "bugs": "https://github.com/true-byte/roadmapper/issues",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/true-byte/roadmapper.git"
+  },
   "type": "module",
   "engines": {
     "node": ">=22.12.0"

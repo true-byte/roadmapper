@@ -8,6 +8,8 @@ export interface IconSet {
   art(name: string): string | undefined;
   /** The license of the drawings. It ships with them, in the built page. */
   license: string;
+  /** The names of all its icons, for the grid of icons of 'Edit on page'. A set that holds only the icons a page draws may give none. */
+  names?(): string[];
 }
 
 /** The icons the view draws itself, from the set the theme names: the arrows of the side bar and of the edge of the page. */
@@ -24,6 +26,10 @@ export const LINKS = { link: 'link', open: 'external-link', fold: 'chevron-down'
 export const EXPORT = { save: 'download', saved: 'check' };
 /** The glyphs of the grip that hides the zoom control and brings it back. */
 export const GRIP = { hide: 'chevron-down', show: 'chevron-up' };
+/** The glyphs of 'Edit on page': the buttons 'Edit', 'Cancel' and 'Save' on the zoom control, the trash under a step, the '+' of the marks and of a new row,
+ * the remove of a row, the '+' of a new link, the lock of 'Private' on and off, the face of a step with no icon, and the search of the grid of icons and of 'Waits for'.
+ * Only a page that saves its file shows them: never an export. */
+export const EDIT = { edit: 'pencil', cancel: 'x', save: 'check', trash: 'trash', add: 'plus', remove: 'x', link: 'link-plus', locked: 'lock', open: 'lock-open', face: 'photo', search: 'search' };
 
 /** What the view reads of a set in the Iconify format. Written out here, so the types of the lib need no package of a set. */
 interface Iconify {
@@ -39,7 +45,7 @@ export function iconify(data: Iconify, license: string): IconSet {
     const alias = data.aliases && Object.hasOwn(data.aliases, name) ? data.aliases[name] : undefined;
     return alias && Object.keys(alias).length === 1 && Object.hasOwn(data.icons, alias.parent) ? data.icons[alias.parent].body : undefined;
   };
-  return { size: data.height ?? 24, art, license };
+  return { size: data.height ?? 24, art, license, names: () => Object.keys(data.icons) };
 }
 
 const SETS: Record<string, IconSet> = {};

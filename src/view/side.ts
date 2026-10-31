@@ -122,6 +122,8 @@ export function sidePart(ctx: ViewContext) {
   /** What is in a branch, in the order of the plan: its own steps, each group that is one step far out, and the branches of a branching or of a group inside a group. */
   const inIt = (b: TBranch): Thing[] => b.items.flatMap((it): Thing[] => (isKids(it) && !ctx.byPod.has(it.key) ? it.kids : [it]));
   function sideOf(t: Thing): Node[] {
+    // in edit mode the side bar is fields (edit-side.ts)
+    if (ctx.editing()) return ctx.editSide(t);
     const close = html('button', 'close', '×');
     close.title = 'Close (Esc)'; close.setAttribute('aria-label', 'Close');
     close.addEventListener('click', () => pick(null));
@@ -259,9 +261,10 @@ export function sidePart(ctx: ViewContext) {
         else pick(t);
         return;
       }
-      // what was tapped, by what it is called, so a redraw in the wait does not lose it
-      const ref = t && refOf(t);
+      // what was tapped, by what it is called, so a redraw in the wait does not lose it; in edit mode, a tap near a line or in a bend only shows the marks there
+      const ref = t && refOf(t), marks = ctx.marksTake(e.clientX, e.clientY, t);
       const act = (): void => {
+        if (marks) return;
         const now = ref ? thingOf(ref) ?? null : null;
         if (ctx.only && !now) ctx.endOnly();
         else pick(now);
@@ -300,7 +303,14 @@ export function sidePart(ctx: ViewContext) {
     }
   }
 
-  return { thingOf, uncover, pick, dropTap };
+  /** Fills the side bar again for what is picked, as edit mode starts. */
+  function refreshSide(): void {
+    if (!ctx.picked || side.hidden) return;
+    cuts.disconnect();
+    side.replaceChildren(...sideOf(ctx.picked));
+  }
+
+  return { thingOf, uncover, pick, dropTap, refreshSide };
 }
 
 export type SidePart = ReturnType<typeof sidePart>;

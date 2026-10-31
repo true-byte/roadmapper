@@ -4,9 +4,9 @@ name: Test
 
 on:
   pull_request:
-    branches: [main, 'release/**']
+    branches: [master, 'release/**']
   push:
-    branches: [main, 'release/**']
+    branches: [master, 'release/**']
 
 permissions:
   contents: read

@@ -19,7 +19,7 @@ Run these commands in the folder of a project that has Roadmapper installed. [in
 
 | Command | What it does |
 |---|---|
-| `npx roadmapper dev [file] [--host]` | Serves the app at port 5173. The app shows the roadmap file, and redraws it each time you save the file. When the file has errors, the command keeps serving, and the page shows the error list. When the command cannot read the file at its start, it prints `Unreadable file` and stops. |
+| `npx roadmapper dev [file] [--host]` | Serves the app at port 5173. The app shows the roadmap file, and redraws it each time you save the file. The page has 'Edit', and its 'Save' writes the roadmap file, as [view.md, section "Edit on the page"](view.md#edit-on-the-page) says. When the file has errors, the command keeps serving, and the page shows the error list. When the command cannot read the file at its start, it prints `Unreadable file` and stops. |
 | `npx roadmapper build [file] [folder]` | Writes one HTML file: the app page with the roadmap inside it. |
 | `npx roadmapper validate [file]` | Checks the roadmap file and prints each error. |
 | `npx roadmapper export [--private] [file] [folder]` | Writes the HTML export of the roadmap file. With `--private`, the export keeps the private items. |
@@ -38,7 +38,7 @@ Run these scripts in a clone of Roadmapper. To use Roadmapper in another folder,
 | Command | What it does |
 |---|---|
 | `npm install` | Installs the packages that Roadmapper needs. Run it once, before any other command. |
-| `npm run dev -- [file] [--host]` | Serves the app from the source of Roadmapper, through Vite, at port 5173. The app shows the roadmap file, and redraws it each time you save the file. |
+| `npm run dev -- [file] [--host]` | Serves the app from the source of Roadmapper, through Vite, at port 5173. The app shows the roadmap file, and redraws it each time you save the file. The page has 'Edit', and its 'Save' writes the roadmap file. |
 | `npm run build -- [file] [folder]` | Checks the types and builds `dist/cli/app.html`, the app page with no roadmap in it. Then it does what `npx roadmapper build` does. |
 | `npm run preview -- [--host]` | Serves the HTML file in `dist/app/` through Vite, at port 4173, the way a site serves it. It serves no other folder. |
 | `npm run validate -- [file]` | Does what `npx roadmapper validate` does. |
@@ -54,7 +54,7 @@ Run these scripts in a clone of Roadmapper. To use Roadmapper in another folder,
 ### The roadmap files of the clone
 
 - `data/roadmap.json` is the roadmap file of Roadmapper itself. A script that takes `[file]` reads it when you name no file.
-- `data/sample.roadmap.json` is the sample roadmap file, 'Plant care app'. [format.md, section "Example"](https://github.com/true-byte/roadmapper/blob/main/.claude/skills/roadmapper/format.md#example) says what the sample holds.
+- `data/sample.roadmap.json` is the sample roadmap file, 'Plant care app'. [format.md, section "Example"](https://github.com/true-byte/roadmapper/blob/master/.claude/skills/roadmapper/format.md#example) says what the sample holds.
 
 A script that takes `[file]` reads the roadmap file that you name, in `data/` or in any other folder. So one clone can hold many roadmap files and draw any one of them. This command draws the sample roadmap file:
 
@@ -68,8 +68,9 @@ npm run dev -- data/sample.roadmap.json
 |---|---|---|
 | `build` | `index.html`: the app page with the roadmap inside it. [export.md](export.md) says what it is for. | `dist/app/` |
 | `export` | `roadmap.html`, `roadmap.json` and `roadmapper.js`: the HTML export. [export.md](export.md) says what each file is. | `dist/export/`, or `dist/export-private/` with `--private` |
-| `npm run package` | `roadmapper-<version>.tgz`: the package that another project installs. | `dist/` in the clone |
-| `validate`, `dev`, `export:preview`, `npm run preview` | Nothing. | No folder |
+| `npm run package` | `roadmapper-<version>.tgz`: a package file that another project can install, to try a change of the clone. | `dist/` in the clone |
+| `dev` | The roadmap file it serves, each time you click 'Save' on its page. | No folder |
+| `validate`, `export:preview`, `npm run preview` | Nothing. | No folder |
 
 - With no `[folder]`, `npx roadmapper` writes into `dist/` in the folder where you run it. With no `[folder]`, `npm run` writes into `dist/` in the clone.
 - `export:preview` serves the folder that `export` writes into with no `[folder]`. `npm run preview` serves the folder that `npm run build` writes into with no `[folder]`.
@@ -79,7 +80,7 @@ npm run dev -- data/sample.roadmap.json
 
 ## The `validate` command
 
-`validate` checks a roadmap file. [format.md, section "Errors"](https://github.com/true-byte/roadmapper/blob/main/.claude/skills/roadmapper/format.md#errors) says what it prints and what each error means. When the file has errors, the command ends with exit code 1. When the file has no error, it ends with exit code 0.
+`validate` checks a roadmap file. [format.md, section "Errors"](https://github.com/true-byte/roadmapper/blob/master/.claude/skills/roadmapper/format.md#errors) says what it prints and what each error means. When the file has errors, the command ends with exit code 1. When the file has no error, it ends with exit code 0.
 
 ## Errors
 
@@ -89,8 +90,8 @@ When a command cannot do its work, it writes nothing and ends with exit code 1. 
 <where>  <error>  <value>
 ```
 
-- An error in the roadmap file prints the same way as in `validate`, and its `<where>` is `<file>:<line>  <path>  <key>`. [format.md, section "Errors"](https://github.com/true-byte/roadmapper/blob/main/.claude/skills/roadmapper/format.md#errors) says what each field and each error means.
-- The table below lists every other error. A long `<value>` is cut as [format.md, section "Errors"](https://github.com/true-byte/roadmapper/blob/main/.claude/skills/roadmapper/format.md#errors) says.
+- An error in the roadmap file prints the same way as in `validate`, and its `<where>` is `<file>:<line>  <path>  <key>`. [format.md, section "Errors"](https://github.com/true-byte/roadmapper/blob/master/.claude/skills/roadmapper/format.md#errors) says what each field and each error means.
+- The table below lists every other error. A long `<value>` is cut as [format.md, section "Errors"](https://github.com/true-byte/roadmapper/blob/master/.claude/skills/roadmapper/format.md#errors) says.
 
 | `<error>` | Printed by | `<where>` | `<value>` | What it means |
 |---|---|---|---|---|
