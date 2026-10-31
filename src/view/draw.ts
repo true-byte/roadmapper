@@ -139,6 +139,8 @@ export function drawPart(ctx: ViewContext) {
       } else if (p.t === 'cap') ctx.pieceEls.set(k, el(gText, 'text', { class: 'cap', 'data-bar': b.key }, b.cap));
       else if (p.t === 'txt') ctx.pieceEls.set(k, el(gText, 'text', { class: 'count', 'data-bar': b.key }, count(b)));
       else if (p.t === 'frame') ctx.pieceEls.set(k, el(gFrames, 'rect', { class: 'group' }));
+      // the line between a top-level branch and the one before it
+      else if (p.t === 'rule') ctx.pieceEls.set(k, el(gFrames, 'rect', { class: 'divide' }));
       // the name of an open group answers the pointer for the group, where the group is one that can be picked
       else if (p.t === 'gname') ctx.pieceEls.set(k, el(gText, 'text', { class: 'gname', ...(ctx.byPod.has(p.sp!.key) ? { 'data-pod': p.sp!.key } : {}) }, p.sp!.gname));
       else {
@@ -212,6 +214,8 @@ export function drawPart(ctx: ViewContext) {
       ctx.partsOf.set(n, [e.g, ...e.lines, ...e.vlines]);
     }
     for (const [k, p] of ctx.views[0][ctx.K].pieces) {
+      // the line before a top-level branch is a part of no branch
+      if (p.t === 'rule') continue;
       // the frame of a group and its name are kept with its first track, and are not a part of that track
       for (let b: TBranch | undefined = p.sp ? p.of.parent : p.of; b; b = b.parent) ctx.partsOf.set(b, [...(ctx.partsOf.get(b) ?? []), ctx.pieceEls.get(k)!]);
     }

@@ -50,7 +50,7 @@ test('the page that build writes draws the plan from disk', async ({ page }) => 
 test('dev redraws each save, and lists the errors of a broken one', async ({ page }) => {
   const { devServer } = await cliSource();
   let now = { text: plan('First plan'), file: 'roadmap.json' };
-  const dev = devServer(readFileSync(join(ROOT, 'dist/cli/app.html'), 'utf8'), () => now);
+  const dev = devServer(readFileSync(join(ROOT, 'dist/cli/app.html'), 'utf8'), () => now, join(folder(), 'roadmap.json'));
   // a page that listens, as the browser's does: each time the page asks again, it gets the saves since it last asked, as a stream that stays open sends them
   const stream = ask(dev.listener, '/events');
   let sent = 0;

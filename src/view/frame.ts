@@ -101,7 +101,7 @@ export function framePart(ctx: ViewContext) {
         digits.style.display = words < 0.01 ? 'none' : '';
         if (words < 1) digits.setAttribute('opacity', r2(words));
         else digits.removeAttribute('opacity');
-      } else if (p.t === 'frame' || p.t === 'bar') {
+      } else if (p.t === 'frame' || p.t === 'bar' || p.t === 'rule') {
         let r = rectOf(p.t, v, A.turned);
         if (ends) {
           const a = rectOf(p.t, p.v, A.turned), b = rectOf(p.t, q.v, Z.turned);
@@ -110,7 +110,7 @@ export function framePart(ctx: ViewContext) {
         e.setAttribute('x', r2(r.x)); e.setAttribute('y', r2(r.y));
         e.setAttribute('width', r2(r.w)); e.setAttribute('height', r2(r.h));
         // across, a pill is round at its ends; down, it lies across its line, round at its ends too
-        e.setAttribute('rx', r2(p.t === 'frame' ? Math.min(FR.RX, r.w / 2, r.h / 2) : ends || A.turned ? Math.min(r.w, r.h) / 2 : v[3] / 2));
+        e.setAttribute('rx', r2(p.t === 'rule' ? 0 : p.t === 'frame' ? Math.min(FR.RX, r.w / 2, r.h / 2) : ends || A.turned ? Math.min(r.w, r.h) / 2 : v[3] / 2));
         const halo = ctx.haloEls.get(k);
         if (halo) {
           for (const a of ['x', 'y', 'width', 'height', 'rx']) halo.setAttribute(a, e.getAttribute(a)!);

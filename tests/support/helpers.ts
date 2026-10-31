@@ -74,12 +74,15 @@ export interface Open {
 }
 
 /** Opens the plan page on a plan, an object or the text of a file. `store` is the name it keeps its level, view and place under; null keeps nothing.
- * With `exporting`, its popup has 'Export', as the app's has, with a stand-in for the zip (tests/pages/plan/page.ts). */
-export async function openPlan(page: Page, plan: Roadmap | string, o: Open & { store?: string | null; exporting?: boolean } = {}): Promise<void> {
+ * With `exporting`, its popup has 'Export', as the app's has, with a stand-in for the zip (tests/pages/plan/page.ts).
+ * With `saving`, its zoom control has 'Edit', as the app's on a dev server has, with a stand-in for the server that keeps each plan in window.saves; 'fail' refuses each,
+ * and 'hold' keeps each on its way until window.release(). */
+export async function openPlan(page: Page, plan: Roadmap | string, o: Open & { store?: string | null; exporting?: boolean; saving?: true | 'fail' | 'hold' } = {}): Promise<void> {
   const store = o.store === undefined ? STORE : o.store;
   const q = new URLSearchParams({ plan: typeof plan === 'string' ? plan : JSON.stringify(plan) });
   if (store) q.set('store', store);
   if (o.exporting) q.set('export', '');
+  if (o.saving) q.set('save', o.saving === true ? '' : o.saving);
   await open(page, `${PAGE}?${q}`, store, o);
 }
 
@@ -303,4 +306,24 @@ export async function everywhere(page: Page, check: (where: string) => Promise<v
       await check(`${view}, '${name}'`);
     }
   }
+}
+
+/** A button of 'Edit on page' on the zoom control: 'Edit', or in edit mode 'Cancel' and 'Save'. */
+export const editButton = (page: Page, name: 'Edit' | 'Cancel' | 'Save'): Locator => page.locator('.zoom').getByRole('button', { name, exact: true });
+/** Clicks 'Edit', and waits for edit mode. */
+export async function startEdit(page: Page): Promise<void> {
+  await editButton(page, 'Edit').click();
+  await expect(page.locator('.roadmap')).toHaveClass(/\bediting\b/);
+}
+/** Clicks 'Save', waits for the page to leave edit mode, and gives the plan it sent. */
+export async function saveEdit(page: Page): Promise<Roadmap> {
+  await editButton(page, 'Save').click();
+  await expect(page.locator('.roadmap')).not.toHaveClass(/\bediting\b/);
+  await settle(page);
+  return page.evaluate(() => window.saves[window.saves.length - 1]);
+}
+/** The middle of what a locator finds, on the screen. */
+export async function middle(at: Locator): Promise<[number, number]> {
+  const r = (await at.boundingBox())!;
+  return [r.x + r.width / 2, r.y + r.height / 2];
 }

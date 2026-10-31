@@ -1,4 +1,5 @@
-// One roadmap view: the title, the key, the plan at each zoom level, the zoom control, the tip, the side bar and the error list, and in the app the button 'Export'.
+// One roadmap view: the title, the key, the plan at each zoom level, the zoom control, the tip, the side bar and the error list, and in the app the button 'Export',
+// and 'Edit' where the page saves its file.
 // It gets the roadmap as text and does not know where the text comes from. All its state lives in the context that mountRoadmap() makes, so each view stands alone.
 // A step, a group or a branch answers the pointer: a short tip on a hover, and the side bar with its data on a click. A click never zooms.
 // Its look is view.css, which takes every color and font from the variables of the theme (src/themes/). The theme also names the icon set.
@@ -12,6 +13,9 @@ import { branchesPart } from './branches.js';
 import { initialState, type ViewContext } from './context.js';
 import { makeDom } from './dom.js';
 import { drawPart } from './draw.js';
+import { editMarksPart } from './edit-marks.js';
+import { editSidePart } from './edit-side.js';
+import { editPart } from './edit.js';
 import { errorListPart } from './error-list.js';
 import { exportPart } from './export.js';
 import { factsPart } from './facts.js';
@@ -56,11 +60,14 @@ export interface ViewOptions {
    * It throws a RoadmapError for a roadmap it cannot export. With it, the popup ends with the part 'Export': the switch 'Include private items' and the button 'Export',
    * which saves that file. With none, the popup has no part 'Export': only the app gives it (src/app/main.ts). */
   exportFile?: (text: string, keep: { private: boolean }) => Promise<File>;
+  /** Writes a roadmap that the user changed on the page into the file the page shows: it resolves once the file is written, and rejects when it is not.
+   * With it, the zoom control ends with 'Edit' (edit.ts). With none, the page has no 'Edit': only the app's page on a dev server gives it (src/app/main.ts). */
+  save?: (roadmap: Roadmap) => Promise<unknown>;
 }
 
 /** The parts of a view, in the order they are made. Each puts its listeners on the page as it is made: the input before touch, as each listens to a press on the view first. */
 const PARTS = [drawPart, framePart, placePart, tidyPart, openingPart, toolbarPart, branchesPart, movesPart, storePart, scalePart, scrollPart, inputPart, touchPart,
-  hoverPart, factsPart, sidePart, aimPart, blockersPart, resizePart, paintPart, errorListPart, fontsPart, exportPart];
+  hoverPart, factsPart, sidePart, aimPart, blockersPart, resizePart, paintPart, errorListPart, fontsPart, exportPart, editPart, editSidePart, editMarksPart];
 
 /** Puts one roadmap view into `host`. */
 export function mountRoadmap(host: HTMLElement, options: ViewOptions = {}): RoadmapView {
@@ -101,9 +108,10 @@ export function mountRoadmap(host: HTMLElement, options: ViewOptions = {}): Road
     cancelAnimationFrame(ctx.sraf);
     cancelAnimationFrame(ctx.praf);
     host.replaceChildren();
-    host.classList.remove('roadmap', 'box', 'only', 'broken');
+    host.classList.remove('roadmap', 'box', 'only', 'broken', 'editing', 'lifting', 'forking');
     host.removeAttribute('data-moving');
   }
 
-  return { show: ctx.show, fail: ctx.fail, destroy };
+  // a text that comes while the user edits the plan waits: see edit.ts
+  return { show: ctx.showFile, fail: ctx.fail, destroy };
 }

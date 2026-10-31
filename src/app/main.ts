@@ -3,9 +3,11 @@
 import '../view/view.css';
 import '../themes/theme.css';
 // the text of the file, its name and its key: a typo in the file then lands in the view's error list, not in the dev server's error screen
-import raw, { file, key, live } from 'virtual:roadmap';
+import raw, { file, key, live, save } from 'virtual:roadmap';
 import { useIconSet } from '../icons/icons.js';
 import { tabler } from '../icons/tabler.js';
+import { RoadmapError, sayError, type FileError } from '../roadmap/errors.js';
+import type { Roadmap } from '../roadmap/types.js';
 import { mountRoadmap } from '../view/view.js';
 
 useIconSet('tabler', tabler);
@@ -23,30 +25,54 @@ try {
 } catch {
   // no storage: nothing is kept
 }
+
+/** Where 'Save' sends the plan: the dev server that served this page. A page with no server to write the file, such as a built file opened from disk, has none. */
+const saveTo = save;
+/** The text of the file as this page last got it. */
+let last = raw;
+
 const view = mountRoadmap(document.querySelector<HTMLDivElement>('#app')!, {
   store,
   // 'Export' in the popup saves roadmap.zip, with the files of `npx roadmapper export` in it; the code that makes it loads at the first press
   exportFile: async (text, keep) => (await import('./export.js')).exportZip(text, keep),
+  // 'Edit' shows only on a page that a dev server serves: 'Save' sends the plan to it, and it writes the file (src/cli/save.ts)
+  save: saveTo ? plan => send(saveTo, plan) : undefined,
   onDraw: roadmap => {
     document.title = `${roadmap.title} · roadmap`;
   },
 });
 view.show(raw, file);
 
-// `roadmapper dev` sends the file each time it is saved (src/cli/cli.ts); redraw in place, no reload
+/** A save of the file, from the dev server: drawn in place, with no reload. In edit mode, the view keeps it for 'Cancel', and 'Save' overwrites the file. */
+function got(text: string, name: string): void {
+  if (text === last) return;
+  last = text;
+  view.show(text, name);
+}
+
+/** Sends the plan to the dev server, which writes the file. When the server refuses it, this rejects with the first error of the file check, by its name. */
+async function send(to: string, plan: Roadmap): Promise<void> {
+  const res = await fetch(to, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(plan) });
+  if (!res.ok) {
+    const { errors = [] } = (await res.json().catch(() => ({}))) as { errors?: FileError[] };
+    const lines = errors.map(e => sayError(e).trim()).join('\n');
+    throw errors.length ? new RoadmapError(errors[0].error, lines) : new Error(`${to}: ${res.status}`);
+  }
+  // the file holds the plan as this text now, as src/cli/save.ts writes it: the server's save of it, on its way, draws nothing again
+  last = `${JSON.stringify(plan, null, 2)}\n`;
+}
+
+// `roadmapper dev` sends the file each time it is saved (src/cli/cli.ts)
 if (live) {
-  let last = raw;
   new EventSource(live).onmessage = e => {
     const sent = JSON.parse(e.data as string) as { text: string; file: string };
-    if (sent.text === last) return;
-    last = sent.text;
-    view.show(sent.text, sent.file);
+    got(sent.text, sent.file);
   };
 }
 
-// `npm run dev` sends the new file when it is saved; redraw in place, no reload
+// `npm run dev` sends the new file when it is saved
 if (import.meta.hot) {
   import.meta.hot.accept('virtual:roadmap', mod => {
-    if (mod) view.show(mod.default as string, mod.file as string);
+    if (mod) got(mod.default as string, mod.file as string);
   });
 }

@@ -10,6 +10,7 @@ import { checkRoadmap } from '../roadmap/check.js';
 import { RoadmapError, sayError, sayFailure, type ErrorName, type FileError } from '../roadmap/errors.js';
 import { exportFiles, FILES } from './export.js';
 import { fileKey } from './key.js';
+import { SAVE, saveRequest } from './save.js';
 
 /** What a command uses, as the one who runs it gives it. */
 export interface Setup {
@@ -129,7 +130,7 @@ export async function run(command: string | undefined, words: string[], s: Setup
       // a file with errors still serves: the page shows its error list, as it does for each broken save
       let text = first;
       const name = basename(file), key = fileKey(file);
-      const live = devServer(page, () => ({ text, file: name, key }));
+      const live = devServer(page, () => ({ text, file: name, key }), file);
       // a save that replaces the file, as many editors do, is seen in its folder, not on the file
       let wait: ReturnType<typeof setTimeout> | undefined;
       watch(dirname(file), (_, changed) => {
@@ -215,8 +216,9 @@ function refusal(folder: string, files: string[]): { error: ErrorName; value: st
 /** The slot of the app page that holds the roadmap: src/app/index.html has it empty, and src/app/slot.ts reads it. */
 const SLOT = '<script type="application/json" id="roadmap"></script>';
 
-/** The app page with a roadmap in its slot: the text of the file, the name of the file, the key of the file (key.ts), and for `dev` the address that sends each save. */
-function fillPage(page: string, roadmap: { text: string; file: string; key?: string; live?: string }): string {
+/** The app page with a roadmap in its slot: the text of the file, the name of the file, the key of the file (key.ts), and for `dev` the address that sends each save
+ * of the file and the address that 'Save' of 'Edit on page' sends the plan to. */
+function fillPage(page: string, roadmap: { text: string; file: string; key?: string; live?: string; save?: string }): string {
   // the page's own script comes before the slot, in its head
   const at = page.lastIndexOf(SLOT);
   if (at < 0) throw new Error(`the app page has no ${SLOT}`);
@@ -228,12 +230,15 @@ function fillPage(page: string, roadmap: { text: string; file: string; key?: str
 /** The address of the dev server that sends the roadmap file each time it is saved, as server-sent events. */
 const EVENTS = '/events';
 
-/** What `dev` serves: the app page at /, with the roadmap file as it is now, and at /events each save of the file, as the page's src/app/main.ts reads it. */
-export function devServer(page: string, now: () => { text: string; file: string; key?: string }): { listener: RequestListener; send: (roadmap: { text: string; file: string }) => void } {
+/** What `dev` serves: the app page at /, with the roadmap file as it is now, at /events each save of the file, as the page's src/app/main.ts reads it,
+ * and at /save the plan that 'Save' of 'Edit on page' sends, which it writes into `file` (src/cli/save.ts). */
+export function devServer(page: string, now: () => { text: string; file: string; key?: string }, file: string): { listener: RequestListener; send: (roadmap: { text: string; file: string }) => void } {
   const pages = new Set<ServerResponse>();
+  const save = saveRequest(file);
   const listener: RequestListener = (req, res) => {
     const path = (req.url ?? '/').split('?')[0];
-    if (path === '/') return answer(res, 200, 'text/html; charset=utf-8', fillPage(page, { ...now(), live: EVENTS }));
+    if (path === '/') return answer(res, 200, 'text/html; charset=utf-8', fillPage(page, { ...now(), live: EVENTS, save: SAVE }));
+    if (path === SAVE) return save(req, res);
     if (path !== EVENTS) return answer(res, 404, 'text/plain; charset=utf-8', 'Not found');
     res.writeHead(200, { 'content-type': 'text/event-stream', 'cache-control': 'no-store' });
     res.write(': open\n\n');

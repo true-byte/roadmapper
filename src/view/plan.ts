@@ -194,7 +194,7 @@ export function wrap(s: string, fonts: Fonts, kind: TextKind = 'label', width = 
 export const finished = (b: { nodes: TNode[] }): boolean => b.nodes.length > 0 && b.nodes.every(n => n.state === 'done' || n.state === 'canceled');
 /** The name a top-level branch's showing is kept under: its name, where no other top-level branch has it, or else its place, as '#2'.
  * A name that starts with '#' takes its place too, so it never meets the place of another branch. */
-const tagOf = (roadmap: Roadmap, i: number): string => {
+export const tagOf = (roadmap: Roadmap, i: number): string => {
   const name = text(roadmap.branches[i].name);
   return name && !name.startsWith('#') && roadmap.branches.filter(b => text(b.name) === name).length === 1 ? name : `#${i + 1}`;
 };

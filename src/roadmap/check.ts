@@ -151,9 +151,12 @@ export function checkRoadmap(text: string): { roadmap?: Roadmap; errors: FileErr
   return errors.length ? { errors } : { roadmap: data as Roadmap, errors };
 }
 
+/** Every error of a roadmap given as data, in the order of the file, each with no line, as data has none. */
+export const dataErrors = (data: unknown): FileError[] => check(data, () => 0);
+
 /** Checks a roadmap given as data. Throws its first error, with no line, as data has none. */
 export function parseRoadmap(data: unknown): Roadmap {
-  const [first] = check(data, () => 0);
+  const [first] = dataErrors(data);
   if (first) throw new Error(sayError(first).trim());
   return data as Roadmap;
 }

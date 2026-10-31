@@ -123,6 +123,34 @@ The legend lists only the states that are on the plan. It also lists the milesto
 - When every top-level branch has all its steps done or canceled, the last branch shows.
 - A hidden branch is not drawn. The count at the top counts only the steps of the branches that show. In 'Plant care app', it says '3 of 18 steps done' while 'V1' is hidden.
 
+## Edit on the page
+
+The app that `npx roadmapper dev` or `npm run dev` serves has the button 'Edit' at the right end of the zoom control. The roadmap file changes only when you click 'Save'. A built page opened from disk, the HTML export and the box of the lib have no 'Edit'.
+
+| Do this | What happens |
+|---|---|
+| Click 'Edit'. | A gold frame shows around the page, and 'Cancel' and 'Save' take the place of 'Edit'. The level stays as it is. 'Save' stays gray until something changes. |
+| Point near the line of a branch. | A gold diamond with a '+' shows at the gap of that branch nearest the pointer: between two items, before the first item, or after the last. |
+| Click the gold diamond. | Three icons show: a step, a branching of two branches, and a group of one track. A click on one adds it at that gap. |
+| Point where a branching or a group parts. | A dashed line runs to the place among its branches nearest the pointer. A click on the '+' at its end adds a branch there, or a track in a group. |
+| Click the '+' under the last top-level branch. | A new top-level branch is added after the last one. |
+| Point at a step, or pick it. | A trash can shows under the step. A click on it deletes the step, and takes it out of each `waitsFor`. |
+| Drag a step. | Gold marks show each gap where it can go. On the line of a branch, or near it, the mark of that line nearest the pointer grows, and the drop moves the step there. A drop far from every line, or where the step already is, changes nothing. |
+| Drag a branch by its name or its line. | The gold marks show only among its sisters: the branches of its branching, the tracks of its group, or the top-level branches. |
+| Drag a group. | At 'Main steps' you drag the step that stands for the group. At 'Tracks' and 'Every step' you drag its frame or its name. The gold marks show each gap where it can go, in any branch but its own tracks, and the group moves with all it holds. |
+| Pick a step, a branch or a group. | The side bar shows each of its keys as a field. Each change draws the plan again. A field whose value the file check refuses turns red, and the plan stays as it was drawn last. |
+| Press `Ctrl+Z` or `Ctrl+Shift+Z`. | The last change since 'Edit' is undone, or the last undo is done again. |
+| Click 'Cancel'. | Every change since 'Edit' is dropped, and the page leaves edit mode. |
+| Click 'Save'. | The roadmap file gets the roadmap as the page shows it, and the page leaves edit mode. When the file check refuses the roadmap, 'Save' turns red and shows the name of the error. |
+
+- Each new branch and each new track holds one new step. The new step is picked, with its name ready to type over.
+- A new step gets its id from its name, as [SKILL.md, section "The keys of a step"](https://github.com/true-byte/roadmapper/blob/main/.claude/skills/roadmapper/SKILL.md#the-keys-of-a-step) says. In 'Plant care app', a new step named 'Plant shop design' gets the id `plant-shop-design`.
+- The side bar of a step holds its icon, its name, its state, 'Milestone', 'Private', 'Waits for', 'Links', 'Why', 'Done when', 'Planned' and 'Deadline'. A click on the icon opens a grid of icons with a search box.
+- A drag near an edge of the page scrolls the plan.
+- A finger does not drag. A tap near the line of a branch shows the gold diamond, and a tap where a branching or a group parts shows the dashed line.
+- In edit mode, a save of the roadmap file does not redraw the plan. 'Save' writes over that file, and 'Cancel' draws it.
+- When you leave the page with changes that are not saved, the browser asks whether to leave.
+
 ## Tips and the side bar
 
 | Do this | What happens |
@@ -152,7 +180,7 @@ The legend lists only the states that are on the plan. It also lists the milesto
 | An arrow key | The plan moves. |
 | `Esc` | Each press does one thing. It closes the popup or the list of branches. When neither is open, it ends 'Show only blockers'. When that is off too, it closes the side bar. |
 
-A key pressed with Ctrl, Alt or Cmd does nothing in the app. While the error list shows, no key does anything.
+A key pressed with Ctrl, Alt or Cmd does nothing in the app, except `Ctrl+Z` and `Ctrl+Shift+Z` in edit mode, as [Edit on the page](#edit-on-the-page) says. While the error list shows, no key does anything.
 
 ## What it remembers
 
@@ -216,9 +244,12 @@ When the file has an error, the error list shows in place of the plan. The error
 
 The next save with no error brings the plan back as it was.
 
+In edit mode, the plan does not redraw on save, as [Edit on the page](#edit-on-the-page) says.
+
 ## Small screens
 
 - When the page is less than 664 px wide or less than 500 px high, the zoom control shows only the levels. A click on a level changes the level, and the keys still work.
+- On such a page, 'Edit', 'Cancel' and 'Save' show only their icons. In edit mode, 'Cancel' and 'Save' take the place of 'Branches' and 'Tools'.
 - When the page is less than 664 px wide, the side bar is a panel at the bottom of the page. The list of branches is then as wide as the page, minus 8 px on each side.
 - Until you pick 'Horizontal' or 'Vertical', the layout follows the shape of the page. The plan runs down when the page is less than 664 px wide and taller than it is wide, as on a phone held upright. Otherwise, the plan runs across. The layout changes when the page turns or changes size.
 - When the plan runs down on a phone and the labels show, a branching of many branches is wider than the page. So the plan also moves sideways there.

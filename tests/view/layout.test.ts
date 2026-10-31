@@ -7,7 +7,7 @@ import type { Roadmap } from '../../src/roadmap/types';
 import { layouts, type Layout } from '../../src/view/layout';
 import { CAP_W, GNAME_W, sum, type Plan } from '../../src/view/plan';
 import { drawnOf, everyLayout, faults, levelsOf, line, planOf, rooms, type Box, type Drawn } from '../support/layout';
-import { flat, full, long, nested, plain, plans, shownAtFirst, wordy } from '../support/plans';
+import { flat, full, long, nested, plain, plans, shownAtFirst, versions, wordy } from '../support/plans';
 
 const roadmap = JSON.parse(readFileSync(new URL('../fixtures/roadmap.json', import.meta.url), 'utf8')) as Roadmap;
 
@@ -189,6 +189,24 @@ test('across, names sit 3 times nearer their steps than the lanes above', () => 
       for (const x of rs) if (x.over < 3 * x.under) out.push(`${where}: ${x.k} has ${x.over.toFixed(1)} over it and ${x.under.toFixed(1)} under it`);
     });
   }
+  expect(out).toEqual([]);
+});
+
+test('a line across the plan lies halfway between two top-level branches', () => {
+  const plan = planOf(versions, () => true), out: string[] = [];
+  expect(plan.tops.length).toBeGreaterThan(1);
+  for (const [layout, views] of Object.entries(layouts(plan))) for (const levels of views as Layout[][]) levels.forEach((L, k) => {
+    plan.tops.forEach((top, i) => {
+      const rule = L.pieces.get(`${top.key}:rule`), where = `${layout}, '${levelsOf(plan)[k]}', '${top.name}'`;
+      if (!i) return void (rule && out.push(`${where}: a line before the first`));
+      if (rule?.t !== 'rule') return void out.push(`${where}: no line`);
+      // its numbers are along, then across: down, the top-level branches follow each other along
+      const [a0, a1, c0, c1] = rule.v, [mid, from, to] = L.turned ? [(a0 + a1) / 2, c0, c1] : [(c0 + c1) / 2, a0, a1];
+      const half = (L.bands.get(plan.tops[i - 1].key)![1] + L.bands.get(top.key)![0]) / 2;
+      if (Math.abs(mid - half) > 0.01) out.push(`${where}: the line at ${mid}, halfway at ${half}`);
+      if (from !== 0 || Math.abs(to - L.W) > 0.01) out.push(`${where}: the line from ${from} to ${to}, the plan ${L.W} wide`);
+    });
+  });
   expect(out).toEqual([]);
 });
 
