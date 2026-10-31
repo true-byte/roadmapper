@@ -1303,7 +1303,7 @@
           "id": "publish-to-npm",
           "name": "Publish to npm",
           "icon": "package",
-          "state": "in-progress",
+          "state": "done",
           "why": "Roadmapper is a public npm package, so a project adds it with npm install roadmapper.",
           "doneWhen": "In a new project, npm install roadmapper installs Roadmapper v1.0.0 from the public npm registry, and npx roadmapper runs there."
         },

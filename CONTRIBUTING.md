@@ -284,8 +284,20 @@ git push -u origin release/<version>
 
    Open `https://github.com/true-byte/roadmapper/compare/release/<version>...feature/<version>-version?expand=1`, and click 'Create pull request'. Merge the pull request when the check 'All tests' passes.
 
-2. Open `https://github.com/true-byte/roadmapper/compare/master...release/<version>?expand=1`, and click 'Create pull request'. When the check 'All tests' passes, merge the pull request with 'Create a merge commit', so that `master` keeps the commits of the release.
-3. Tag `master`, and push the tag:
+2. When the check 'All tests' passes on `release/<version>`, publish the package to npm from that branch. `npm publish` builds the package first.
+
+   ```sh
+   git switch release/<version>
+   git pull origin release/<version>
+   npm ci
+   npm login
+   npm publish
+   ```
+
+   For a prerelease, run `npm publish --tag next`, so that `npm install roadmapper` keeps the last full release. The new version reaches `npm install roadmapper` a few minutes after `npm publish` ends. Install it in a new project before you go on to step 3.
+
+3. Open `https://github.com/true-byte/roadmapper/compare/master...release/<version>?expand=1`, and click 'Create pull request'. When the check 'All tests' passes, merge the pull request with 'Create a merge commit', so that `master` keeps the commits of the release.
+4. Tag `master`, and push the tag:
 
    ```sh
    git switch master
@@ -293,16 +305,6 @@ git push -u origin release/<version>
    git tag -a v<version> -m v<version>
    git push origin v<version>
    ```
-
-4. Publish the package to npm from `master`. `npm publish` builds the package first.
-
-   ```sh
-   npm ci
-   npm login
-   npm publish
-   ```
-
-   For a prerelease, run `npm publish --tag next`, so that `npm install roadmapper` keeps the last full release.
 
 5. Move each open pull request into `release/<version>` to the release branch of the next version. GitHub closes each pull request whose base branch is deleted. If the next version has no release branch yet, make it first, as [Start a release](#start-a-release) says. To move a pull request, open it, click 'Edit title', pick the new branch in the base branch menu, and click 'Change base'.
 6. Delete the release branch:
@@ -327,17 +329,17 @@ A patch fixes a release with a lower version than the release that `master` hold
    A plain `git fetch` gets no tag of a past patch, because the commits of a past patch are on no branch. `--tags` gets every tag, so `<release>` can be a past patch.
 
 2. Send each pull request of the patch into `release/<patch>`, as [Send a change](#send-a-change) says, with `<patch>` as `<version>`.
-3. When the patch is done, set its version, as step 1 of [Finish a release](#finish-a-release) says, with `<patch>` as `<version>`. Then tag the release branch, push the tag, and publish the package to npm:
+3. When the patch is done, set its version, as step 1 of [Finish a release](#finish-a-release) says, with `<patch>` as `<version>`. Then publish the package to npm, tag the release branch, and push the tag:
 
    ```sh
    git fetch origin
    git switch release/<patch>
    git pull origin release/<patch>
-   git tag -a v<patch> -m v<patch>
-   git push origin v<patch>
    npm ci
    npm login
    npm publish --tag patch
+   git tag -a v<patch> -m v<patch>
+   git push origin v<patch>
    ```
 
    `--tag patch` keeps `npm install roadmapper` on the release that `master` holds.
