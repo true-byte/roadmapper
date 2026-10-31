@@ -68,7 +68,7 @@ npm run dev -- data/sample.roadmap.json
 |---|---|---|
 | `build` | `index.html`: the app page with the roadmap inside it. [export.md](export.md) says what it is for. | `dist/app/` |
 | `export` | `roadmap.html`, `roadmap.json` and `roadmapper.js`: the HTML export. [export.md](export.md) says what each file is. | `dist/export/`, or `dist/export-private/` with `--private` |
-| `npm run package` | `roadmapper-<version>.tgz`: the package that another project installs. | `dist/` in the clone |
+| `npm run package` | `roadmapper-<version>.tgz`: a package file that another project can install, to try a change of the clone. | `dist/` in the clone |
 | `dev` | The roadmap file it serves, each time you click 'Save' on its page. | No folder |
 | `validate`, `export:preview`, `npm run preview` | Nothing. | No folder |
 

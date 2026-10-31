@@ -5,23 +5,16 @@ This doc covers what Roadmapper is, how to install and start it, and where the o
 Roadmapper draws a roadmap as a tree, which the docs call the plan. The roadmap is kept in one JSON file, the roadmap file. At the level 'Main steps', anyone can read the plan, even a child in 3rd grade. The next levels, 'Tracks' and 'Every step', show more detail.
 
 <picture>
-  <source media="(prefers-color-scheme: light)" srcset="docs/images/roadmap-light.png">
-  <img alt="The sample roadmap file, 'Plant care app', at the level 'Main steps'" src="docs/images/roadmap.png">
+  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/true-byte/roadmapper/master/docs/images/roadmap-light.png">
+  <img alt="The sample roadmap file, 'Plant care app', at the level 'Main steps'" src="https://raw.githubusercontent.com/true-byte/roadmapper/master/docs/images/roadmap.png">
 </picture>
 
 ## Install
 
-Build Roadmapper's package in a clone, then install the package in your project. [docs/install.md](docs/install.md) gives the Node version that Roadmapper needs, and each step in detail.
-
-Run these commands in the folder that holds your project's folder, so that the clone sits next to your project. `your-project` stands for the name of your project's folder.
+Run this command in your project's folder. [docs/install.md](docs/install.md) gives the Node version that Roadmapper needs, and each step in detail.
 
 ```sh
-git clone https://github.com/true-byte/roadmapper
-cd roadmapper
-npm install
-npm run package
-cd ../your-project
-npm install ../roadmapper/dist/roadmapper-*.tgz
+npm install roadmapper
 ```
 
 ## Quick start

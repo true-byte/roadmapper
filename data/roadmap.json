@@ -856,7 +856,7 @@
     {
       "name": "v1.0.0",
       "private": true,
-      "holds": "A switch between dark and light, links, export in the app, long text, a tools button, a remembered view, edit on page, and the npm package.",
+      "holds": "A switch between dark and light, links, export in the app, long text, a tools button, a remembered view, edit on page, and Roadmapper on npm.",
       "items": [
         {
           "id": "start-v1-0-0",
@@ -1300,56 +1300,19 @@
           ]
         },
         {
-          "name": "npm package",
-          "split": [
-            {
-              "items": [
-                {
-                  "id": "npm-package-design",
-                  "name": "npm package design",
-                  "icon": "package",
-                  "why": "Another project adds Roadmapper to its package.json with npm install, and runs it with npx roadmapper, in place of npm --prefix ../roadmapper run.",
-                  "doneWhen": "The design of the package is reviewed and approved. In that design, npx roadmapper runs dev, build, validate, export and preview. A project installs the package from the packed file, and the package holds the skill."
-                },
-                {
-                  "name": "npm package build",
-                  "split": [
-                    {
-                      "name": "Code",
-                      "items": [
-                        {
-                          "id": "npm-package-code",
-                          "name": "npm package code",
-                          "icon": "package",
-                          "why": "Another project installs Roadmapper from its packed file and runs each command with npx roadmapper, as designed.",
-                          "doneWhen": "In a new folder, the file that npm run package writes is installed. There, npx roadmapper dev prints an address, and the page at that address redraws on each save of roadmap.json."
-                        }
-                      ]
-                    },
-                    {
-                      "name": "Tests",
-                      "items": [
-                        {
-                          "id": "npm-package-tests",
-                          "name": "npm package tests",
-                          "icon": "package",
-                          "why": "Tests that a project installs the package and runs each command, so a change cannot break it unseen.",
-                          "doneWhen": "npm test packs Roadmapper, installs it into a new project outside this folder, and checks validate, build, export and their errors there."
-                        }
-                      ]
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
+          "id": "publish-to-npm",
+          "name": "Publish to npm",
+          "icon": "package",
+          "state": "in-progress",
+          "why": "Roadmapper is a public npm package, so a project adds it with npm install roadmapper.",
+          "doneWhen": "In a new project, npm install roadmapper installs Roadmapper v1.0.0 from the public npm registry, and npx roadmapper runs there."
         },
         {
           "id": "release-v2",
           "name": "Release v1.0.0",
           "icon": "rocket",
-          "state": "tbd",
-          "why": "v1.0.0 is out when edit on page and the npm package are designed, built and tested."
+          "why": "v1.0.0 is out when each feature of v1.0.0 is designed, built and tested, and Roadmapper is on npm.",
+          "doneWhen": "master holds v1.0.0 with the tag v1.0.0, and the release of v1.0.0 is reviewed and approved."
         }
       ]
     },
