@@ -246,7 +246,7 @@ To add an icon set, put it into `src/icons/`, and add a loader by its name to `s
    git push -u origin <branch>
    ```
 
-8. Open `https://github.com/true-byte/roadmapper/compare/release/<version>...<you>:<branch>?expand=1`, and click 'Create pull request'. The page opens with `release/<version>` as the base branch. If you pushed the branch to `origin`, put `true-byte` in place of `<you>`.
+8. Open `https://github.com/true-byte/roadmapper/compare/release/<version>...<you>:<branch>?expand=1`, say in the description, in 1 to 3 lines, what changes for the user and why, and click 'Create pull request'. The page opens with `release/<version>` as the base branch. If you pushed the branch to `origin`, put `true-byte` in place of `<you>`.
 
 A person with write access to `true-byte/roadmapper` reviews each pull request and decides whether to merge it into its release branch.
 
@@ -296,7 +296,7 @@ git push -u origin release/<version>
 
    For a prerelease, run `npm publish --tag next`, so that `npm install roadmapper` keeps the last full release. The new version reaches `npm install roadmapper` a few minutes after `npm publish` ends. Install it in a new project before you go on to step 3.
 
-3. Open `https://github.com/true-byte/roadmapper/compare/master...release/<version>?expand=1`, and click 'Create pull request'. When the check 'All tests' passes, merge the pull request with 'Create a merge commit', so that `master` keeps the commits of the release.
+3. Open `https://github.com/true-byte/roadmapper/compare/master...release/<version>?expand=1`, list in the description what the release brings for the user, and click 'Create pull request'. When the check 'All tests' passes, merge the pull request with 'Create a merge commit', so that `master` keeps the commits of the release.
 4. Tag `master`, and push the tag:
 
    ```sh
