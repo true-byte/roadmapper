@@ -38,6 +38,8 @@ function npx(words: string[], from: string): Promise<{ code: number; out: string
 
 test('the package holds what a project needs, and installs nothing else', () => {
   const pkg = JSON.parse(readFileSync(join(installed, 'package.json'), 'utf8')) as Record<string, unknown>;
+  // npm refuses to publish a package that is private
+  expect(pkg.private).toBeUndefined();
   expect(pkg.bin).toEqual({ roadmapper: 'dist/cli/roadmapper.js' });
   expect(pkg.dependencies).toBeUndefined();
   for (const f of ['dist/cli/roadmapper.js', 'dist/cli/app.html', 'dist/lib/index.js', 'dist/lib/react.js', 'dist/lib/roadmapper.js', 'dist/lib/roadmapper-page.js',

@@ -31,7 +31,17 @@ npx playwright install --with-deps chromium
 | `npm run build:lib` | Checks the types, builds the lib into `dist/lib/`, and writes its types into `dist/lib/types/`. |
 | `npm run build:cli` | Builds the commands into `dist/cli/roadmapper.js`, and the app page with no roadmap in it into `dist/cli/app.html`. |
 | `npm run build:tests` | Builds the pages that the tests open, as step 2 of [Run the tests](#run-the-tests) says. It needs the files that `npm run build:lib` and `npm run build:cli` build. |
-| `npm run prepack` | Builds the lib, the commands and the app page of the package. npm runs it before each `npm pack`. |
+| `npm run prepack` | Builds the lib, the commands and the app page of the package. npm runs it before each `npm pack` and `npm publish`. |
+
+To try a change in another project, pack Roadmapper and install the package file there. `your-project` stands for the folder of that project, next to the clone.
+
+```sh
+npm run package
+cd ../your-project
+npm install ../roadmapper/dist/roadmapper-*.tgz
+```
+
+Install the package file, not the folder of the clone. npm installs a folder as a link to it. That link gives a React app two copies of React, and then the box of the lib fails.
 
 ## Run the tests
 
@@ -242,7 +252,7 @@ A person with write access to `true-byte/roadmapper` reviews each pull request a
 
 ## Make a release
 
-These steps need the admin role of `true-byte/roadmapper`. The rules of the repo let only an admin delete a release branch and make a tag whose name starts with `v`.
+These steps need the admin role of `true-byte/roadmapper`, and write access to the package `roadmapper` on npm. The rules of the repo let only an admin delete a release branch and make a tag whose name starts with `v`.
 
 Each release has a tag. The name of the tag is `v` followed by the `version` in `package.json`, such as `v1.0.0-beta`. The tag keeps the commits of the release after its release branch is deleted.
 
@@ -284,8 +294,18 @@ git push -u origin release/<version>
    git push origin v<version>
    ```
 
-4. Move each open pull request into `release/<version>` to the release branch of the next version. GitHub closes each pull request whose base branch is deleted. If the next version has no release branch yet, make it first, as [Start a release](#start-a-release) says. To move a pull request, open it, click 'Edit title', pick the new branch in the base branch menu, and click 'Change base'.
-5. Delete the release branch:
+4. Publish the package to npm from `master`. `npm publish` builds the package first.
+
+   ```sh
+   npm ci
+   npm login
+   npm publish
+   ```
+
+   For a prerelease, run `npm publish --tag next`, so that `npm install roadmapper` keeps the last full release.
+
+5. Move each open pull request into `release/<version>` to the release branch of the next version. GitHub closes each pull request whose base branch is deleted. If the next version has no release branch yet, make it first, as [Start a release](#start-a-release) says. To move a pull request, open it, click 'Edit title', pick the new branch in the base branch menu, and click 'Change base'.
+6. Delete the release branch:
 
    ```sh
    git push origin --delete release/<version>
@@ -307,7 +327,7 @@ A patch fixes a release with a lower version than the release that `master` hold
    A plain `git fetch` gets no tag of a past patch, because the commits of a past patch are on no branch. `--tags` gets every tag, so `<release>` can be a past patch.
 
 2. Send each pull request of the patch into `release/<patch>`, as [Send a change](#send-a-change) says, with `<patch>` as `<version>`.
-3. When the patch is done, set its version, as step 1 of [Finish a release](#finish-a-release) says, with `<patch>` as `<version>`. Then tag the release branch, and push the tag:
+3. When the patch is done, set its version, as step 1 of [Finish a release](#finish-a-release) says, with `<patch>` as `<version>`. Then tag the release branch, push the tag, and publish the package to npm:
 
    ```sh
    git fetch origin
@@ -315,9 +335,14 @@ A patch fixes a release with a lower version than the release that `master` hold
    git pull origin release/<patch>
    git tag -a v<patch> -m v<patch>
    git push origin v<patch>
+   npm ci
+   npm login
+   npm publish --tag patch
    ```
 
-4. If pull requests into `release/<patch>` are still open, make the release branch of the next patch from the tag `v<patch>`, as step 1 says. For example, make `release/1.1.2` from `v1.1.1`. Then move each of those pull requests to it, as step 4 of [Finish a release](#finish-a-release) says.
+   `--tag patch` keeps `npm install roadmapper` on the release that `master` holds.
+
+4. If pull requests into `release/<patch>` are still open, make the release branch of the next patch from the tag `v<patch>`, as step 1 says. For example, make `release/1.1.2` from `v1.1.1`. Then move each of those pull requests to it, as step 5 of [Finish a release](#finish-a-release) says.
 5. Delete the release branch of the patch:
 
    ```sh
