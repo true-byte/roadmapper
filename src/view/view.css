@@ -283,8 +283,9 @@ body { background: var(--bg); color: var(--ink); font-family: var(--body); font-
 .tip[hidden], .side[hidden] { display: none; }
 .tip p { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; margin: 8px 0 0; line-height: 1.35; }
 
-/* The side bar: all that the plan says about what is picked. It lies over the page and stops above the zoom control. */
-.side { position: absolute; z-index: 2; top: 16px; right: 16px; bottom: 112px; width: 320px; box-sizing: border-box; padding: 18px 18px 20px; overflow-y: auto;
+/* The side bar: all that the plan says about what is picked. It lies over the page and stops above the zoom control.
+   It keeps its scroll where the view put it as it grows: the browser's own scroll anchoring would move it, and that move would read as the user's (side.ts). */
+.side { position: absolute; z-index: 2; top: 16px; right: 16px; bottom: 112px; width: 320px; box-sizing: border-box; padding: 18px 18px 20px; overflow-y: auto; overflow-anchor: none;
   border: 1px solid var(--hair); border-radius: 18px; background: color-mix(in srgb, var(--bg) 88%, var(--ink)); box-shadow: var(--shadow);
   touch-action: pan-y; overscroll-behavior: contain; overflow-wrap: anywhere; }
 /* a row says its name on 2 lines at most, cut with "…", as the list of branches does. A click on the row shows the whole name in the side bar */
@@ -391,6 +392,9 @@ body { background: var(--bg); color: var(--ink); font-family: var(--body); font-
   font: inherit; font-weight: 700; cursor: pointer; box-shadow: var(--shadow); }
 .show-all:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 
+/* the line across the plan between two top-level branches */
+.divide { fill: var(--hair); pointer-events: none; }
+
 /* An open group: a soft frame around all that is in it, with its name over its top left corner. The frame never takes the pointer: its name does. */
 .group { fill: color-mix(in srgb, var(--hair) 38%, transparent); stroke: color-mix(in srgb, var(--hair) 60%, var(--muted)); stroke-width: 1; pointer-events: none; transition: stroke 0.12s; }
 .gname { fill: var(--ink); font-family: var(--body); font-size: 13px; font-weight: 700; }
@@ -398,6 +402,136 @@ body { background: var(--bg); color: var(--ink); font-family: var(--body); font-
 .group.hot { stroke: color-mix(in srgb, var(--muted) 70%, var(--ink)); }
 .group.picked { stroke: var(--name); }
 .gname.picked { fill: var(--name); }
+
+/* ---- 'Edit on page' (edit.ts, edit-marks.ts, edit-side.ts), only where the page saves its file ---- */
+/* the zoom control: 'Edit' at its end, and in edit mode 'Cancel' and 'Save' in its place. 'Save' is gray until something changed, then gold; red after a save that failed */
+.zoom .edit-tool { height: 44px; display: flex; align-items: center; gap: 6px; padding: 0 12px; border-radius: 12px; color: var(--muted); font-size: 14.4px; font-weight: 700; white-space: nowrap; }
+.zoom .edit-tool[hidden], .zoom .rule[hidden] { display: none; }
+.zoom .edit-tool svg { display: block; flex: none; }
+.zoom .edit-tool .mark { width: 18px; height: 18px; }
+.zoom .edit-tool.edit:hover, .zoom .edit-tool.cancel:hover { color: var(--ink); background: var(--hair); }
+.zoom .edit-tool.cancel { color: var(--ink); }
+.zoom .edit-tool.cancel[aria-disabled="true"] { opacity: 0.4; cursor: default; }
+.zoom .edit-tool.save { background: var(--name); color: var(--bg); }
+.zoom .edit-tool.save[aria-disabled="true"] { background: none; color: var(--muted); box-shadow: inset 0 0 0 1px var(--hair); opacity: 0.6; cursor: default; }
+.zoom .edit-tool.save.failed { background: none; color: var(--stop); box-shadow: inset 0 0 0 1px var(--stop); opacity: 1; }
+/* edit mode: a gold frame on the edge of the view, with a soft gold glow inside it. Branch names and group names have a dotted line under them */
+.roadmap.editing::after { content: ""; position: absolute; inset: 0; z-index: 6; pointer-events: none; border: 3px solid var(--name);
+  box-shadow: inset 0 0 56px color-mix(in srgb, var(--name) 16%, transparent); }
+.roadmap.editing .cap, .roadmap.editing .gname { text-decoration: underline dotted; }
+/* what a drag holds: a step, a branch by its name or line, a group by its frame or name */
+.roadmap.editing :is(.zn, .label, .cap, .hit, .zbar, .tally, .gname) { cursor: grab; }
+.roadmap.editing .group { pointer-events: visiblePainted; cursor: grab; }
+.roadmap.lifting, .roadmap.lifting * { cursor: grabbing !important; }
+/* while a drag is on its way the plan does not answer the pointer: no tip, no light */
+.roadmap.lifting .plan, .roadmap.lifting .plan * { pointer-events: none !important; }
+.roadmap.lifting .tip, .roadmap.forking .tip { display: none; }
+/* the marks: the trash under a step; the add mark, a gold diamond at a gap of a branch; the '+' of a new branch at the end of a dashed line; the '+' of a new top-level branch */
+.hands { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.hands[hidden], .hands [hidden], .ghost[hidden] { display: none; }
+.ghost-lines { position: absolute; inset: 0; width: 100%; height: 100%; }
+.ghost-lines path { fill: none; stroke: var(--line); stroke-width: 2; stroke-dasharray: 4 5; stroke-linecap: round; opacity: 0.75; }
+.ghost-lines path.root { opacity: 0.5; }
+.hand { position: absolute; box-sizing: border-box; width: 26px; height: 26px; margin: -13px 0 0 -13px; padding: 0; display: grid; place-items: center; border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--hair) 40%, var(--muted)); background: var(--panel); color: var(--ink); font: inherit; cursor: pointer; pointer-events: auto; box-shadow: var(--tip-shadow); }
+/* a finger needs more than the mark */
+.hand::after { content: ""; position: absolute; inset: -9px; border-radius: 50%; }
+.hand svg { display: block; }
+.hand:focus-visible { outline: 2px solid var(--line); outline-offset: 2px; }
+.hand.trash { color: var(--muted); }
+.hand.trash:hover { color: var(--stop); border-color: var(--stop); }
+.hand.adder { width: 32px; height: 32px; margin: -16px 0 0 -16px; border: 0; background: none; box-shadow: none; color: var(--bg); }
+.hand.adder::before { content: ""; position: absolute; inset: 6px; border-radius: 3px; background: var(--name); transform: rotate(45deg);
+  box-shadow: 0 0 0 2px var(--bg), 0 0 14px color-mix(in srgb, var(--name) 55%, transparent); }
+.hand.adder:hover::before, .hand.adder.open::before { transform: rotate(45deg) scale(1.3); }
+.hand.adder svg { position: relative; stroke-width: 3; }
+.hand.fork { border: 1.5px dashed var(--line); background: var(--bg); color: var(--line); }
+.hand.fork:hover { background: var(--hair); }
+.hand.root { width: 40px; height: 40px; margin: -20px 0 0 -20px; border-width: 2px; }
+@media (prefers-reduced-motion: no-preference) {
+  .hand.adder::before { transition: transform 0.1s; }
+}
+/* the add choice: three icons, a step, a branching and a group */
+.add-menu { position: absolute; display: flex; gap: 2px; padding: 4px; border: 1px solid var(--hair); border-radius: 14px; background: var(--panel); box-shadow: var(--shadow); pointer-events: auto; }
+.add-menu button { all: unset; box-sizing: border-box; width: 44px; height: 44px; display: grid; place-items: center; border-radius: 10px; color: var(--ink); cursor: pointer; }
+.add-menu button:hover, .add-menu button:focus-visible { background: var(--hair); }
+.add-menu svg { display: block; }
+@media (prefers-reduced-motion: no-preference) {
+  .add-menu { animation: rise 0.15s ease-out; }
+}
+/* a drag: what is held floats by the pointer, its place on the plan goes faint, and the drop slots are gold marks, the nearest bigger */
+.roadmap.lifting .lifted { opacity: 0.22; }
+.ghost { position: absolute; z-index: 7; display: flex; align-items: center; gap: 8px; height: 0; margin-left: -26px; pointer-events: none; }
+.ghost .disc { flex: none; width: 52px; height: 52px; display: grid; place-items: center; border-radius: 50%; background: var(--panel); border: 2px solid var(--name); color: var(--ink);
+  box-shadow: var(--shadow), 0 0 0 6px color-mix(in srgb, var(--name) 18%, transparent); transform: rotate(-6deg) scale(1.06); }
+.ghost .disc svg { display: block; }
+.ghost .nm { padding: 2px 8px; border-radius: 8px; background: var(--panel); color: var(--ink); font-size: 13px; font-weight: 700; white-space: nowrap; box-shadow: var(--tip-shadow); }
+.ghost.branch { margin-left: 0; }
+.ghost.branch .nm { padding: 4px 10px; border: 1.5px solid var(--name); color: var(--name); font-family: var(--display); font-size: 12px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase;
+  box-shadow: var(--shadow); transform: rotate(-3deg); }
+.slot { position: absolute; box-sizing: border-box; width: 11px; height: 11px; margin: -5.5px 0 0 -5.5px; border: 2px solid var(--bg); border-radius: 2px; background: var(--name); transform: rotate(45deg); }
+.slot.on { transform: rotate(45deg) scale(1.9); box-shadow: 0 0 0 3px color-mix(in srgb, var(--name) 35%, transparent), 0 0 16px var(--name); }
+@media (prefers-reduced-motion: no-preference) {
+  .slot { transition: transform 0.1s, box-shadow 0.1s; }
+}
+/* the side bar as fields: each has a faint box that lights while it is typed in, and turns red while the file check refuses what it holds */
+.side .field { all: unset; box-sizing: border-box; display: block; width: 100%; min-width: 0; padding: 4px 8px; border: 1px solid color-mix(in srgb, var(--hair) 70%, var(--muted)); border-radius: 8px;
+  background: color-mix(in srgb, var(--bg) 55%, transparent); color: var(--ink); font: inherit; line-height: 1.45; cursor: text; }
+.side .field:hover { border-color: var(--muted); }
+.side .field:focus { border-color: var(--line); box-shadow: 0 0 0 3px color-mix(in srgb, var(--line) 22%, transparent); }
+.side .field.bad { border-color: var(--stop); box-shadow: 0 0 0 3px color-mix(in srgb, var(--stop) 22%, transparent); }
+.side .field::placeholder { color: var(--muted); }
+.side textarea.field { white-space: pre-wrap; overflow: hidden; resize: none; }
+.side .field.h2 { padding: 5px 8px; font-size: 20px; font-weight: 700; line-height: 1.2; }
+/* the name of a branch as the file holds it, in the face of a branch name: a field shows what is typed, so no capitals */
+.side .field.h2.branch { color: var(--name); font-family: var(--display); font-size: 17px; font-weight: 600; letter-spacing: 0.04em; }
+.side .field.strong { font-weight: 700; }
+.side .field.url { padding: 2px 8px; color: var(--muted); font-size: 12.8px; }
+.side .field.day { width: auto; flex: 1; padding: 4px 6px; font-size: 13.6px; }
+.side .name .field { flex: 1; }
+.side .face-btn { flex: none; width: 44px; height: 44px; display: grid; place-items: center; border-radius: 10px; border: 1px dashed var(--muted); color: var(--muted); text-align: center; }
+.side .face-btn.small { width: 32px; height: 32px; border-radius: 8px; }
+.side .face-btn:hover, .side .face-btn[aria-expanded="true"] { border-color: var(--line); color: var(--ink); }
+.side .face-btn svg { display: block; }
+/* the grid of icons: a search, then the icons it finds */
+.icon-grid { margin-top: 10px; padding: 8px; border: 1px solid var(--hair); border-radius: 12px; background: var(--bg); }
+.icon-grid[hidden], .side .finder[hidden] { display: none; }
+.icon-grid .cells { display: grid; grid-template-columns: repeat(auto-fill, 36px); gap: 4px; max-height: 240px; margin-top: 8px; overflow-y: auto; }
+.side .icon-grid button { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 8px; color: var(--muted); text-align: center; }
+.side .icon-grid button:hover { background: var(--hair); color: var(--ink); }
+.side .icon-grid button.on { background: color-mix(in srgb, var(--name) 18%, transparent); color: var(--name); }
+.side .icon-grid button.none { border: 1px dashed var(--muted); box-sizing: border-box; }
+.icon-grid svg { display: block; }
+/* the state as the marks of the key, the one it has in gold; 'Milestone' and 'Private' as chips, gold while on */
+.edit-facts { gap: 8px; }
+.states { display: flex; gap: 2px; padding: 2px; border: 1px solid color-mix(in srgb, var(--hair) 70%, var(--muted)); border-radius: 10px; }
+.side .state { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 8px; }
+.side .state:hover { background: var(--hair); }
+.side .state[aria-checked="true"] { background: color-mix(in srgb, var(--name) 20%, transparent); box-shadow: inset 0 0 0 1.5px var(--name); }
+.side .state .mark { width: 18px; height: 18px; }
+.side .chip { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px 3px 8px; border: 1px solid var(--muted); border-radius: 999px; color: var(--muted); font-size: 12.8px; }
+.side .chip svg { display: block; }
+.side .chip:hover { color: var(--ink); }
+.side .chip[aria-pressed="true"] { border-color: var(--name); color: var(--name); background: color-mix(in srgb, var(--name) 14%, transparent); }
+.side .chip[aria-pressed="true"] .ms { stroke: var(--name); }
+/* the rows of 'Waits for' and of 'Links', each with its remove; a '+' under them */
+.side .edit-row { cursor: default; }
+.side .edit-row:hover { background: none; }
+.side .edit-row .grow { flex: 1; min-width: 0; }
+.side .link-row { align-items: flex-start; }
+.side .link-row .col { display: flex; flex-direction: column; gap: 4px; }
+.side .x-btn { flex: none; width: 28px; height: 28px; display: grid; place-items: center; border-radius: 8px; color: var(--muted); text-align: center; }
+.side .x-btn:hover { background: var(--hair); color: var(--stop); }
+.side .x-btn svg, .side .add svg { display: block; }
+.side .add { width: 32px; height: 32px; display: grid; place-items: center; margin-top: 4px; border: 1px dashed var(--muted); border-radius: 8px; color: var(--muted); text-align: center; }
+.side .add:hover { border-color: var(--line); color: var(--line); }
+.side .finder { margin-top: 8px; padding: 8px; border: 1px solid var(--hair); border-radius: 12px; background: var(--bg); }
+.side .finder .found { margin-top: 4px; }
+.side :is(.icon-grid, .finder) .find { height: 34px; }
+/* 'Planned': the day it starts, an arrow, the day it ends */
+.side .days { display: flex; align-items: center; gap: 6px; }
+.side .days .to { display: flex; flex: none; color: var(--muted); }
+.side .days svg { display: block; }
 
 /* ---- Sizes. The view's own size picks them, so the app, a box and the export follow the same rules from the first frame.
    Narrow: under 664 px wide, the laptop's zoom control and a gutter at each side. Short: under 500 px high, and not narrow. Compact: either one. ---- */
@@ -409,6 +543,13 @@ body { background: var(--bg); color: var(--ink); font-family: var(--body); font-
   .zoom:has(> .layers:not([hidden])) { --col: clamp(56px, calc((100cqw - 167px) / 3), 84px); }
   .zoom .step { display: none; }
   .stops { grid-auto-columns: var(--col); }
+  /* 'Edit', 'Cancel' and 'Save' are their icons; in edit mode they take the place of the list of branches and the tools button */
+  .zoom .edit-tool { width: 44px; padding: 0; justify-content: center; }
+  .zoom .edit-tool .word { display: none; }
+  .roadmap.editing .zoom > :is(.layers, .tools, .rule:not(.edit-rule)) { display: none; }
+  .zoom:has(> .edit-tool.edit:not([hidden])) { --col: clamp(44px, calc((100cqw - 178px) / 3), 84px); }
+  .zoom:has(> .layers:not([hidden])):has(> .edit-tool.edit:not([hidden])) { --col: clamp(44px, calc((100cqw - 228px) / 3), 84px); }
+  .roadmap.editing .zoom { --col: clamp(56px, calc((100cqw - 167px) / 3), 84px); }
   .rail { left: calc(var(--col) / 2); right: calc(var(--col) / 2); }
   .zoom .stop { text-align: center; }
 }
@@ -454,4 +595,11 @@ body { background: var(--bg); color: var(--ink); font-family: var(--body); font-
   .zoom .stop { box-sizing: border-box; min-height: calc(26px + 2lh); }
   .stage { padding-bottom: 103px; }
   .side { bottom: 123px; }
+}
+
+/* where the page saves its file, 'Edit' takes room from the stops: under 440 px their names take two lines, as under 330 px, in edit mode too, so the control keeps its height */
+@container (width < 440px) {
+  :where(.roadmap:has(> .zoom > .edit-tool)) .zoom .stop { box-sizing: border-box; min-height: calc(26px + 2lh); }
+  :where(.roadmap:has(> .zoom > .edit-tool)) .stage { padding-bottom: 103px; }
+  :where(.roadmap:has(> .zoom > .edit-tool)) .side { bottom: 123px; }
 }

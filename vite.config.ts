@@ -5,15 +5,18 @@ import { gzipSync } from 'node:zlib';
 import { build, defineConfig, type Plugin } from 'vite';
 import { viteSingleFile } from 'vite-plugin-singlefile';
 import { fileKey } from './src/cli/key.ts';
+import { SAVE, saveRequest } from './src/cli/save.ts';
 
 // The app page, src/app/index.html.
 // `npm run dev` serves it on one roadmap file: the one in ROADMAP_FILE, which `npm run dev -- [file]` names (scripts/dev.mjs), or else data/roadmap.json.
+// 'Save' of 'Edit on page' writes that file (src/cli/save.ts).
 // `vite build` makes it with no roadmap in it: dist/cli/app.html, one HTML file with the script and the styles inside it, which opens from disk too.
 // `roadmapper build` and `roadmapper dev` put a roadmap in its slot (src/cli/cli.ts), and the page reads it from there (src/app/slot.ts).
 const file = process.env.ROADMAP_FILE ?? fileURLToPath(new URL('data/roadmap.json', import.meta.url));
 
-/** The text of the roadmap file, its name and its key (src/cli/key.ts), as the module 'virtual:roadmap'. Text, not a module of its own: a typo in the file then lands in the view's error list,
- * not in the dev server's error screen. The dev server watches the file, also outside this folder, and sends the new text when it is saved. */
+/** The text of the roadmap file, its name, its key (src/cli/key.ts), and the address 'Save' sends the plan to, as the module 'virtual:roadmap'. Text, not a module of its own:
+ * a typo in the file then lands in the view's error list, not in the dev server's error screen. The dev server watches the file, also outside this folder, and sends
+ * the new text when it is saved. At that address, it writes the plan the page sends into the file, once the file check takes it. */
 function roadmapFile(file: string): Plugin {
   const id = '\0virtual:roadmap';
   return {
@@ -22,7 +25,10 @@ function roadmapFile(file: string): Plugin {
     load(source) {
       if (source !== id) return;
       this.addWatchFile(file);
-      return `export default ${JSON.stringify(readFileSync(file, 'utf8'))};\nexport const file = ${JSON.stringify(basename(file))};\nexport const key = ${JSON.stringify(fileKey(file))};\nexport const live = undefined;`;
+      return `export default ${JSON.stringify(readFileSync(file, 'utf8'))};\nexport const file = ${JSON.stringify(basename(file))};\nexport const key = ${JSON.stringify(fileKey(file))};\nexport const live = undefined;\nexport const save = ${JSON.stringify(SAVE)};`;
+    },
+    configureServer: server => {
+      server.middlewares.use(SAVE, saveRequest(file));
     },
   };
 }
@@ -59,6 +65,15 @@ const appPage: Plugin = {
   },
 };
 
+/** The dev server watches the folder src/ and all in it. The page's root is src/app, and Vite watches each file it imports from outside its root on its own;
+ * when an editor saves such a file twice in a row by a rename, Vite loses it for good and serves it as it was. A folder it watches keeps each of its files in sight. */
+const watchSource: Plugin = {
+  name: 'watch-source',
+  configureServer: server => {
+    server.watcher.add(fileURLToPath(new URL('src', import.meta.url)));
+  },
+};
+
 /** The page paints nothing before its script has run, so the view is in the mode the user kept from the first paint on, and never first in the device's mode.
  * Vite writes the tag of the script itself, in the build and on the dev server, so the attribute goes in here, not in index.html. */
 const firstPaint: Plugin = {
@@ -68,7 +83,7 @@ const firstPaint: Plugin = {
 
 export default defineConfig(({ command }) => ({
   root: 'src/app',
-  plugins: command === 'build' ? [viteSingleFile(), appPage, exportLib(), firstPaint] : [roadmapFile(file), exportLib(), firstPaint],
+  plugins: command === 'build' ? [viteSingleFile(), appPage, exportLib(), firstPaint] : [roadmapFile(file), exportLib(), firstPaint, watchSource],
   resolve: command === 'build' ? { alias: { 'virtual:roadmap': fileURLToPath(new URL('src/app/slot.ts', import.meta.url)) } } : {},
   // the CLI's build (vite.cli.config.ts) empties dist/cli first, and this writes the page next to it
   build: { outDir: '../../dist/cli', emptyOutDir: false },

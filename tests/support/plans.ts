@@ -400,3 +400,26 @@ export function edit(plan: Roadmap, change: (copy: Roadmap) => void): Roadmap {
   change(copy);
   return copy;
 }
+
+/** A plan to edit on the page: 'Shop' with 'lease', the group 'Fit out' of the tracks 'Kitchen' and 'Front', and 'open'; and 'Name' with 'name' and 'sign'. */
+export const bakery: Roadmap = {
+  title: 'Bakery',
+  branches: [
+    { name: 'Shop', items: [
+      { id: 'lease', name: 'Sign the lease', state: 'done' },
+      { name: 'Fit out', split: [
+        { name: 'Kitchen', items: [{ id: 'ovens', name: 'Install ovens' }] },
+        { name: 'Front', items: [{ id: 'counter', name: 'Build the counter' }] },
+      ] },
+      { id: 'open', name: 'Opening day', waitsFor: ['sign'] },
+    ] },
+    { name: 'Name', items: [
+      { id: 'name', name: 'Pick a name' },
+      { id: 'sign', name: 'Make the sign', waitsFor: ['lease'] },
+    ] },
+  ],
+};
+
+/** Each top-level branch of a plan as one line: its name, then its items, a step by its id and a split in parentheses with its branches apart by '|'. */
+export const shapeOf = (plan: Roadmap): string[] => plan.branches.map(lineOf);
+const lineOf = (b: Branch): string => `${b.name ?? ''}[${b.items.map((it: Item) => ('split' in it ? `(${(it as Split).split.map(lineOf).join(' | ')})` : it.id)).join(' ')}]`;

@@ -74,7 +74,7 @@ The tables below name two parts of the page. The tip is the short box that shows
 | Key | Value | What it means |
 |---|---|---|
 | `title` | A text that is not empty. Needed. | The name of the roadmap. The page shows it at the top. |
-| `branches` | A list of one or more branches. Needed. | The top-level branches. The page draws them one under the other, in the order of the list. No line joins one top-level branch to another. |
+| `branches` | A list of one or more branches. Needed. | The top-level branches. The page draws them one under the other, in the order of the list, with a faint line across the page between two of them. No line joins one top-level branch to another. |
 | `about` | A text. | One line on what the plan is. The HTML export makes it the description of its page. Search results and link previews can show that description. |
 | `icons` | An object. | The drawings of the icons that the steps name. Only the HTML export writes this key. |
 

@@ -12,13 +12,15 @@ export const C = { DX: 112, STUB: 48, CSTUB: 40, HU: 50, GAP: 12, ROW: 28, R: 7,
 // The frame of an open group: IN how far after the lane parts it starts, and how far before the lane is whole again it ends; PAD and LOW its room over and under what it holds;
 // NAME the room for its name over it; SHUT the run between its edge and a pill that lies on the lane; RX its round corners.
 export const FR = { IN: 8, PAD: 8, LOW: 8, NAME: 20, SHUT: 24, RX: 16 };
+/** How thick the line between two top-level branches is. */
+const RULE = 1.5;
 /** The widest a curve between two lanes gets. */
 const CURVE_MAX = 130;
 // Each view has a size set that holds all its own numbers. Of C and FR, the layout reads only what every view shares: C.R, the radius of a mark, and FR.SHUT.
 // Of a closed track: BH how high its pill is, BK how big the mark and the count in it are drawn, DOWN the room below it and UP the room for the name above it.
 // SIZE is how big a step is, against the size of a mark, while it waits unseen in its pill or in its group. CSTUB is the short run before and after a closed track.
 // Of a step in an open branch: OPEN its size, NAME how far over it its name is written, HU the least room over its lane and HD the least room below it.
-// ROWS is the room between two top-level branches.
+// ROWS is the room between two top-level branches, with a line across the plan in its middle: each top-level branch reads as a tree of its own.
 // Of a group that is one step: PR its radius on the page, PNAME how far over it its name is written, PMARK the size of the mark of its state against the step.
 // IC is 1 in the view with icons. words is 1 where the names are written, and 0 where the labels are hidden.
 // DX the pitch from one step to the next, STUB the run from a step to where the lane parts and from where it is whole again, OSTUB the run before and after an open track; LGAP the room between two lanes, more where the names are written, so a name lies far nearer its own step than the step over it; HALF the room kept after branches that end beside a lane.
@@ -26,16 +28,16 @@ const CURVE_MAX = 130;
 // AIR the room over a body with no name over it. FIN, FPAD, FLOW and FNAME are the IN, PAD, LOW and NAME of the frame of a group.
 // CAPS how long a pill with no count is, before BK sizes it. TAP the radius of the clear disc that takes a finger, around a step or a group that is not a coin.
 const MARKS = {
-  SIZE: 5 / 7, BH: 20, BK: 1, DOWN: 14, UP: 28, CSTUB: 10, ROWS: C.ROW, OPEN: 1, NAME: 16, HU: C.HU, HD: 14, PR: 10, PNAME: 16, PMARK: 5 / 7,
+  SIZE: 5 / 7, BH: 20, BK: 1, DOWN: 14, UP: 28, CSTUB: 10, ROWS: 88, OPEN: 1, NAME: 16, HU: C.HU, HD: 14, PR: 10, PNAME: 16, PMARK: 5 / 7,
   IC: 0, words: 1, DX: C.DX, STUB: C.STUB, OSTUB: C.CSTUB, LGAP: 22, HALF: C.HALF, PADL: C.PADL, PADR: C.PADR, PADT: C.PADT, PADB: C.PADB,
   CMS: 50, CMO: 70, CMAX: CURVE_MAX, AIR: 4, FIN: FR.IN, FPAD: FR.PAD, FLOW: FR.LOW, FNAME: FR.NAME, CAPS: 26, TAP: 0,
 };
 // An icon needs more room to be read, so the view with icons has its own numbers.
-const ICONS = { ...MARKS, IC: 1, SIZE: 1.3, BH: 24, BK: 1.2, DOWN: 16, UP: 30, ROWS: 22, OPEN: 1.5, NAME: 30, HU: 40, HD: 24, PR: 20, PNAME: 30, PMARK: 0.5, LGAP: 24 };
+const ICONS = { ...MARKS, IC: 1, SIZE: 1.3, BH: 24, BK: 1.2, DOWN: 16, UP: 30, ROWS: 88, OPEN: 1.5, NAME: 30, HU: 40, HD: 24, PR: 20, PNAME: 30, PMARK: 0.5, LGAP: 24 };
 // With the labels hidden no word is drawn but the names of the versions, so nothing keeps room for one: each view lies on a tight grid of its own.
 // With icons, 56 from step to step, a coin and the room after it; with marks, 44, a mark with the disc a finger hits. A closed track is a short capsule, and a frame has no name over it.
-const MARKS_B = { ...MARKS, words: 0, LGAP: C.GAP, BH: 16, DOWN: 12, UP: 12, ROWS: 16, HU: 16, HD: 16, PNAME: 0, DX: 44, STUB: 18, OSTUB: 14, HALF: 20, PADL: 16, PADR: 18, PADT: 12, PADB: 12, CMS: 24, CMO: 30, CMAX: 70, FPAD: 6, FLOW: 6, FNAME: 0, TAP: 18 };
-const ICONS_B = { ...ICONS, words: 0, LGAP: C.GAP, BH: 20, DOWN: 14, UP: 14, ROWS: 20, HU: 22, HD: 22, PNAME: 0, DX: 56, STUB: 26, OSTUB: 22, HALF: 30, PADL: 16, PADR: 24, PADT: 14, PADB: 14, CMS: 30, CMO: 40, CMAX: 90, FPAD: 6, FLOW: 6, FNAME: 0, TAP: 18 };
+const MARKS_B = { ...MARKS, words: 0, LGAP: C.GAP, BH: 16, DOWN: 12, UP: 12, ROWS: 48, HU: 16, HD: 16, PNAME: 0, DX: 44, STUB: 18, OSTUB: 14, HALF: 20, PADL: 16, PADR: 18, PADT: 12, PADB: 12, CMS: 24, CMO: 30, CMAX: 70, FPAD: 6, FLOW: 6, FNAME: 0, TAP: 18 };
+const ICONS_B = { ...ICONS, words: 0, LGAP: C.GAP, BH: 20, DOWN: 14, UP: 14, ROWS: 56, HU: 22, HD: 22, PNAME: 0, DX: 56, STUB: 26, OSTUB: 22, HALF: 30, PADL: 16, PADR: 24, PADT: 14, PADB: 14, CMS: 30, CMO: 40, CMAX: 90, FPAD: 6, FLOW: 6, FNAME: 0, TAP: 18 };
 type Sizes = typeof MARKS;
 // The layout down has numbers of its own. Along is down the page, across is to the right.
 // PITCH from one step to the next, at least; NGAP the least room between the names of two steps one under the other. NX how far right of its line the name of a step starts, HU the least room left of a line.
@@ -44,12 +46,12 @@ type Sizes = typeof MARKS;
 // TLEAD and TCAPB the same before a closed track, and SHUT the run after its pill. GAP the room between two branches side by side; HANG how far right of its lane the first branch of a split hangs.
 // FL and FRR the room of a frame left of its lane and right of what it holds; GN the room for the name of a group over its frame, and GNB how far over the frame the name sits.
 // SMIN and SMAX how long the curves of the tracks of a group are, at least and at most. HALF the room kept after branches that end beside a lane.
-// TAIL the run after the last step of a version, BANDS the room between two versions, PADL, PADR, PADT and PADB the room around the plan.
-const VI = { PITCH: 200 / 3, NGAP: 25 / 3, NX: 85 / 3, HU: 20, STUB: 40, RSTUB: 40, COMB: 40, LEAD: 140 / 3, CAPB: 55 / 3, CX: 10, CAPGAP: 6, TLEAD: 80 / 3, TCAPB: 17.5, SHUT: 10, GAP: 20, HANG: 80 / 3, FL: 40 / 3, FRR: 10, GN: 15, GNB: 20 / 3, SMIN: 30, SMAX: 50, HALF: 40, TAIL: 20, BANDS: 40, PADL: 20 / 3, PADR: 40 / 3, PADT: 20 / 3, PADB: 20 };
+// TAIL the run after the last step of a version, BANDS the room between two versions, with a line across the plan in its middle, PADL, PADR, PADT and PADB the room around the plan.
+const VI = { PITCH: 200 / 3, NGAP: 25 / 3, NX: 85 / 3, HU: 20, STUB: 40, RSTUB: 40, COMB: 40, LEAD: 140 / 3, CAPB: 55 / 3, CX: 10, CAPGAP: 6, TLEAD: 80 / 3, TCAPB: 17.5, SHUT: 10, GAP: 20, HANG: 80 / 3, FL: 40 / 3, FRR: 10, GN: 15, GNB: 20 / 3, SMIN: 30, SMAX: 50, HALF: 40, TAIL: 20, BANDS: 88, PADL: 20 / 3, PADR: 40 / 3, PADT: 20 / 3, PADB: 20 };
 const VM = { ...VI, PITCH: 50, NX: 50 / 3, HU: 10, STUB: 30, LEAD: 110 / 3, HANG: 50 / 3 };
 // With the labels hidden, down too: 56 or 44 from step to step, and no room for a name right of a line or on the run before a branch.
-const VI_B = { ...VI, PITCH: 56, GAP: 16, STUB: 26, COMB: 30, LEAD: 30, TLEAD: 20, SHUT: 8, HANG: 16, FL: 8, FRR: 8, GN: 0, GNB: 0, SMIN: 24, SMAX: 36, HALF: 24, TAIL: 14, BANDS: 28, PADR: 20 / 3, PADB: 14 };
-const VM_B = { ...VM, PITCH: 44, HU: 14, GAP: 16, STUB: 18, COMB: 24, LEAD: 24, TLEAD: 16, SHUT: 6, HANG: 14, FL: 6, FRR: 6, GN: 0, GNB: 0, SMIN: 18, SMAX: 28, HALF: 18, TAIL: 10, BANDS: 20, PADB: 10 };
+const VI_B = { ...VI, PITCH: 56, GAP: 16, STUB: 26, COMB: 30, LEAD: 30, TLEAD: 20, SHUT: 8, HANG: 16, FL: 8, FRR: 8, GN: 0, GNB: 0, SMIN: 24, SMAX: 36, HALF: 24, TAIL: 14, BANDS: 56, PADR: 20 / 3, PADB: 14 };
+const VM_B = { ...VM, PITCH: 44, HU: 14, GAP: 16, STUB: 18, COMB: 24, LEAD: 24, TLEAD: 16, SHUT: 6, HANG: 14, FL: 6, FRR: 6, GN: 0, GNB: 0, SMIN: 18, SMAX: 28, HALF: 18, TAIL: 10, BANDS: 48, PADB: 10 };
 type Turn = typeof VI;
 // An icon in a step drawn at the size of a mark: SIZE its box, RING the ring of a milestone around it, BACK the clear disc that takes the pointer between the lines of the drawing.
 // The mark of the state gets small and moves AT right and AT down from the middle, MARK times its size.
@@ -101,7 +103,8 @@ export interface Pod {
 // The pieces are in terms of along and across in both layouts. The last k of a fan and a join is 1 where the layout down draws it as one curve (the tracks of a group), and 0 where it draws a comb (a branching).
 // A bar is [from, to, line, how wide across, how far the line is from its edge]: across, it is as wide as it is high and lies centred on the line, so the last is 0 there.
 // A tally is [x, y, how big, how far the mark of the state is right of the middle, how much the count shows]: with the labels hidden the mark is in the middle and the count is not drawn.
-const AXES = { seg: 'xxy', bar: 'xxykk', tally: 'xykkk', fan: 'xyxyxk', join: 'xyxxyk', cap: 'xy', txt: 'xy', frame: 'xxyy', gname: 'xy' } as const;
+// A rule is the line across the plan between a top-level branch and the one before it, as a frame is: [from, to, across from, across to]. Down it lies across the page too.
+const AXES = { seg: 'xxy', bar: 'xxykk', tally: 'xykkk', fan: 'xyxyxk', join: 'xyxxyk', cap: 'xy', txt: 'xy', frame: 'xxyy', gname: 'xy', rule: 'xxyy' } as const;
 export type Kind = keyof typeof AXES;
 /** A line, a pill, what the pill holds, or a text of a branch: its numbers, and how much of it shows. */
 export interface Piece {
@@ -426,6 +429,9 @@ export function layouts(plan: Plan, bare = false): Layouts {
     const corner = T ? { lane: Math.min(T.COMB, T.HANG) / 2, far: T.COMB / 2 } : { lane: 0, far: 0 };
     const L: Layout = { W: 0, H: 0, s: 1, dx: T ? T.PITCH : B.DX, turned: false, corner, geo: new Map(), pods: new Map(), pieces: new Map(), ext: new Map(), bands: new Map() };
     const piece = (of: TBranch, name: string, t: Kind, v: number[], o = 1, sp?: TSplit) => L.pieces.set(`${of.key}:${name}`, { t, of, name, v, o, sp });
+    /** The line between each top-level branch and the one before it: halfway through the room between their bands, as `at` puts it across the plan. */
+    const rules = (room: number, at: (m: number) => number[]): void =>
+      tops.forEach((t, i) => { if (i) piece(t, 'rule', 'rule', at(L.bands.get(tops[i - 1].key)![1] + room / 2)); });
     // With icons a group that is one step is a coin like any step, with the mark of its state on its edge. With marks it is a small body around that mark.
     // With the labels hidden its name is not written, and with marks it gets the clear disc a finger hits.
     const pod = (sp: TSplit, x: number, y: number, o: number): void => {
@@ -572,6 +578,7 @@ export function layouts(plan: Plan, bare = false): Layouts {
       // along and across: the post-pass in build() turns them
       L.W = top - T.BANDS + T.PADB;
       L.H = wide + T.PADR;
+      rules(T.BANDS, m => [m - RULE / 2, m + RULE / 2, 0, L.H]);
       return L;
     }
 
@@ -598,6 +605,7 @@ export function layouts(plan: Plan, bare = false): Layouts {
     }
     L.W = X0 + wide + B.PADR;
     L.H = top - B.ROWS + B.PADB;
+    rules(B.ROWS, m => [0, L.W, m - RULE / 2, m + RULE / 2]);
     return L;
   }
 

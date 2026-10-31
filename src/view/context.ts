@@ -5,6 +5,9 @@ import type { BlockersPart } from './blockers.js';
 import type { BranchesPart } from './branches.js';
 import type { Dom, Mode } from './dom.js';
 import type { DrawPart, NodeEls, PodEls } from './draw.js';
+import type { EditMarksPart } from './edit-marks.js';
+import type { EditSidePart } from './edit-side.js';
+import type { EditPart } from './edit.js';
 import type { ErrorListPart } from './error-list.js';
 import type { ExportPart } from './export.js';
 import type { FactsPart } from './facts.js';
@@ -261,7 +264,7 @@ export interface ViewContext extends Fixed, State {
   // facts.ts
   heading: FactsPart['heading'];
   // side.ts
-  thingOf: SidePart['thingOf']; uncover: SidePart['uncover']; pick: SidePart['pick']; dropTap: SidePart['dropTap'];
+  thingOf: SidePart['thingOf']; uncover: SidePart['uncover']; pick: SidePart['pick']; dropTap: SidePart['dropTap']; refreshSide: SidePart['refreshSide'];
   // aim.ts
   aim: AimPart['aim']; seek: AimPart['seek'];
   // blockers.ts
@@ -276,4 +279,8 @@ export interface ViewContext extends Fixed, State {
   measure: FontsPart['measure'];
   // export.ts
   resetExport: ExportPart['resetExport'];
+  // edit.ts, edit-side.ts and edit-marks.ts
+  editing: EditPart['editing']; showFile: EditPart['showFile']; editNow: EditPart['editNow']; editOld: EditPart['editOld']; applyEdit: EditPart['applyEdit'];
+  editSide: EditSidePart['editSide'];
+  marksOn: EditMarksPart['marksOn']; marksOff: EditMarksPart['marksOff']; marksTake: EditMarksPart['marksTake'];
 }
