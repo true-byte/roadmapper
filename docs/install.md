@@ -22,10 +22,10 @@ Follow these steps in your project's folder.
    npm install roadmapper
    ```
 
-2. Keep the roadmap file in your project's folder as `roadmap.json`, and commit it with your project. Roadmapper reads the file where it is, and never writes to it. To start from the sample roadmap file, 'Plant care app', copy it:
+2. Keep the roadmap file in your project's folder as `roadmap.json` or `roadmap/roadmap.json`, and commit it with your project. Roadmapper writes to the file only when you click 'Save' on the page. To start from the sample roadmap file, 'Plant care app', copy it:
 
    ```sh
-   cp node_modules/roadmapper/data/sample.roadmap.json roadmap.json
+   cp node_modules/roadmapper/roadmap/sample.roadmap.json roadmap.json
    ```
 
 3. Check the install. The command prints `roadmap.json: no errors`.
@@ -57,7 +57,7 @@ npm install roadmapper@latest
 |---|---|
 | The commands of `npx roadmapper` | `dist/cli/` |
 | The lib | `dist/lib/` |
-| The sample roadmap file | `data/sample.roadmap.json` |
+| The sample roadmap file | `roadmap/sample.roadmap.json` |
 | The docs, with the screenshots of the README | `docs/` |
 | The README | `README.md` |
 | The license | `LICENSE` |

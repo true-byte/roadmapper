@@ -21,7 +21,7 @@ npx playwright install --with-deps chromium
 
 [docs/commands.md](docs/commands.md) gives the commands that draw, check or export a roadmap file, or pack Roadmapper. [docs/commands.md, section "The roadmap files of the clone"](docs/commands.md#the-roadmap-files-of-the-clone) says which roadmap file `npm run dev` draws, and how to draw another one.
 
-`npm run dev` shows each change to `src/`. A saved `.ts` file reloads the page. A saved `.css` file changes the styles on the page with no reload. `npx roadmapper dev` serves the app page of the installed package, so it does not show a change to `src/`.
+`npm run dev` shows each change to `src/`. A saved `.ts` file reloads the page. A saved `.css` file changes the styles on the page with no reload. `npx roadmapper` serves the app page of the installed package, so it does not show a change to `src/`.
 
 ## Build and check the code
 
@@ -134,7 +134,7 @@ That element is `#app` on the app page. In `<roadmapper-view>`, it is the `.road
 
 ## Code rules
 
-[CLAUDE.md](CLAUDE.md) holds the code rules, in its sections "Scope", "Code" and "The tree shape". They hold for every change, made by hand or by Claude. The section "Roadmapper's roadmap file" of CLAUDE.md holds the rules for `data/roadmap.json`, Roadmapper's own roadmap file.
+[CLAUDE.md](CLAUDE.md) holds the code rules, in its sections "Scope", "Code" and "The tree shape". They hold for every change, made by hand or by Claude. The section "Roadmapper's roadmap file" of CLAUDE.md holds the rules for `roadmap/roadmap.json`, Roadmapper's own roadmap file.
 
 ## Write docs
 
@@ -171,7 +171,7 @@ These rules hold for `README.md`, every file in `docs/`, `CONTRIBUTING.md`, `CLA
 ### Examples
 
 - Take all examples in one doc from one plan.
-- The docs take their examples from the sample roadmap file, 'Plant care app' (`data/sample.roadmap.json`), so that you can open it and find each step.
+- The docs take their examples from the sample roadmap file, 'Plant care app' (`roadmap/sample.roadmap.json`), so that you can open it and find each step.
 - The skill takes its examples from one plan that is not software: opening a bakery. A roadmap file plans any goal, and the skill must not read as if it were for software only.
 - Use names that a person would write, never 'Step A' or 'foo'.
 - Write a request to Claude the way a person types it. Say what Claude does as what changes in the roadmap file.
@@ -382,7 +382,7 @@ A patch fixes a release with a lower version than the release that `master` hold
 
 | Folder | What it holds |
 |---|---|
-| `data/` | The roadmap files of the clone. |
+| `roadmap/` | The roadmap files of the clone. |
 | `.claude/skills/roadmapper/` | The `roadmapper` skill, with the roadmap file format. |
 | `docs/` | The docs on using Roadmapper, and the screenshots of `README.md` in `docs/images/`. |
 | `src/roadmap/` | The types of a roadmap file, the code that checks a roadmap file, and the code that gives each step its state. |

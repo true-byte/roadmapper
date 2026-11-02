@@ -8,11 +8,11 @@ import { fileKey } from './src/cli/key.ts';
 import { SAVE, saveRequest } from './src/cli/save.ts';
 
 // The app page, src/app/index.html.
-// `npm run dev` serves it on one roadmap file: the one in ROADMAP_FILE, which `npm run dev -- [file]` names (scripts/dev.mjs), or else data/roadmap.json.
+// `npm run dev` serves it on one roadmap file: the one in ROADMAP_FILE, which `npm run dev -- [file]` names (scripts/dev.mjs), or else roadmap/roadmap.json.
 // 'Save' of 'Edit on page' writes that file (src/cli/save.ts).
 // `vite build` makes it with no roadmap in it: dist/cli/app.html, one HTML file with the script and the styles inside it, which opens from disk too.
 // `roadmapper build` and `roadmapper dev` put a roadmap in its slot (src/cli/cli.ts), and the page reads it from there (src/app/slot.ts).
-const file = process.env.ROADMAP_FILE ?? fileURLToPath(new URL('data/roadmap.json', import.meta.url));
+const file = process.env.ROADMAP_FILE ?? fileURLToPath(new URL('roadmap/roadmap.json', import.meta.url));
 
 /** The text of the roadmap file, its name, its key (src/cli/key.ts), and the address 'Save' sends the plan to, as the module 'virtual:roadmap'. Text, not a module of its own:
  * a typo in the file then lands in the view's error list, not in the dev server's error screen. The dev server watches the file, also outside this folder, and sends

@@ -48,8 +48,8 @@ This roadmap file plans the opening of a bakery. Every example in [SKILL.md](SKI
 
 Roadmapper also comes with the sample roadmap file, 'Plant care app', which plans a phone app. It uses every state and every key that a person writes. It is at one of these paths:
 
-- `node_modules/roadmapper/data/sample.roadmap.json` in a folder where Roadmapper is installed.
-- `data/sample.roadmap.json` in a clone of Roadmapper.
+- `node_modules/roadmapper/roadmap/sample.roadmap.json` in a folder where Roadmapper is installed.
+- `roadmap/sample.roadmap.json` in a clone of Roadmapper.
 
 ## The pieces
 
@@ -209,4 +209,5 @@ The page does not draw a roadmap file that has errors. It shows the error list i
 | `Invalid URL` | A `url` is not an address: it does not start with `https://` or `http://`, or a browser cannot read it, such as `https://` alone. |
 | `Duplicate id` | More than one step has the same `id`. The error is on each line that holds that id. |
 | `Unknown id` | An id in `waitsFor` is the id of no step. |
-| `Unreadable file` | The roadmap file cannot be read. Either no file is at that path, or the page that draws the file is not allowed to read it. For example, a page opened from disk cannot read the file at the `src` of its `<roadmapper-view>`, and shows this error when the tag holds no text of a roadmap file. |
+| `File not found` | No file is at the path. The command prints the path, then this error, on one line. With no path, it prints each path that it looks for. |
+| `Unreadable file` | The roadmap file cannot be read. The path is a folder, or the reader has no permission, or the page that draws the file is not allowed to read it. For example, a page opened from disk cannot read the file at the `src` of its `<roadmapper-view>`, and shows this error when the tag holds no text of a roadmap file. |

@@ -11,7 +11,7 @@ The examples come from the sample roadmap file, 'Plant care app'.
 In a project that has Roadmapper installed, run:
 
 ```sh
-npx roadmapper dev
+npx roadmapper
 ```
 
 In a clone of Roadmapper, run:
@@ -25,13 +25,13 @@ Open the address that the command prints. While the page is open, it redraws eac
 To open the sample roadmap file in a project, run:
 
 ```sh
-npx roadmapper dev node_modules/roadmapper/data/sample.roadmap.json
+npx roadmapper node_modules/roadmapper/roadmap/sample.roadmap.json
 ```
 
 To open it in a clone, run:
 
 ```sh
-npm run dev -- data/sample.roadmap.json
+npm run dev -- roadmap/sample.roadmap.json
 ```
 
 ## Levels
@@ -125,7 +125,7 @@ The legend lists only the states that are on the plan. It also lists the milesto
 
 ## Edit on the page
 
-The app that `npx roadmapper dev` or `npm run dev` serves has the button 'Edit' at the right end of the zoom control. The roadmap file changes only when you click 'Save'. A built page opened from disk, the HTML export and the box of the lib have no 'Edit'.
+The app that `npx roadmapper` or `npm run dev` serves has the button 'Edit' at the right end of the zoom control. The roadmap file changes only when you click 'Save'. A built page opened from disk, the HTML export and the box of the lib have no 'Edit'.
 
 | Do this | What happens |
 |---|---|

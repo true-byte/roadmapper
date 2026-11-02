@@ -37,10 +37,30 @@ const sized = (out: string): string => out.replace(/\d+ kB$/gm, 'n kB');
 /** The files of a folder and what each holds. */
 const contents = (dir: string): Record<string, string> => Object.fromEntries(readdirSync(dir).sort().map(f => [f, readFileSync(join(dir, f), 'utf8')]));
 
-test('roadmapper prints the usage, or the error of an unknown command', async () => {
+test('roadmapper --help prints the usage, and a wrong command gives its error', async () => {
   const here = typedIn();
-  expect(await roadmapper([], here)).toEqual({ code: 0, err: '', out: expect.stringContaining('npx roadmapper validate [file]\n') });
+  for (const help of ['--help', '-h']) expect(await roadmapper([help], here)).toEqual({ code: 0, err: '', out: expect.stringContaining('npx roadmapper validate [file]\n') });
   expect(await roadmapper(['serve'], here)).toEqual({ code: 1, out: '', err: 'roadmapper  Unknown option  serve\n' });
+});
+
+test('roadmapper with no command runs dev, on the file or option typed', async () => {
+  const here = typedIn();
+  // what dev says before it serves: tests/cli/bin.test.ts checks the page it serves
+  expect(await roadmapper([], here)).toEqual({ code: 1, out: '', err: 'roadmap.json, roadmap/roadmap.json  File not found  \n' });
+  expect(await roadmapper(['plans/nope.json'], here)).toEqual({ code: 1, out: '', err: 'plans/nope.json  File not found  \n' });
+  expect(await roadmapper(['one.json', 'two.json'], here)).toEqual({ code: 1, out: '', err: 'roadmapper  Unknown option  two.json\n' });
+  expect(await roadmapper(['--hots'], here)).toEqual({ code: 1, out: '', err: 'roadmapper  Unknown option  --hots\n' });
+});
+
+test('with no file, each command reads roadmap.json, else roadmap/roadmap.json', async () => {
+  const here = typedIn({ 'roadmap/roadmap.json': plan('Nested plan xq') });
+  expect(await roadmapper(['validate'], here)).toEqual({ code: 0, out: 'roadmap/roadmap.json: no errors\n', err: '' });
+  expect((await roadmapper(['build'], here)).code).toBe(0);
+  expect(readFileSync(join(here, 'dist/app/index.html'), 'utf8')).toContain('Nested plan xq');
+  expect((await roadmapper(['export'], here)).code).toBe(0);
+  expect(readFileSync(join(here, 'dist/export/roadmap.json'), 'utf8')).toContain('Nested plan xq');
+  writeFileSync(join(here, 'roadmap.json'), plan('Top plan xq'));
+  expect(await roadmapper(['validate'], here)).toEqual({ code: 0, out: 'roadmap.json: no errors\n', err: '' });
 });
 
 test.describe('validate', () => {
@@ -48,7 +68,11 @@ test.describe('validate', () => {
     const here = typedIn({ 'broken.json': BROKEN, 'syntax.json': '{\n  "title": "T"\n  "branches": []\n}' });
     expect(await roadmapper(['validate', 'broken.json'], here)).toEqual({ code: 1, out: BROKEN_SAID, err: '' });
     expect(await roadmapper(['validate', 'syntax.json'], here)).toEqual({ code: 1, out: 'syntax.json:2      Invalid JSON  \n', err: '' });
-    expect(await roadmapper(['validate', 'nope.json'], here)).toEqual({ code: 1, out: 'nope.json:      Unreadable file  \n', err: '' });
+    expect(await roadmapper(['validate', 'nope.json'], here)).toEqual({ code: 1, out: '', err: 'nope.json  File not found  \n' });
+    expect(await roadmapper(['validate'], here)).toEqual({ code: 1, out: '', err: 'roadmap.json, roadmap/roadmap.json  File not found  \n' });
+    // a path that exists and is no file
+    mkdirSync(join(here, 'plans'));
+    expect(await roadmapper(['validate', 'plans'], here)).toEqual({ code: 1, out: 'plans:      Unreadable file  \n', err: '' });
   });
 
   test('validate reads roadmap.json where it is typed, unless a file is named', async () => {
@@ -96,7 +120,7 @@ test.describe('build', () => {
   test('a broken or missing roadmap file builds nothing and prints its errors', async () => {
     const here = typedIn({ 'broken.json': BROKEN });
     expect(await roadmapper(['build', 'broken.json', 'out'], here)).toEqual({ code: 1, out: '', err: BROKEN_SAID });
-    expect(await roadmapper(['build', 'nope.json', 'out'], here)).toEqual({ code: 1, out: '', err: 'nope.json:      Unreadable file  \n' });
+    expect(await roadmapper(['build', 'nope.json', 'out'], here)).toEqual({ code: 1, out: '', err: 'nope.json  File not found  \n' });
     expect(existsSync(join(here, 'out'))).toBe(false);
   });
 });
@@ -142,7 +166,7 @@ test.describe('export', () => {
     expect(existsSync(join(here, 'out'))).toBe(false);
     // also into a folder that holds an export
     expect((await roadmapper(['export', 'plan.json', 'out'], here)).code).toBe(0);
-    expect(await roadmapper(['export', 'plna.json', 'out'], here)).toEqual({ code: 1, out: '', err: 'plna.json:      Unreadable file  \n' });
+    expect(await roadmapper(['export', 'plna.json', 'out'], here)).toEqual({ code: 1, out: '', err: 'plna.json  File not found  \n' });
   });
 
   test('export writes nothing into a folder with files of its own', async () => {

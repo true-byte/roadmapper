@@ -1,5 +1,5 @@
 // npm run validate, build, export and export:preview in this folder: the commands of src/cli/cli.ts, run from the source, as `npx roadmapper` runs them from the package.
-// With no file, a command reads data/roadmap.json, and `build` and `export` write into this folder's dist/. `export:preview` is the command `preview`.
+// With no file, a command reads roadmap/roadmap.json, and `build` and `export` write into this folder's dist/. `export:preview` is the command `preview`.
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { runnerImport } from 'vite';
@@ -17,7 +17,7 @@ for (const option of cli.COMMANDS[command]?.options ?? []) {
 const code = await cli.run(command, words, {
   here,
   name,
-  file: join(ROOT, 'data/roadmap.json'),
+  files: [join(ROOT, 'roadmap/roadmap.json')],
   app: join(ROOT, 'dist/app'),
   export: join(ROOT, 'dist/export'),
   exportPrivate: join(ROOT, 'dist/export-private'),
