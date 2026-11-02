@@ -31,7 +31,7 @@ export interface Said {
 
 /** Runs `npx roadmapper <words>` as typed in the folder `here`, with the files the package has: the app page and the export's lib that dist/ holds. */
 export async function roadmapper(words: string[], here: string): Promise<Said> {
-  const { run } = await cliSource();
+  const { projectFiles, run } = await cliSource();
   const [command, ...rest] = words;
   const said = { out: '', err: '' };
   const { log, error } = console, write = process.stdout.write;
@@ -42,7 +42,7 @@ export async function roadmapper(words: string[], here: string): Promise<Said> {
     const code = await run(command, rest, {
       here,
       name: command ?? 'roadmapper',
-      file: join(here, 'roadmap.json'),
+      files: projectFiles(here),
       app: join(here, 'dist/app'),
       export: join(here, 'dist/export'),
       exportPrivate: join(here, 'dist/export-private'),

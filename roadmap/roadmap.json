@@ -1311,8 +1311,104 @@
           "id": "release-v2",
           "name": "Release v1.0.0",
           "icon": "rocket",
+          "state": "done",
           "why": "v1.0.0 is out when each feature of v1.0.0 is designed, built and tested, and Roadmapper is on npm.",
-          "doneWhen": "master holds v1.0.0 with the tag v1.0.0, and the release of v1.0.0 is reviewed and approved."
+          "doneWhen": "master holds v1.0.0 with the tag v1.0.0, and the release of v1.0.0 is reviewed and approved.",
+          "links": [
+            {
+              "name": "v1.0.0",
+              "url": "https://github.com/true-byte/roadmapper/releases/tag/v1.0.0",
+              "icon": "tag"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "v1.0.1",
+      "holds": "npx roadmapper alone starts the page.",
+      "items": [
+        {
+          "id": "start-v1-0-1",
+          "name": "Start v1.0.1",
+          "icon": "flag",
+          "state": "done",
+          "why": "v1.0.1 waits for Release v1.0.0.",
+          "doneWhen": "Release v1.0.0 is done, and the branch release/1.0.1 exists.",
+          "waitsFor": [
+            "release-v2"
+          ]
+        },
+        {
+          "name": "Start command",
+          "split": [
+            {
+              "items": [
+                {
+                  "id": "start-command-design",
+                  "name": "Start command design",
+                  "icon": "terminal",
+                  "state": "done",
+                  "why": "The page starts with no command to remember.",
+                  "doneWhen": "What npx roadmapper does with no command and with a file, and where it looks for the roadmap file, is reviewed and approved."
+                },
+                {
+                  "name": "Start command build",
+                  "split": [
+                    {
+                      "name": "Code",
+                      "items": [
+                        {
+                          "id": "start-command-code",
+                          "name": "Start command code",
+                          "icon": "terminal",
+                          "state": "done",
+                          "why": "npx roadmapper starts the page as designed.",
+                          "doneWhen": "npx roadmapper serves roadmap.json, or roadmap/roadmap.json when the folder has no roadmap.json. npx roadmapper plans/q3.json serves that file. npx roadmapper --help prints each command."
+                        }
+                      ]
+                    },
+                    {
+                      "name": "Tests",
+                      "items": [
+                        {
+                          "id": "start-command-tests",
+                          "name": "Start command tests",
+                          "icon": "terminal",
+                          "state": "done",
+                          "why": "Tests of the installed package for the start command, so a change cannot break it unseen.",
+                          "doneWhen": "npm test checks the start command, as designed."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "publish-to-npm-2",
+          "name": "Publish to npm",
+          "icon": "package",
+          "state": "done",
+          "why": "The start command reaches npm without waiting for v1.1.0.",
+          "doneWhen": "In a new project, npm install roadmapper installs Roadmapper v1.0.1 from the public npm registry, and npx roadmapper starts the page there."
+        },
+        {
+          "id": "release-v1-0-1",
+          "name": "Release v1.0.1",
+          "icon": "rocket",
+          "state": "done",
+          "why": "v1.0.1 is out when the start command is built, tested and on npm.",
+          "doneWhen": "master holds v1.0.1 with the tag v1.0.1, and the release of v1.0.1 is reviewed and approved.",
+          "links": [
+            {
+              "name": "v1.0.1",
+              "url": "https://github.com/true-byte/roadmapper/releases/tag/v1.0.1",
+              "icon": "tag"
+            }
+          ]
         }
       ]
     },
@@ -1323,10 +1419,10 @@
           "id": "review-v1-1-0-scope",
           "name": "Review v1.1.0 scope",
           "icon": "flag",
-          "state": "tbd",
-          "why": "The scope of v1.1.0 is reviewed once v1.0.0 is out.",
+          "why": "The scope of v1.1.0 is reviewed once v1.0.1 is out.",
+          "doneWhen": "The steps of v1.1.0 are reviewed and approved.",
           "waitsFor": [
-            "release-v2"
+            "release-v1-0-1"
           ]
         },
         {

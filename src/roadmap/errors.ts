@@ -1,11 +1,11 @@
 // The errors: the closed list of their names, and the one row each error is, as the file check, the commands and the page's error list say it.
 
 /** The name of each error: the only words an error says. First those the file check finds; then those of a command, `npm run build`, `export` or `export:preview`:
- * a folder to write into that holds files the command did not write, a path to write into that is not a folder, an option the command does not take,
+ * a roadmap file that does not exist, a folder to write into that holds files the command did not write, a path to write into that is not a folder, an option the command does not take,
  * and a roadmap where every item is private, which the export for strangers cannot show. */
 export const ERRORS = [
   'Invalid JSON', 'Unknown key', 'Missing key', 'Wrong type', 'Invalid value', 'Invalid date', 'Invalid URL', 'Duplicate id', 'Unknown id', 'Unreadable file',
-  'Folder not empty', 'Not a folder', 'Unknown option', 'Nothing public',
+  'File not found', 'Folder not empty', 'Not a folder', 'Unknown option', 'Nothing public',
 ] as const;
 export type ErrorName = (typeof ERRORS)[number];
 

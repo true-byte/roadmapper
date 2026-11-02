@@ -1,4 +1,4 @@
-// npm run dev [roadmap file] [options of Vite]: the live view of a roadmap file, data/roadmap.json unless named, on Roadmapper's own source, so a change
+// npm run dev [roadmap file] [options of Vite]: the live view of a roadmap file, roadmap/roadmap.json unless named, on Roadmapper's own source, so a change
 // to src/ shows too. The file comes first: this names it to vite.config.ts in ROADMAP_FILE, and runs Vite with the rest, such as --host.
 // `npx roadmapper dev` serves the built page instead (src/cli/cli.ts).
 import { spawnSync } from 'node:child_process';
