@@ -1311,8 +1311,16 @@
           "id": "release-v2",
           "name": "Release v1.0.0",
           "icon": "rocket",
+          "state": "done",
           "why": "v1.0.0 is out when each feature of v1.0.0 is designed, built and tested, and Roadmapper is on npm.",
-          "doneWhen": "master holds v1.0.0 with the tag v1.0.0, and the release of v1.0.0 is reviewed and approved."
+          "doneWhen": "master holds v1.0.0 with the tag v1.0.0, and the release of v1.0.0 is reviewed and approved.",
+          "links": [
+            {
+              "name": "v1.0.0",
+              "url": "https://github.com/true-byte/roadmapper/releases/tag/v1.0.0",
+              "icon": "tag"
+            }
+          ]
         }
       ]
     },
@@ -1323,8 +1331,8 @@
           "id": "review-v1-1-0-scope",
           "name": "Review v1.1.0 scope",
           "icon": "flag",
-          "state": "tbd",
           "why": "The scope of v1.1.0 is reviewed once v1.0.0 is out.",
+          "doneWhen": "The steps of v1.1.0 are reviewed and approved.",
           "waitsFor": [
             "release-v2"
           ]

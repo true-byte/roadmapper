@@ -211,7 +211,7 @@ To add an icon set, put it into `src/icons/`, and add a loader by its name to `s
 
    ```sh
    git fetch origin
-   git switch -c <branch> origin/release/<version>
+   git switch -c <branch> --no-track origin/release/<version>
    ```
 
 4. Install the packages and the Chromium that the release branch pins:
@@ -250,6 +250,16 @@ To add an icon set, put it into `src/icons/`, and add a loader by its name to `s
 
 A person with write access to `true-byte/roadmapper` reviews each pull request and decides whether to merge it into its release branch.
 
+## Repository rules
+
+GitHub rulesets on `true-byte/roadmapper` hold these rules:
+
+| Ruleset | Holds for | Rules |
+|---|---|---|
+| 'Master' | `master` | A change arrives only by a pull request whose check 'All tests' passes. No force push, no delete, and no person can bypass these rules. |
+| 'Release branches' | `release/*` | A change arrives only by a pull request whose check 'All tests' passes. No force push, and no person can bypass these rules. A person with write access can create or delete such a branch, as [Make a release](#make-a-release) says. |
+| 'Release tags' | `v*` | Only a repository admin can create, move or delete such a tag. |
+
 ## Make a release
 
 These steps need the admin role of `true-byte/roadmapper`, and write access to the package `roadmapper` on npm. The rules of the repo let only an admin delete a release branch and make a tag whose name starts with `v`.
@@ -275,7 +285,7 @@ git push -u origin release/<version>
 
    ```sh
    git fetch origin
-   git switch -c feature/<version>-version origin/release/<version>
+   git switch -c feature/<version>-version --no-track origin/release/<version>
    npm version <version> --no-git-tag-version
    git add package.json package-lock.json
    git commit -m "Set the version to <version>"
@@ -359,7 +369,7 @@ A patch fixes a release with a lower version than the release that `master` hold
 
    ```sh
    git fetch --tags origin
-   git switch -c <branch> origin/release/<newest>
+   git switch -c <branch> --no-track origin/release/<newest>
    git log --reverse --no-merges --oneline v<release>..v<patch>
    git cherry-pick <commit>
    ```
