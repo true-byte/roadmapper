@@ -10,13 +10,13 @@ This doc covers the rules for a Claude session that works on Roadmapper itself, 
 | Every command that draws, checks or exports a roadmap file, or packs Roadmapper | [docs/commands.md](docs/commands.md) |
 | The roadmap file format | [.claude/skills/roadmapper/format.md](.claude/skills/roadmapper/format.md) |
 | How to keep a roadmap file | The `roadmapper` skill, [.claude/skills/roadmapper/SKILL.md](.claude/skills/roadmapper/SKILL.md) |
-| Roadmapper's own roadmap file | `data/roadmap.json` |
+| Roadmapper's own roadmap file | `roadmap/roadmap.json` |
 
 ## Scope
 
 - No other project's content goes into this repo's roadmap file, docs, code or chat.
 - Build no accounts, no tenants and no list of roadmaps.
-- Add no feature that `data/roadmap.json` does not plan.
+- Add no feature that `roadmap/roadmap.json` does not plan.
 
 ## Code
 
@@ -35,16 +35,16 @@ The stack is Vite, plain TypeScript and SVG, with no UI framework. `src/lib/reac
 
 ## Roadmapper's roadmap file
 
-Keep `data/roadmap.json` with the `roadmapper` skill. To check the file in this clone, run `validate` from the source:
+Keep `roadmap/roadmap.json` with the `roadmapper` skill. To check the file in this clone, run `validate` from the source:
 
 ```sh
-npm run validate -- data/roadmap.json
+npm run validate -- roadmap/roadmap.json
 ```
 
 This project adds these rules to the skill:
 
 - No text of the roadmap file names a person or a role who acts. Write what is done, such as "A mock of the 'Links' part of the side bar is reviewed and approved."
-- Each feature has the shape that the Icons feature has in `data/roadmap.json`: the group 'Icons', which holds the step 'Icons design', then the group 'Icons build'. 'Icons build' has two tracks: 'Code', with the step 'Icons code', and 'Tests', with the step 'Icons tests'.
+- Each feature has the shape that the Icons feature has in `roadmap/roadmap.json`: the group 'Icons', which holds the step 'Icons design', then the group 'Icons build'. 'Icons build' has two tracks: 'Code', with the step 'Icons code', and 'Tests', with the step 'Icons tests'.
 - The 'Code' track of a feature also holds the feature's docs, where it has any.
 - Features go in a row in priority order. Two features go side by side in a branching only when they have the same priority and two sessions can build them at once without conflict.
 - A step can take many sessions.
@@ -65,7 +65,7 @@ This project adds these rules to the skill:
 2. Build the HTML file and take a screenshot of it:
 
    ```sh
-   npm run build -- data/roadmap.json
+   npm run build -- roadmap/roadmap.json
    npx --no-install playwright screenshot --color-scheme=dark --viewport-size=1440,900 "file://$PWD/dist/app/index.html" .tmp/shot.png
    ```
 

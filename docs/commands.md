@@ -5,7 +5,7 @@ This doc covers the `npx roadmapper` commands and the `npm run` scripts that dra
 ## How to read a command
 
 - You may leave out an argument in square brackets.
-- `[file]` is the path of a roadmap file. With no `[file]`, `npx roadmapper` reads `roadmap.json` in the folder where you run the command. With no `[file]`, `npm run` reads the file that [The roadmap files of the clone](#the-roadmap-files-of-the-clone) names.
+- `[file]` is the path of a roadmap file. With no `[file]`, `npx roadmapper` reads `roadmap.json` in the folder where you run the command, and without that file it reads `roadmap/roadmap.json` there. When neither file exists, the command prints `File not found`. With no `[file]`, `npm run` reads the file that [The roadmap files of the clone](#the-roadmap-files-of-the-clone) names.
 - `[folder]` is the folder that the command writes into. With no `[folder]`, the command writes into the folder that [What each command writes](#what-each-command-writes) names.
 - A path is relative to the folder where you run the command.
 - With `--host`, a phone on the same Wi-Fi can also open the page, at the `Network` address that the command prints. Without `--host`, only this computer can open the page.
@@ -19,12 +19,13 @@ Run these commands in the folder of a project that has Roadmapper installed. [in
 
 | Command | What it does |
 |---|---|
-| `npx roadmapper dev [file] [--host]` | Serves the app at port 5173. The app shows the roadmap file, and redraws it each time you save the file. The page has 'Edit', and its 'Save' writes the roadmap file, as [view.md, section "Edit on the page"](view.md#edit-on-the-page) says. When the file has errors, the command keeps serving, and the page shows the error list. When the command cannot read the file at its start, it prints `Unreadable file` and stops. |
+| `npx roadmapper [file] [--host]` | Does what `npx roadmapper dev` does. `[file]` must end in `.json`, or name a file that exists. |
+| `npx roadmapper dev [file] [--host]` | Serves the app at port 5173. The app shows the roadmap file, and redraws it each time you save the file. The page has 'Edit', and its 'Save' writes the roadmap file, as [view.md, section "Edit on the page"](view.md#edit-on-the-page) says. When the file has errors, the command keeps serving, and the page shows the error list. When the command cannot read the file at its start, it prints `File not found` or `Unreadable file` and stops. |
 | `npx roadmapper build [file] [folder]` | Writes one HTML file: the app page with the roadmap inside it. |
 | `npx roadmapper validate [file]` | Checks the roadmap file and prints each error. |
 | `npx roadmapper export [--private] [file] [folder]` | Writes the HTML export of the roadmap file. With `--private`, the export keeps the private items. |
 | `npx roadmapper preview [--private] [--host]` | Serves the HTML export at port 4173, the way a site serves it. With `--private`, it serves the export that keeps the private items. |
-| `npx roadmapper` | Prints how to type each command. `npx roadmapper --help` and `npx roadmapper -h` print the same text. |
+| `npx roadmapper --help` | Prints how to type each command. `npx roadmapper -h` prints the same text. |
 
 - In each command, an option can go before, between or after the paths.
 - `npx roadmapper dev` and `npx roadmapper preview` print the address of the page. They serve the page until you press Ctrl+C.
@@ -53,13 +54,13 @@ Run these scripts in a clone of Roadmapper. To use Roadmapper in another folder,
 
 ### The roadmap files of the clone
 
-- `data/roadmap.json` is the roadmap file of Roadmapper itself. A script that takes `[file]` reads it when you name no file.
-- `data/sample.roadmap.json` is the sample roadmap file, 'Plant care app'. [format.md, section "Example"](https://github.com/true-byte/roadmapper/blob/master/.claude/skills/roadmapper/format.md#example) says what the sample holds.
+- `roadmap/roadmap.json` is the roadmap file of Roadmapper itself. A script that takes `[file]` reads it when you name no file.
+- `roadmap/sample.roadmap.json` is the sample roadmap file, 'Plant care app'. [format.md, section "Example"](https://github.com/true-byte/roadmapper/blob/master/.claude/skills/roadmapper/format.md#example) says what the sample holds.
 
-A script that takes `[file]` reads the roadmap file that you name, in `data/` or in any other folder. So one clone can hold many roadmap files and draw any one of them. This command draws the sample roadmap file:
+A script that takes `[file]` reads the roadmap file that you name, in `roadmap/` or in any other folder. So one clone can hold many roadmap files and draw any one of them. This command draws the sample roadmap file:
 
 ```sh
-npm run dev -- data/sample.roadmap.json
+npm run dev -- roadmap/sample.roadmap.json
 ```
 
 ## What each command writes
@@ -95,11 +96,12 @@ When a command cannot do its work, it writes nothing and ends with exit code 1. 
 
 | `<error>` | Printed by | `<where>` | `<value>` | What it means |
 |---|---|---|---|---|
+| `File not found` | `validate`, `build`, `export`, `npx roadmapper dev` | The file that you named. With no `[file]`, each file that the command looks for: `roadmap.json, roadmap/roadmap.json` from `npx roadmapper`. | Empty | The roadmap file does not exist. Name a file that exists, or put the file where the command looks for it. |
 | `Folder not empty` | `build`, `export` | The folder to write into | The files in the folder that the command does not write. When the folder holds only part of an export, the value is all the files in the folder. When the `roadmap.json` in the folder is the roadmap file that `export` reads, the value is `roadmap.json`. | The folder holds a file that the command may not write over, as [What each command writes](#what-each-command-writes) says. `export` also prints this error when the `roadmap.json` in the folder is the roadmap file that it reads. |
 | `Not a folder` | `build`, `export` | The path to write into | Empty | The path is a file, or a part of the path is a file. |
 | `Unknown option` | `validate`, `build`, `export`, `export:preview`, `npx roadmapper dev` | See [Unknown option](#unknown-option). | See [Unknown option](#unknown-option). | The command does not exist, does not take that option, or does not take that many paths. |
 | `Nothing public` | `export` | The roadmap file | Empty | Every item is private, so the export for strangers has nothing to show. To export the whole roadmap, add `--private`. |
-| `Unreadable file` | `npx roadmapper build`, `npx roadmapper dev`, `npx roadmapper export`, `export:preview` | The file that is missing | Empty | A file that the command needs is missing. See [Unreadable file](#unreadable-file). |
+| `Unreadable file` | `validate`, `build`, `export`, `export:preview`, `npx roadmapper dev` | The file that the command cannot read | Empty | A file that the command needs cannot be read. See [Unreadable file](#unreadable-file). |
 
 When the port and the 20 ports above it are in use, `npx roadmapper dev` and `npx roadmapper preview` stop with an error from Node. That error does not have the form above.
 
@@ -109,9 +111,9 @@ In this table, "the command" is the word that you type after `npm run` or `npx r
 
 | Case | `<where>` | `<value>` |
 |---|---|---|
-| The command does not exist. | `roadmapper` | The command |
-| The command does not take an option that you typed. | The command | The first option that the command does not take |
-| You typed more paths than the command takes. | The command | The first path after the ones that the command takes |
+| The command does not exist, and the word does not end in `.json` or name a file that exists. | `roadmapper` | The command |
+| The command does not take an option that you typed. | The command, or `roadmapper` when you typed no command | The first option that the command does not take |
+| You typed more paths than the command takes. | The command, or `roadmapper` when you typed no command | The first path after the ones that the command takes |
 
 `npm run dev` and `npm run preview` pass their options to Vite, and Vite prints its own errors.
 
@@ -119,6 +121,7 @@ In this table, "the command" is the word that you type after `npm run` or `npx r
 
 | Printed by | `<where>` | What to do |
 |---|---|---|
+| `validate`, `build`, `export`, `npx roadmapper dev` | The roadmap file, as `<file>:`. The path is a folder, or you have no permission to read the file. | Name a file that you can read. |
 | `npx roadmapper build`, `npx roadmapper dev` | `dist/cli/app.html` in the installed package: the app page with no roadmap in it | Install the package again. |
 | `npx roadmapper export` | `dist/lib/roadmapper-page.js` in the installed package: the lib of the export | Install the package again. |
 | `export:preview` | `roadmap.html` in the folder that it serves: the page of the export | The folder holds no export to serve. Run `export` first, with no `[folder]`. When `export:preview` has `--private`, give `export` `--private` too. |

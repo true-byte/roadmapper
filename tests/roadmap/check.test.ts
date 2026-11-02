@@ -127,7 +127,7 @@ test('every error has a name from the one list', () => {
 });
 
 test('the sample roadmap has no error', () => {
-  expect(checkRoadmap(readFileSync(new URL('../../data/sample.roadmap.json', import.meta.url), 'utf8')).errors).toEqual([]);
+  expect(checkRoadmap(readFileSync(new URL('../../roadmap/sample.roadmap.json', import.meta.url), 'utf8')).errors).toEqual([]);
 });
 
 test('a roadmap given as data throws its first error, with no line', () => {

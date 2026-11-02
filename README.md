@@ -22,11 +22,17 @@ npm install roadmapper
 Run these commands in your project's folder. The first command copies the sample roadmap file, 'Plant care app', to `roadmap.json`. The second command serves the app, which shows `roadmap.json`.
 
 ```sh
-cp node_modules/roadmapper/data/sample.roadmap.json roadmap.json
-npx roadmapper dev
+cp node_modules/roadmapper/roadmap/sample.roadmap.json roadmap.json
+npx roadmapper
 ```
 
-Open the address that `npx roadmapper dev` prints. The page redraws the plan each time you save `roadmap.json`.
+Open the address that `npx roadmapper` prints. The page redraws the plan each time you save `roadmap.json`.
+
+With no `roadmap.json` in the folder, `npx roadmapper` shows `roadmap/roadmap.json`. To show a file anywhere else, name it:
+
+```sh
+npx roadmapper plans/plant-care.json
+```
 
 To show the roadmap in a React app, use the component `Roadmap`:
 

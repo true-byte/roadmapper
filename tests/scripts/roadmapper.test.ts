@@ -19,8 +19,8 @@ function npmRun(command: string, words: string[], from: string, npm: Record<stri
 
 test.afterEach(removeFolders);
 
-test('npm run validate with no file checks data/roadmap.json', async () => {
-  expect(await npmRun('validate', [], ROOT)).toEqual({ code: 0, out: 'data/roadmap.json: no errors\n', err: '' });
+test('npm run validate with no file checks roadmap/roadmap.json', async () => {
+  expect(await npmRun('validate', [], ROOT)).toEqual({ code: 0, out: 'roadmap/roadmap.json: no errors\n', err: '' });
 });
 
 test('npm run export takes paths and --private from where it is typed', async () => {
@@ -30,6 +30,10 @@ test('npm run export takes paths and --private from where it is typed', async ()
   const kept = await npmRun('export', ['plan.json', 'out'], here, { npm_config_private: 'true' });
   expect(kept.code, kept.err).toBe(0);
   expect(readFileSync(join(here, 'out/roadmap.json'), 'utf8')).toContain('Secret price');
+});
+
+test('npm run validate names the file it did not find, from where it is typed', async () => {
+  expect(await npmRun('validate', ['nope.json'], folder())).toEqual({ code: 1, out: '', err: 'nope.json  File not found  \n' });
 });
 
 test('npm run export:preview names its errors by the npm script', async () => {

@@ -21,7 +21,7 @@ npx playwright install --with-deps chromium
 
 [docs/commands.md](docs/commands.md) gives the commands that draw, check or export a roadmap file, or pack Roadmapper. [docs/commands.md, section "The roadmap files of the clone"](docs/commands.md#the-roadmap-files-of-the-clone) says which roadmap file `npm run dev` draws, and how to draw another one.
 
-`npm run dev` shows each change to `src/`. A saved `.ts` file reloads the page. A saved `.css` file changes the styles on the page with no reload. `npx roadmapper dev` serves the app page of the installed package, so it does not show a change to `src/`.
+`npm run dev` shows each change to `src/`. A saved `.ts` file reloads the page. A saved `.css` file changes the styles on the page with no reload. `npx roadmapper` serves the app page of the installed package, so it does not show a change to `src/`.
 
 ## Build and check the code
 
@@ -134,7 +134,7 @@ That element is `#app` on the app page. In `<roadmapper-view>`, it is the `.road
 
 ## Code rules
 
-[CLAUDE.md](CLAUDE.md) holds the code rules, in its sections "Scope", "Code" and "The tree shape". They hold for every change, made by hand or by Claude. The section "Roadmapper's roadmap file" of CLAUDE.md holds the rules for `data/roadmap.json`, Roadmapper's own roadmap file.
+[CLAUDE.md](CLAUDE.md) holds the code rules, in its sections "Scope", "Code" and "The tree shape". They hold for every change, made by hand or by Claude. The section "Roadmapper's roadmap file" of CLAUDE.md holds the rules for `roadmap/roadmap.json`, Roadmapper's own roadmap file.
 
 ## Write docs
 
@@ -171,7 +171,7 @@ These rules hold for `README.md`, every file in `docs/`, `CONTRIBUTING.md`, `CLA
 ### Examples
 
 - Take all examples in one doc from one plan.
-- The docs take their examples from the sample roadmap file, 'Plant care app' (`data/sample.roadmap.json`), so that you can open it and find each step.
+- The docs take their examples from the sample roadmap file, 'Plant care app' (`roadmap/sample.roadmap.json`), so that you can open it and find each step.
 - The skill takes its examples from one plan that is not software: opening a bakery. A roadmap file plans any goal, and the skill must not read as if it were for software only.
 - Use names that a person would write, never 'Step A' or 'foo'.
 - Write a request to Claude the way a person types it. Say what Claude does as what changes in the roadmap file.
@@ -211,7 +211,7 @@ To add an icon set, put it into `src/icons/`, and add a loader by its name to `s
 
    ```sh
    git fetch origin
-   git switch -c <branch> origin/release/<version>
+   git switch -c <branch> --no-track origin/release/<version>
    ```
 
 4. Install the packages and the Chromium that the release branch pins:
@@ -250,6 +250,16 @@ To add an icon set, put it into `src/icons/`, and add a loader by its name to `s
 
 A person with write access to `true-byte/roadmapper` reviews each pull request and decides whether to merge it into its release branch.
 
+## Repository rules
+
+GitHub rulesets on `true-byte/roadmapper` hold these rules:
+
+| Ruleset | Holds for | Rules |
+|---|---|---|
+| 'Master' | `master` | A change arrives only by a pull request whose check 'All tests' passes. No force push, no delete, and no person can bypass these rules. |
+| 'Release branches' | `release/*` | A change arrives only by a pull request whose check 'All tests' passes. No force push, and no person can bypass these rules. A person with write access can create or delete such a branch, as [Make a release](#make-a-release) says. |
+| 'Release tags' | `v*` | Only a repository admin can create, move or delete such a tag. |
+
 ## Make a release
 
 These steps need the admin role of `true-byte/roadmapper`, and write access to the package `roadmapper` on npm. The rules of the repo let only an admin delete a release branch and make a tag whose name starts with `v`.
@@ -275,7 +285,7 @@ git push -u origin release/<version>
 
    ```sh
    git fetch origin
-   git switch -c feature/<version>-version origin/release/<version>
+   git switch -c feature/<version>-version --no-track origin/release/<version>
    npm version <version> --no-git-tag-version
    git add package.json package-lock.json
    git commit -m "Set the version to <version>"
@@ -359,7 +369,7 @@ A patch fixes a release with a lower version than the release that `master` hold
 
    ```sh
    git fetch --tags origin
-   git switch -c <branch> origin/release/<newest>
+   git switch -c <branch> --no-track origin/release/<newest>
    git log --reverse --no-merges --oneline v<release>..v<patch>
    git cherry-pick <commit>
    ```
@@ -372,7 +382,7 @@ A patch fixes a release with a lower version than the release that `master` hold
 
 | Folder | What it holds |
 |---|---|
-| `data/` | The roadmap files of the clone. |
+| `roadmap/` | The roadmap files of the clone. |
 | `.claude/skills/roadmapper/` | The `roadmapper` skill, with the roadmap file format. |
 | `docs/` | The docs on using Roadmapper, and the screenshots of `README.md` in `docs/images/`. |
 | `src/roadmap/` | The types of a roadmap file, the code that checks a roadmap file, and the code that gives each step its state. |

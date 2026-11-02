@@ -1,4 +1,4 @@
-// The commands of Roadmapper: `npx roadmapper <command>` from the package (src/cli/bin.ts), and `npm run <command>` in this folder (scripts/roadmapper.mjs).
+// The commands of Roadmapper: `npx roadmapper [command]` from the package (src/cli/bin.ts), and `npm run <command>` in this folder (scripts/roadmapper.mjs).
 // Each command gets the folder it was typed in and the files it uses, and does not know which of the two runs it: each path typed is from that folder,
 // and each path printed is to it. A command that cannot do its work writes nothing, prints one line for each error, and ends with exit code 1.
 /// <reference types="node" />
@@ -18,8 +18,8 @@ export interface Setup {
   here: string;
   /** The name of the command as typed, for its errors: `export:preview` is the command `preview` in this folder. */
   name: string;
-  /** The roadmap file, when none is typed. */
-  file: string;
+  /** The roadmap files to read when none is typed: the first that exists. */
+  files: string[];
   /** The folders that `build`, `export` and `export --private` write into, and `preview` serves, when none is typed. */
   app: string;
   export: string;
@@ -40,20 +40,29 @@ export const COMMANDS = {
 } satisfies Record<string, { paths: number; options: string[] }>;
 type Command = keyof typeof COMMANDS;
 
-const USAGE = `npx roadmapper dev [file] [--host]
+const USAGE = `npx roadmapper [file] [--host]
+npx roadmapper dev [file] [--host]
 npx roadmapper build [file] [folder]
 npx roadmapper validate [file]
 npx roadmapper export [--private] [file] [folder]
 npx roadmapper preview [--private] [--host]
 `;
 
+/** The roadmap files of a project, when none is typed: roadmap.json in its folder, else roadmap/roadmap.json there. */
+export const projectFiles = (here: string): string[] => [join(here, 'roadmap.json'), join(here, 'roadmap/roadmap.json')];
+
+/** Does the first word typed, which is no command, belong to `dev`: an option, or a path of a file? Any other word is a command typed wrong. */
+const belongsToDev = (word: string, here: string): boolean => word.startsWith('-') || word.endsWith('.json') || existsSync(resolve(here, word));
+
 /** Runs a command with the words typed after it, options anywhere among the paths. It gives the exit code, or nothing for `dev` and `preview`,
- * which serve until they are stopped. With no command, it prints how each command is typed. */
+ * which serve until they are stopped. With no command, it runs `dev`. `--help` prints how each command is typed. */
 export async function run(command: string | undefined, words: string[], s: Setup): Promise<number | undefined> {
-  if (command === undefined || command === '--help' || command === '-h') {
+  if (command === '--help' || command === '-h') {
     process.stdout.write(USAGE);
     return 0;
   }
+  if (command === undefined) return run('dev', words, { ...s, name: 'roadmapper' });
+  if (!Object.hasOwn(COMMANDS, command) && belongsToDev(command, s.here)) return run('dev', [command, ...words], { ...s, name: 'roadmapper' });
   if (!Object.hasOwn(COMMANDS, command)) return fail('roadmapper', 'Unknown option', command);
   const spec: { paths: number; options: string[] } = COMMANDS[command as Command];
   const odd = words.find(w => w.startsWith('-') && !spec.options.includes(w));
@@ -63,10 +72,13 @@ export async function run(command: string | undefined, words: string[], s: Setup
   const paths = typed.map(p => resolve(s.here, p));
   const has = (option: string): boolean => words.includes(option);
   const to = (path: string): string => relative(s.here, path) || '.';
+  // the file typed, or else the first of the files to read when none is typed. The error names each one that was looked for.
+  const looked = paths.length ? paths.slice(0, 1) : s.files;
+  const file = looked.find(f => existsSync(f)) ?? '';
+  if (spec.paths && !file) return fail(looked.map(to).join(', '), 'File not found');
 
   switch (command as Command) {
     case 'validate': {
-      const [file = s.file] = paths;
       const text = checked(file, to, line => console.log(line));
       if (text === undefined) return 1;
       console.log(`${to(file)}: no errors`);
@@ -74,7 +86,7 @@ export async function run(command: string | undefined, words: string[], s: Setup
     }
 
     case 'build': {
-      const [file = s.file, folder = s.app] = paths;
+      const [, folder = s.app] = paths;
       // what a build writes into its folder: the one file of the page
       const no = refusal(folder, ['index.html']);
       if (no) return fail(to(folder), no.error, no.value);
@@ -91,14 +103,14 @@ export async function run(command: string | undefined, words: string[], s: Setup
 
     case 'export': {
       const keep = { private: has('--private') };
-      const [file = s.file, folder = keep.private ? s.exportPrivate : s.export] = paths;
+      const [, folder = keep.private ? s.exportPrivate : s.export] = paths;
       if (!existsSync(s.lib)) return fail(to(s.lib), 'Unreadable file');
       const lib = readFileSync(s.lib);
       const wrong = refusal(folder, Object.values(FILES));
       if (wrong) return fail(to(folder), wrong.error, wrong.value);
       // the export must never take the place of the owner's file, by any path or link to it, also in a folder that holds an export
       const out = join(folder, FILES.roadmap);
-      if (existsSync(out) && existsSync(file) && same(out, file)) return fail(to(folder), 'Folder not empty', FILES.roadmap);
+      if (existsSync(out) && same(out, file)) return fail(to(folder), 'Folder not empty', FILES.roadmap);
       const text = checked(file, to, line => console.error(line));
       if (text === undefined) return 1;
       let files: { page: string; roadmap: string };
@@ -119,7 +131,6 @@ export async function run(command: string | undefined, words: string[], s: Setup
     }
 
     case 'dev': {
-      const [file = s.file] = paths;
       const first = read(file);
       if (first === undefined) {
         console.error(`${to(file)}:${sayError(UNREADABLE)}`);
