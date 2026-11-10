@@ -2,7 +2,7 @@
 // npm test exports tests/fixtures/export.json into dist/tests/export. The tests serve those files from https://landing.test themselves, or open them from disk.
 /// <reference types="node" />
 import { execFile } from 'node:child_process';
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -12,6 +12,8 @@ import { errorList, expect, flowOf, labelsSwitch, level, nameOf, pickLayout, pop
 const ROOT = fileURLToPath(new URL('../..', import.meta.url));
 const DIR = join(ROOT, 'dist/tests/export');
 const FAIL = 'The roadmap could not load: roadmapper.js did not run.';
+/** The files of the folder fonts/ of the export, by their paths in it. */
+const FONTS = readdirSync(join(DIR, 'fonts')).map(f => `fonts/${f}`);
 /** The ids the export gives the steps of tests/fixtures/export.json that a stranger sees: s1, s2 and on, in reading order. */
 const ID = { idea: 's1', tricky: 's2', 'code-1': 's3', 'tests-1': 's6', 'tests-2': 's7', release: 's9', party: 's11' };
 /** The background of the view and the line of a step, in each mode, as the theme sets them. */
@@ -60,7 +62,7 @@ async function pick(page: Page, id: string): Promise<void> {
   await settle(page);
 }
 
-/** A made-up site at https://landing.test: the export's files in the folder `at`, the page also without its .html, and the pages in `pages`,
+/** A made-up site at https://landing.test: the export's files and its folder fonts/ in the folder `at`, the page also without its .html, and the pages in `pages`,
  * and for any other address a 404, or with `ownPage` the site's own page, as a host that serves a one-page app does. `files` puts other text in place of a file. */
 async function landing(page: Page, at = '/', o: { lib?: boolean; ownPage?: boolean; files?: Record<string, string>; pages?: Record<string, string> } = {}): Promise<void> {
   const file = (name: string): string | Buffer => o.files?.[name] ?? readFileSync(join(DIR, name));
@@ -69,6 +71,7 @@ async function landing(page: Page, at = '/', o: { lib?: boolean; ownPage?: boole
     if (path === `${at}roadmap.html` || path === `${at}roadmap`) return r.fulfill({ contentType: 'text/html; charset=utf-8', body: file('roadmap.html') });
     if (path === `${at}roadmap.json`) return r.fulfill({ contentType: 'application/json', body: file('roadmap.json') });
     if (path === `${at}roadmapper.js` && o.lib !== false) return r.fulfill({ contentType: 'text/javascript; charset=utf-8', body: file('roadmapper.js') });
+    if (path.startsWith(`${at}fonts/`) && FONTS.includes(path.slice(at.length))) return r.fulfill({ contentType: 'font/woff2', body: file(path.slice(at.length)) });
     if (o.pages && Object.hasOwn(o.pages, path)) return r.fulfill({ contentType: 'text/html; charset=utf-8', body: o.pages[path] });
     if (o.ownPage) return r.fulfill({ contentType: 'text/html; charset=utf-8', body: '<!doctype html><title>Landing</title><h1>Landing</h1>' });
     return r.fulfill({ status: 404, body: 'Not found' });
@@ -89,10 +92,6 @@ function runExport(dir: string, file: string): Promise<void> {
 }
 
 test.use({ offline: false });
-// the web fonts of the theme never come, as in the specs that run offline: the page draws in the fallback fonts, and never draws its names again at a moment that the network sets
-test.beforeEach(async ({ context }) => {
-  await context.route('https://fonts.googleapis.com/**', r => r.abort());
-});
 
 test('the page draws the public roadmap', async ({ page }) => {
   await openExport(page);

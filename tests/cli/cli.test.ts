@@ -1,7 +1,8 @@
 // The commands of src/cli/cli.ts, run in this process as `npx roadmapper` runs them: each path typed is from the folder it is typed in, and each path printed is to it.
 // A command that cannot do its work writes nothing, prints one line for each error, and ends with code 1. `build` and `export` write only into a folder that is missing, empty or holds what they wrote.
+// Both write the folder fonts/ of the package next to the page.
 /// <reference types="node" />
-import { existsSync, linkSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, linkSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { expect, test } from '@playwright/test';
 import { ask, cliSource, folder, removeFolders, roadmapper, ROOT } from '../support/cli';
@@ -34,8 +35,11 @@ function typedIn(files: Record<string, string> = {}): string {
 }
 /** What a command printed, with each size as 'n kB'. */
 const sized = (out: string): string => out.replace(/\d+ kB$/gm, 'n kB');
-/** The files of a folder and what each holds. */
-const contents = (dir: string): Record<string, string> => Object.fromEntries(readdirSync(dir).sort().map(f => [f, readFileSync(join(dir, f), 'utf8')]));
+/** The files of a folder and of the folders in it, by their paths there, and what each holds. */
+const contents = (dir: string): Record<string, string> =>
+  Object.fromEntries(readdirSync(dir, { recursive: true, encoding: 'utf8' }).filter(f => statSync(join(dir, f)).isFile()).sort().map(f => [f, readFileSync(join(dir, f), 'latin1')]));
+/** The fonts of the package, dist/lib/fonts/, by their paths in a build or an export, and what each holds. */
+const fonts = (): Record<string, string> => Object.fromEntries(Object.entries(contents(join(ROOT, 'dist/lib/fonts'))).map(([f, t]) => [`fonts/${f}`, t]));
 
 test('roadmapper --help prints the usage, and a wrong command gives its error', async () => {
   const here = typedIn();
@@ -89,14 +93,15 @@ test.describe('build', () => {
   test('build writes into a new folder, then over its own build', async () => {
     const here = typedIn({ 'roadmap.json': plan('First plan xq') });
     const built = await roadmapper(['build'], here);
-    expect(sized(built.out), built.err).toBe('dist/app/index.html  n kB\n');
-    expect(readdirSync(join(here, 'dist/app'))).toEqual(['index.html']);
-    expect(readFileSync(join(here, 'dist/app/index.html'), 'utf8')).toContain('First plan xq');
-    expect((await roadmapper(['build', 'roadmap.json', 'out'], here)).out).toMatch(/^out\/index\.html {2}\d+ kB\n$/);
+    expect(sized(built.out), built.err).toBe('dist/app/index.html  n kB\ndist/app/fonts/  n kB\n');
+    const { 'index.html': page1, ...rest } = contents(join(here, 'dist/app'));
+    expect(page1).toContain('First plan xq');
+    expect(rest).toEqual(fonts());
+    expect((await roadmapper(['build', 'roadmap.json', 'out'], here)).out).toMatch(/^out\/index\.html {2}\d+ kB\nout\/fonts\/ {2}\d+ kB\n$/);
 
     writeFileSync(join(here, 'roadmap.json'), plan('Second plan xq'));
     expect((await roadmapper(['build', 'roadmap.json', 'out'], here)).code).toBe(0);
-    expect(readdirSync(join(here, 'out'))).toEqual(['index.html']);
+    expect(readdirSync(join(here, 'out'))).toEqual(['fonts', 'index.html']);
     const page = readFileSync(join(here, 'out/index.html'), 'utf8');
     expect(page).toContain('Second plan xq');
     expect(page).not.toContain('First plan xq');
@@ -126,13 +131,15 @@ test.describe('build', () => {
 });
 
 test.describe('export', () => {
-  test('export writes its three files, then over its own export', async () => {
+  test('export writes its three files and the fonts, then over its own export', async () => {
     const here = typedIn({ 'roadmap.json': FIXTURE });
     const made = await roadmapper(['export'], here);
-    expect(sized(made.out), made.err).toBe('dist/export/roadmap.html  n kB\ndist/export/roadmap.json  n kB\ndist/export/roadmapper.js  n kB\n');
+    expect(sized(made.out), made.err).toBe('dist/export/roadmap.html  n kB\ndist/export/roadmap.json  n kB\ndist/export/roadmapper.js  n kB\ndist/export/fonts/  n kB\n');
     const out = join(here, 'dist/export'), first = contents(out);
-    expect(Object.keys(first)).toEqual(['roadmap.html', 'roadmap.json', 'roadmapper.js']);
-    expect(first['roadmapper.js']).toBe(readFileSync(join(ROOT, 'dist/lib/roadmapper-page.js'), 'utf8'));
+    const { 'roadmap.html': page, 'roadmap.json': roadmap, 'roadmapper.js': lib, ...rest } = first;
+    expect([page, roadmap, lib].every(Boolean)).toBe(true);
+    expect(rest).toEqual(fonts());
+    expect(first['roadmapper.js']).toBe(readFileSync(join(ROOT, 'dist/lib/roadmapper-page.js'), 'latin1'));
     for (const word of PRIVATE) expect(first['roadmap.json'], word).not.toContain(word);
 
     for (const f of Object.keys(first)) writeFileSync(join(out, f), 'an export before');
@@ -143,7 +150,7 @@ test.describe('export', () => {
   test('export --private keeps the whole roadmap, in a folder of its own', async () => {
     const here = typedIn({ 'roadmap.json': FIXTURE, 'all.json': ALL_PRIVATE });
     const kept = await roadmapper(['export', '--private'], here);
-    expect(sized(kept.out), kept.err).toBe('dist/export-private/roadmap.html  n kB\ndist/export-private/roadmap.json  n kB\ndist/export-private/roadmapper.js  n kB\n');
+    expect(sized(kept.out), kept.err).toBe('dist/export-private/roadmap.html  n kB\ndist/export-private/roadmap.json  n kB\ndist/export-private/roadmapper.js  n kB\ndist/export-private/fonts/  n kB\n');
     const whole = readFileSync(join(here, 'dist/export-private/roadmap.json'), 'utf8');
     for (const word of PRIVATE) expect(whole, word).toContain(word);
     // where everything is private, it all goes out
@@ -193,6 +200,22 @@ test.describe('export', () => {
     expect(readFileSync(join(here, 'roadmap.json'), 'utf8')).toBe(FIXTURE);
   });
 
+  test('build and export write over their files from before the fonts came, and nothing into a folder fonts/ with a file of its own', async () => {
+    const here = typedIn({ 'roadmap.json': FIXTURE, 'site/index.html': 'a build before', 'out/roadmap.html': 'old', 'out/roadmap.json': 'old', 'out/roadmapper.js': 'old' });
+    expect((await roadmapper(['build', 'roadmap.json', 'site'], here)).code).toBe(0);
+    expect((await roadmapper(['export', 'roadmap.json', 'out'], here)).code).toBe(0);
+    expect(readdirSync(join(here, 'site'))).toEqual(['fonts', 'index.html']);
+    expect(readdirSync(join(here, 'out'))).toEqual(['fonts', 'roadmap.html', 'roadmap.json', 'roadmapper.js']);
+
+    const refused = (where: string): unknown => ({ code: 1, out: '', err: `${where}  Folder not empty  fonts/\n` });
+    writeFileSync(join(here, 'site/fonts/mine.woff2'), 'mine');
+    writeFileSync(join(here, 'out/fonts/mine.woff2'), 'mine');
+    const before = [contents(join(here, 'site')), contents(join(here, 'out'))];
+    expect(await roadmapper(['build', 'roadmap.json', 'site'], here)).toEqual(refused('site'));
+    expect(await roadmapper(['export', 'roadmap.json', 'out'], here)).toEqual(refused('out'));
+    expect([contents(join(here, 'site')), contents(join(here, 'out'))]).toEqual(before);
+  });
+
   test('export never writes over the roadmap file it reads', async () => {
     const here = typedIn({ 'roadmap.json': FIXTURE });
     expect(await roadmapper(['export', 'roadmap.json', '.'], here)).toEqual({ code: 1, out: '', err: '.  Folder not empty  roadmap.json\n' });
@@ -205,8 +228,20 @@ test.describe('export', () => {
   });
 });
 
+/** Checks that a server sends each file of the folder of fonts at /fonts/, a font as font/woff2, and nothing else there. */
+function servesFonts(listener: Parameters<typeof ask>[0], dir: string): void {
+  const files = readdirSync(dir);
+  expect(files.filter(f => f.endsWith('.woff2')).length).toBeGreaterThan(0);
+  for (const file of files) {
+    const got = ask(listener, `/fonts/${file}`);
+    const type = file.endsWith('.woff2') ? 'font/woff2' : 'text/plain; charset=utf-8';
+    expect({ status: got.status, type: got.type, body: got.body() }, file).toEqual({ status: 200, type, body: readFileSync(join(dir, file), 'utf8') });
+  }
+  for (const path of ['/fonts/', '/fonts/nope.woff2', '/fonts/../roadmap.json', '/fonts/%2e%2e%2froadmap.json', '/fonts/%E0%A4%A']) expect(ask(listener, path).status, path).toBe(404);
+}
+
 test.describe('dev and preview', () => {
-  test('preview serves the three files of the export, and nothing else', async () => {
+  test('preview serves the three files of the export and its fonts, and nothing else', async () => {
     const { previewServer } = await cliSource();
     const here = typedIn({ 'roadmap.json': FIXTURE });
     expect((await roadmapper(['export'], here)).code).toBe(0);
@@ -218,6 +253,7 @@ test.describe('dev and preview', () => {
     }
     // the page also without its .html
     expect(ask(site, '/roadmap').body()).toBe(readFileSync(join(out, 'roadmap.html'), 'utf8'));
+    servesFonts(site, join(out, 'fonts'));
     for (const path of ['/', '/index.html', '/../roadmap.json', '/dist/export/roadmap.json']) expect(ask(site, path).status, path).toBe(404);
   });
 
@@ -227,15 +263,16 @@ test.describe('dev and preview', () => {
     expect(await roadmapper(['preview', '--hots'], here)).toEqual({ code: 1, out: '', err: 'preview  Unknown option  --hots\n' });
   });
 
-  test('dev serves the page at /, each save at /events, and takes plans at /save', async () => {
+  test('dev serves the page at /, each save at /events, the fonts at /fonts/, and takes plans at /save', async () => {
     const { devServer } = await cliSource();
-    const dev = devServer(readFileSync(join(ROOT, 'dist/cli/app.html'), 'utf8'), () => ({ text: plan('First plan'), file: 'roadmap.json' }), join(folder(), 'roadmap.json'));
+    const dev = devServer(readFileSync(join(ROOT, 'dist/cli/app.html'), 'utf8'), () => ({ text: plan('First plan'), file: 'roadmap.json' }), join(folder(), 'roadmap.json'), join(ROOT, 'dist/lib/fonts'));
     const page = ask(dev.listener, '/');
     expect(page).toMatchObject({ status: 200, type: 'text/html; charset=utf-8' });
     // the slot of the page holds the file, its name, the address of the saves, and the address that 'Save' sends the plan to
     const slot = /<script type="application\/json" id="roadmap">([^<]*)<\/script>/.exec(page.body())?.[1];
     expect(JSON.parse(slot ?? '')).toEqual({ text: plan('First plan'), file: 'roadmap.json', live: '/events', save: '/save' });
     expect(ask(dev.listener, '/nope').status).toBe(404);
+    servesFonts(dev.listener, join(ROOT, 'dist/lib/fonts'));
     const stream = ask(dev.listener, '/events');
     expect(stream).toMatchObject({ status: 200, type: 'text/event-stream' });
     dev.send({ text: plan('Saved plan'), file: 'roadmap.json' });

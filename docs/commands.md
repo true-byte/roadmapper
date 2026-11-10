@@ -67,17 +67,18 @@ npm run dev -- roadmap/sample.roadmap.json
 
 | Command | What it writes | Where, with no `[folder]` |
 |---|---|---|
-| `build` | `index.html`: the app page with the roadmap inside it. [export.md](export.md) says what it is for. | `dist/app/` |
-| `export` | `roadmap.html`, `roadmap.json` and `roadmapper.js`: the HTML export. [export.md](export.md) says what each file is. | `dist/export/`, or `dist/export-private/` with `--private` |
+| `build` | `index.html`: the app page with the roadmap inside it, and the folder `fonts/`. [export.md](export.md) says what it is for. | `dist/app/` |
+| `export` | `roadmap.html`, `roadmap.json`, `roadmapper.js` and the folder `fonts/`: the HTML export. [export.md](export.md) says what each file is. | `dist/export/`, or `dist/export-private/` with `--private` |
 | `npm run package` | `roadmapper-<version>.tgz`: a package file that another project can install, to try a change of the clone. | `dist/` in the clone |
 | `dev` | The roadmap file it serves, each time you click 'Save' on its page. | No folder |
 | `validate`, `export:preview`, `npm run preview` | Nothing. | No folder |
 
 - With no `[folder]`, `npx roadmapper` writes into `dist/` in the folder where you run it. With no `[folder]`, `npm run` writes into `dist/` in the clone.
 - `export:preview` serves the folder that `export` writes into with no `[folder]`. `npm run preview` serves the folder that `npm run build` writes into with no `[folder]`.
-- `build` and `export` print each file that they write, with its size.
-- `build` writes only into a folder that does not exist, is empty, or holds only the `index.html` of a build. It writes over that `index.html`.
-- `export` writes only into a folder that does not exist, is empty, or holds exactly the three files of an export. It writes over those three files, and never over the roadmap file that it reads.
+- `build` and `export` print each file that they write, with its size, and the folder `fonts/`, with the size of all its files.
+- `build` writes only into a folder that does not exist, is empty, or holds only the `index.html` of a build, with or without its folder `fonts/`. It writes over them.
+- `export` writes only into a folder that does not exist, is empty, or holds exactly the three files of an export, with or without its folder `fonts/`. It writes over them, and never over the roadmap file that it reads.
+- A folder `fonts/` that holds a file that Roadmapper does not write is someone's own. Then the command prints `Folder not empty` with the value `fonts/`.
 
 ## The `validate` command
 

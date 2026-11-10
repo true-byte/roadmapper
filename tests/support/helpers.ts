@@ -50,7 +50,7 @@ export const test = base.extend<{ errors: string[] }>({
     async ({ page }, use) => {
       const errors: string[] = [];
       page.on('pageerror', e => errors.push(e.message));
-      // the app page asks for its fonts, and the tests run offline
+      // the browser logs each request that a test answers with an error, as a server that refuses a save
       page.on('console', m => {
         if (m.type() === 'error' && !m.text().startsWith('Failed to load resource')) errors.push(m.text());
       });
@@ -141,12 +141,17 @@ export async function save(page: Page, plan: Roadmap | string): Promise<void> {
 
 /** Waits until each view on the page is at rest: its host has no data-moving, which the view sets while a move, a change of view, a scale or a smooth scroll
  * is on its way, and the knob of the zoom control is at the level asked for. It looks two frames on, once what the last step set off has begun:
- * a new size of the window, which the view hears of in the next frame.
+ * a new size of the window, which the view hears of in the next frame, or a font of the theme that a new text asks for. While a font loads, it waits for it,
+ * and looks two frames on again: the view draws its names again in the font once it has come.
  * The check runs once a frame; it is not async, since waitForFunction takes a promise for a yes. */
 export async function settle(page: Page): Promise<void> {
   await page.waitForFunction(call => {
     const w = window as unknown as { rest?: { call: number; frames: number } };
     if (w.rest?.call !== call) w.rest = { call, frames: 0 };
+    if (document.fonts.status === 'loading') {
+      w.rest.frames = 0;
+      return false;
+    }
     // the first look is at once, the next ones a frame apart
     if (++w.rest.frames < 3) return false;
     // the view of the page, or the view in the shadow root of each box on it
@@ -326,4 +331,30 @@ export async function saveEdit(page: Page): Promise<Roadmap> {
 export async function middle(at: Locator): Promise<[number, number]> {
   const r = (await at.boundingBox())!;
   return [r.x + r.width / 2, r.y + r.height / 2];
+}
+
+/** The fonts the browser draws a name of a step and a name of a branch in, on the plan of the page or of the first box on it: 'theme' where the width
+ * it draws a long name is nearer the width the first font of its font-family gives, the font of the theme, than the width the fonts after it give, and 'fallback' where it is nearer that. */
+export async function drawnIn(page: Page): Promise<{ name: string; branch: string }> {
+  return page.evaluate(() => {
+    const roots = [document, ...[...document.querySelectorAll('roadmapper-view')].flatMap(b => (b.shadowRoot ? [b.shadowRoot] : []))];
+    const plan = roots.map(r => r.querySelector('svg.plan')).find(e => !!e)!;
+    const pen = document.createElement('canvas').getContext('2d')!;
+    const kind = (cls: string): string => {
+      const e = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      e.setAttribute('class', cls);
+      e.textContent = 'Open the second bakery downtown';
+      plan.append(e);
+      const s = getComputedStyle(e), t = s.textTransform === 'uppercase' ? e.textContent.toUpperCase() : e.textContent;
+      const width = (family: string): number => {
+        pen.font = `${s.fontStyle} ${s.fontWeight} ${s.fontSize} ${family}`;
+        return pen.measureText(t).width + (parseFloat(s.letterSpacing) || 0) * [...t].length;
+      };
+      const drawn = e.getComputedTextLength(), theme = width(s.fontFamily), fallback = width(s.fontFamily.split(',').slice(1).join(','));
+      e.remove();
+      if (Math.abs(theme - fallback) < 0.01 * theme) return `nearly the same width in both: ${theme}, ${fallback}`;
+      return Math.abs(drawn - theme) < Math.abs(drawn - fallback) ? 'theme' : 'fallback';
+    };
+    return { name: kind('label'), branch: kind('cap') };
+  });
 }

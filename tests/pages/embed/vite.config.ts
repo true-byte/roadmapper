@@ -1,4 +1,5 @@
 import { defineConfig } from 'vite';
+import { themeFonts } from '../../../src/themes/fonts.ts';
 import { fewIcons, plainScript } from '../../support/build.ts';
 
 // The embed page, built as the plan page is: a plain script out of the page, and only the icons the test plans name (tests/support/build.ts).
@@ -6,7 +7,8 @@ import { fewIcons, plainScript } from '../../support/build.ts';
 // has not: with no part apart, it never needs it, so that warning is off.
 export default defineConfig({
   base: './',
-  plugins: [fewIcons, plainScript],
+  // no fonts of the theme: the page draws in the fallback fonts, which tests/support/layout.ts measures, and never draws its names again when a font loads
+  plugins: [fewIcons, plainScript, themeFonts('none')],
   build: {
     outDir: '../../../dist/tests/embed',
     emptyOutDir: true,

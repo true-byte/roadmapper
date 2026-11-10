@@ -1,4 +1,4 @@
-// The fonts: a name is wrapped by how wide the theme's font draws it. The web fonts the theme names are put on the page once.
+// The fonts: a name is wrapped by how wide the theme's font draws it. The fonts of the theme are put on the page once.
 import type { ViewContext } from './context.js';
 import type { Fonts, TextKind } from './plan.js';
 import { el } from './svg.js';
@@ -6,15 +6,30 @@ import { el } from './svg.js';
 /** The widths a set of fonts gives, to tell when a font that has loaded changes them. */
 export const look = (f: Fonts): string => (['label', 'bold', 'cap', 'gname'] as TextKind[]).map(k => f.width('Roadmap step name 0/9', k).toFixed(2)).join(' ') + ` ${f.line}`;
 
-/** The theme names the web fonts it draws in, as the address of their style sheet in --fonts. They are put on the page once, where every view can use them:
- * a font named only inside a shadow root does not load. */
-export function fontsOf(host: HTMLElement): void {
-  const sheet = getComputedStyle(host).getPropertyValue('--fonts').trim().replace(/^["']|["']$/g, '');
-  if (!sheet || [...document.querySelectorAll<HTMLLinkElement>('link[rel="stylesheet"]')].some(l => l.href === sheet)) return;
-  const link = document.createElement('link');
-  link.rel = 'stylesheet';
-  link.href = sheet;
-  document.head.append(link);
+/** A face of a font of the theme, with the address of its file, as the module 'virtual:theme-fonts' gives it (src/themes/fonts.ts). */
+export interface Face {
+  family: string;
+  style: string;
+  weight: string;
+  display: string;
+  unicodeRange: string;
+  url: string;
+}
+
+/** Puts the faces of the fonts of the theme on the page once, where every view can use them: a font named only inside a shadow root does not load.
+ * Each file comes from the folder fonts/ next to Roadmapper's own files, when a text on the page first needs its letters.
+ * A face the page already has, by its family, style, weight and letters, is not put on again, as for a second view or a second copy of the lib. */
+export function fontsOf(faces: Face[]): void {
+  if (typeof FontFace === 'undefined' || !document.fonts) return;
+  const key = (f: FontFace): string => [f.family.replace(/^["']|["']$/g, ''), f.style, f.weight, f.unicodeRange].join('|');
+  const has = new Set<string>();
+  document.fonts.forEach(f => has.add(key(f)));
+  for (const { family, url, ...descriptors } of faces) {
+    const face = new FontFace(family, `url(${JSON.stringify(url)}) format("woff2")`, descriptors as FontFaceDescriptors);
+    if (has.has(key(face))) continue;
+    has.add(key(face));
+    document.fonts.add(face);
+  }
 }
 
 export function fontsPart(ctx: ViewContext) {
@@ -49,7 +64,7 @@ export function fontsPart(ctx: ViewContext) {
       top: (px * 10) / 13,
     };
   }
-  // a web font of the theme that loads after a draw: the names are measured and wrapped again, at the same level, scale and place, with the same pick
+  // a font of the theme that loads after a draw: the names are measured and wrapped again, at the same level, scale and place, with the same pick
   document.fonts?.addEventListener('loadingdone', () => {
     if (ctx.plan && ctx.shown && look(measure()) !== ctx.measured) ctx.paint(ctx.shown);
   }, once);

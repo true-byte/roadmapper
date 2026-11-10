@@ -4,6 +4,7 @@
 // A step, a group or a branch answers the pointer: a short tip on a hover, and the side bar with its data on a click. A click never zooms.
 // Its look is view.css, which takes every color and font from the variables of the theme (src/themes/). The theme also names the icon set.
 // The view is made of parts, one file each in this folder, such as side.ts for the side bar: each gets the context and gives back what the other parts call (context.ts).
+import { faces } from 'virtual:theme-fonts';
 import type { IconSet } from '../icons/icons.js';
 import type { FileError } from '../roadmap/errors.js';
 import type { Roadmap } from '../roadmap/types.js';
@@ -19,7 +20,7 @@ import { editPart } from './edit.js';
 import { errorListPart } from './error-list.js';
 import { exportPart } from './export.js';
 import { factsPart } from './facts.js';
-import { fontsPart } from './fonts.js';
+import { fontsOf, fontsPart } from './fonts.js';
 import { framePart } from './frame.js';
 import { hoverPart } from './hover.js';
 import { inputPart } from './input.js';
@@ -76,6 +77,8 @@ export function mountRoadmap(host: HTMLElement, options: ViewOptions = {}): Road
   const once = { signal: off.signal };
   /** The keys go to the view only from this: the whole page, or the box it sits in. */
   const keys: EventTarget = options.box ?? window;
+  // the fonts of the theme, which the build gives (src/themes/fonts.ts)
+  fontsOf(faces());
   const dom = makeDom(host, options);
 
   // #z=1.5 in the address holds the page at that point of the move, to look at one frame of it; #u=0.5 does the same for the change of view, at the level nearest to z;

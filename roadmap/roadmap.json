@@ -1413,16 +1413,104 @@
       ]
     },
     {
+      "name": "v1.0.2",
+      "holds": "The theme's fonts load from Roadmapper's own files.",
+      "items": [
+        {
+          "id": "start-v1-0-2",
+          "name": "Start v1.0.2",
+          "icon": "flag",
+          "state": "done",
+          "why": "v1.0.2 waits for Release v1.0.1.",
+          "doneWhen": "Release v1.0.1 is done, and the branch release/1.0.2 exists.",
+          "waitsFor": [
+            "release-v1-0-1"
+          ]
+        },
+        {
+          "name": "Bundled fonts",
+          "split": [
+            {
+              "items": [
+                {
+                  "id": "bundled-fonts-design",
+                  "name": "Bundled fonts design",
+                  "icon": "typography",
+                  "state": "done",
+                  "why": "A page that shows a roadmap asks no other host for its fonts.",
+                  "doneWhen": "How the fonts ship in the theme, and how the app, the box of the lib and the HTML export load them, is reviewed and approved."
+                },
+                {
+                  "name": "Bundled fonts build",
+                  "split": [
+                    {
+                      "name": "Code",
+                      "items": [
+                        {
+                          "id": "bundled-fonts-code",
+                          "name": "Bundled fonts code",
+                          "icon": "typography",
+                          "state": "done",
+                          "why": "The theme's fonts load from Roadmapper's own files, as designed.",
+                          "doneWhen": "The app, the box of the lib and the HTML export draw in Atkinson Hyperlegible and Chakra Petch from Roadmapper's own files, and ask no other host. The docs embed, view, export and install say where the fonts come from, and the license list names both fonts."
+                        }
+                      ]
+                    },
+                    {
+                      "name": "Tests",
+                      "items": [
+                        {
+                          "id": "bundled-fonts-tests",
+                          "name": "Bundled fonts tests",
+                          "icon": "typography",
+                          "state": "done",
+                          "why": "Tests of the fonts, so a change cannot bring back a request to another host unseen.",
+                          "doneWhen": "npm test checks that the app, the box and the export ask no host but their own, and that with no network the names draw and wrap in the theme's fonts."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "publish-to-npm-3",
+          "name": "Publish to npm",
+          "icon": "package",
+          "state": "done",
+          "why": "The bundled fonts reach npm without waiting for v1.1.0.",
+          "doneWhen": "In a new project, npm install roadmapper installs Roadmapper v1.0.2 from the public npm registry, and its page asks no host but its own."
+        },
+        {
+          "id": "release-v1-0-2",
+          "name": "Release v1.0.2",
+          "icon": "rocket",
+          "state": "done",
+          "why": "v1.0.2 is out when the bundled fonts are built, tested and on npm.",
+          "doneWhen": "master holds v1.0.2 with the tag v1.0.2, and the release of v1.0.2 is reviewed and approved.",
+          "links": [
+            {
+              "name": "v1.0.2",
+              "url": "https://github.com/true-byte/roadmapper/releases/tag/v1.0.2",
+              "icon": "tag"
+            }
+          ]
+        }
+      ]
+    },
+    {
       "name": "v1.1.0",
       "items": [
         {
           "id": "review-v1-1-0-scope",
           "name": "Review v1.1.0 scope",
           "icon": "flag",
-          "why": "The scope of v1.1.0 is reviewed once v1.0.1 is out.",
+          "why": "The scope of v1.1.0 is reviewed once v1.0.2 is out.",
           "doneWhen": "The steps of v1.1.0 are reviewed and approved.",
           "waitsFor": [
-            "release-v1-0-1"
+            "release-v1-0-2"
           ]
         },
         {

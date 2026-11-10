@@ -11,7 +11,9 @@ declare module 'virtual:roadmap' {
 }
 
 // The export's lib, dist/lib/roadmapper-page.js, gzipped, in base64: vite.config.ts builds it from the source, and src/app/export.ts puts it into roadmap.zip.
+// With it, the files of the folder fonts/ of the theme, in base64, by their path in the export, such as fonts/chakra-petch-latin-600-normal.woff2.
 declare module 'virtual:export-lib' {
   const gzipped: string;
   export default gzipped;
+  export const fonts: Record<string, string>;
 }

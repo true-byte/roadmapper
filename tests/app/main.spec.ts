@@ -82,15 +82,15 @@ const plan = (title: string): Roadmap => ({ title, branches: [{ name: 'Shop', it
 const text = (r: Roadmap): string => `${JSON.stringify(r, null, 2)}\n`;
 
 /** What a listener answers to a request of the page, with no server. */
-function answer(listener: RequestListener, r: Request): Promise<{ status: number; type: string; body: string }> {
+function answer(listener: RequestListener, r: Request): Promise<{ status: number; type: string; body: Buffer }> {
   const url = new URL(r.url());
   const body = r.postDataBuffer();
   const req = Object.assign(Readable.from(body ? [body] : []), { method: r.method(), url: url.pathname, headers: { ...r.headers(), host: url.host } }) as unknown as IncomingMessage;
   return new Promise(done => {
-    const got = { status: 0, type: '', body: '' };
+    const got = { status: 0, type: '' };
     const res = {
       writeHead: (status: number, headers: Record<string, string>) => Object.assign(got, { status, type: headers['content-type'] }),
-      end: (b?: string | Buffer) => done({ ...got, body: got.body + (b?.toString() ?? '') }),
+      end: (b?: string | Buffer) => done({ ...got, body: Buffer.from(b ?? '') }),
     } as unknown as ServerResponse;
     listener(req, res);
   });
@@ -100,14 +100,13 @@ function answer(listener: RequestListener, r: Request): Promise<{ status: number
  * `send` is a save of the file, as the dev server sends it; `taken` resolves once the page has taken in all that was sent: it has asked for the saves again after it got them. */
 async function openDev(page: Page, file: string, saveTo = file): Promise<{ send: (r: Roadmap) => void; taken: () => Promise<void> }> {
   const { devServer } = await cliSource();
-  const dev = devServer(readFileSync(join(ROOT, 'dist/cli/app.html'), 'utf8'), () => ({ text: readFileSync(file, 'utf8'), file: 'roadmap.json' }), saveTo);
+  const dev = devServer(readFileSync(join(ROOT, 'dist/cli/app.html'), 'utf8'), () => ({ text: readFileSync(file, 'utf8'), file: 'roadmap.json' }), saveTo, join(ROOT, 'dist/lib/fonts'));
   // the stream of saves stays open: each time the page asks again, it gets the saves since it last asked
   let stream = '';
   const events = { url: '/events', on: () => events } as unknown as IncomingMessage;
   dev.listener(events, { writeHead: () => {}, write: (b: string) => (stream += b) } as unknown as ServerResponse);
   let sent = 0;
   let asks = 0;
-  await page.route('https://fonts.googleapis.com/**', r => r.abort());
   await page.route(`${SITE}/**`, async r => {
     if (new URL(r.request().url()).pathname === '/events') {
       asks++;
