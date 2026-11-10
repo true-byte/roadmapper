@@ -29,7 +29,8 @@ Themes must fit in with no rework. A user only picks a theme, and users never ma
 
 - Every color, font and style lives in the theme, as CSS variables. The code that draws never holds a color or a font.
 - The icons come from an icon set that the theme names.
-- A new theme is one new folder in `src/themes/`, which holds its `theme.css`. The one `@import` of `src/themes/theme.css` names the theme that is drawn, and no other file names it. [CONTRIBUTING.md, section "Add a theme"](CONTRIBUTING.md#add-a-theme) gives the steps.
+- A new theme is one new folder in `src/themes/`, which holds its `theme.css`, and its `fonts.css` with the font files in `fonts/`. The one `@import` of `src/themes/theme.css` names the theme that is drawn, and no other file names it. [CONTRIBUTING.md, section "Add a theme"](CONTRIBUTING.md#add-a-theme) gives the steps.
+- The fonts are files of the theme. A page that shows a roadmap asks only for Roadmapper's own files, wherever they are served.
 
 The stack is Vite, plain TypeScript and SVG, with no UI framework. `src/lib/react.ts` only wraps the tag for a React app. When a change to the lib must favor one kind of page, it favors a React app. Any other page uses the tag.
 

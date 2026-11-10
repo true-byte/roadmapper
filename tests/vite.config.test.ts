@@ -1,4 +1,4 @@
-// The dev server of `npm run dev`, as vite.config.ts makes it, as plain code: its plugin of the roadmap file, called with no server.
+// The dev server of `npm run dev`, as vite.config.ts makes it, as plain code: its plugins of the roadmap file, of the folder src/ and of the fonts, called with no server.
 /// <reference types="node" />
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import type { IncomingMessage, ServerResponse } from 'node:http';
@@ -8,6 +8,7 @@ import { Readable } from 'node:stream';
 import { fileURLToPath } from 'node:url';
 import { expect, test } from '@playwright/test';
 import { loadConfigFromFile, type Plugin } from 'vite';
+import { fontFiles, fontsFolder } from '../src/themes/fonts';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 
@@ -48,4 +49,24 @@ test('npm run dev watches the folder src/, so a file saved by a rename still sho
   const added: string[] = [];
   (plugin.configureServer as (s: unknown) => void)({ watcher: { add: (path: string) => added.push(path) } });
   expect(added).toEqual([join(ROOT, 'src')]);
+});
+
+test('npm run dev serves the fonts of the theme at /fonts/, next to the page, and passes on any other name', async () => {
+  const loaded = await loadConfigFromFile({ command: 'serve', mode: 'development' }, join(ROOT, 'vite.config.ts'), ROOT, 'error');
+  const plugin = (loaded!.config.plugins ?? []).flat().find((p): p is Plugin => !!p && 'name' in p && p.name === 'theme-fonts')!;
+  type Use = (req: IncomingMessage, res: ServerResponse, next: () => void) => void;
+  const uses: [string, Use][] = [];
+  (plugin.configureServer as (s: unknown) => void)({ middlewares: { use: (path: string, fn: Use) => uses.push([path, fn]) } });
+  expect(uses.map(([path]) => path)).toEqual(['/fonts']);
+  // the server takes /fonts off the address before the plugin sees it
+  const get = (url: string): { type?: string; body?: Buffer; passed: boolean } => {
+    const got: { type?: string; body?: Buffer; passed: boolean } = { passed: false };
+    const res = { setHeader: (_: string, type: string) => (got.type = type), end: (b: Buffer) => (got.body = b) } as unknown as ServerResponse;
+    uses[0][1]({ url } as IncomingMessage, res, () => (got.passed = true));
+    return got;
+  };
+  for (const file of fontFiles()) {
+    expect(get(`/${file}`), file).toEqual({ type: file.endsWith('.woff2') ? 'font/woff2' : 'text/plain; charset=utf-8', body: readFileSync(join(fontsFolder(), file)), passed: false });
+  }
+  for (const url of ['/', '/nope.woff2', '/../fonts.css', '/%2e%2e%2ftheme.css']) expect(get(url), url).toEqual({ passed: true });
 });

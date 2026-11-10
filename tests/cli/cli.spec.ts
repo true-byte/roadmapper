@@ -7,7 +7,7 @@ import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import type { Page } from '@playwright/test';
 import { ask, cliSource, folder, removeFolders, roadmapper, ROOT } from '../support/cli';
-import { errorList, errorRows, expect, settle, side, step, test } from '../support/helpers';
+import { drawnIn, errorList, errorRows, expect, settle, side, step, test } from '../support/helpers';
 
 /** A folder that the commands are typed in, which holds the export fixture as roadmap.json: a step's name holds `</script><!--`, and some items are private. */
 function withFixture(): string {
@@ -20,13 +20,12 @@ const TITLE = 'Launch &amp; </title> <Grow>';
 
 /** Serves what a listener answers at https://<host>/ to the page. `events` gives what /events sends to each request of the page. */
 async function routeTo(page: Page, host: string, listener: RequestListener, events?: () => string): Promise<void> {
-  await page.route('https://fonts.googleapis.com/**', r => r.abort());
   await page.route(`https://${host}/**`, r => {
     const path = new URL(r.request().url()).pathname;
     // a short retry, so the page asks again soon
     if (events && path === '/events') return r.fulfill({ contentType: 'text/event-stream', body: `retry: 50\n\n${events()}` });
     const got = ask(listener, path);
-    return r.fulfill({ status: got.status, contentType: got.type, body: got.body() });
+    return r.fulfill({ status: got.status, contentType: got.type, body: got.bytes() });
   });
 }
 
@@ -50,7 +49,7 @@ test('the page that build writes draws the plan from disk', async ({ page }) => 
 test('dev redraws each save, and lists the errors of a broken one', async ({ page }) => {
   const { devServer } = await cliSource();
   let now = { text: plan('First plan'), file: 'roadmap.json' };
-  const dev = devServer(readFileSync(join(ROOT, 'dist/cli/app.html'), 'utf8'), () => now, join(folder(), 'roadmap.json'));
+  const dev = devServer(readFileSync(join(ROOT, 'dist/cli/app.html'), 'utf8'), () => now, join(folder(), 'roadmap.json'), join(ROOT, 'dist/lib/fonts'));
   // a page that listens, as the browser's does: each time the page asks again, it gets the saves since it last asked, as a stream that stays open sends them
   const stream = ask(dev.listener, '/events');
   let sent = 0;
@@ -99,4 +98,25 @@ test('the private export that preview serves draws every item from a site', asyn
   await step(page, 'code-1').click();
   await settle(page);
   await expect(side(page).locator('section.part h3', { hasText: /Planned|Deadline/ })).toHaveText(['Planned', 'Deadline']);
+});
+
+test('the page of dev and the export that preview serves ask only their own host, for the fonts too, and draw in them', async ({ page, context }) => {
+  const { devServer, previewServer } = await cliSource();
+  const here = withFixture();
+  expect((await roadmapper(['export'], here)).code).toBe(0);
+  const dev = devServer(readFileSync(join(ROOT, 'dist/cli/app.html'), 'utf8'), () => ({ text: plan('First plan'), file: 'roadmap.json' }), join(here, 'roadmap.json'), join(ROOT, 'dist/lib/fonts'));
+  const sites: [string, string, RequestListener][] = [['dev.test', '/', dev.listener], ['preview.test', '/roadmap.html', previewServer(join(here, 'dist/export'))]];
+  for (const [host, path, listener] of sites) {
+    // a page of its own for each, so the page of dev, which asks for each save again and again, is gone
+    const tab = host === 'dev.test' ? page : await context.newPage();
+    await routeTo(tab, host, listener, host === 'dev.test' ? () => '' : undefined);
+    const urls: string[] = [];
+    tab.on('request', r => urls.push(r.url()));
+    await tab.goto(`https://${host}${path}`);
+    await expect(tab.locator('svg.plan')).toBeVisible();
+    await settle(tab);
+    expect(urls.filter(u => new URL(u).host !== host), host).toEqual([]);
+    expect(urls.some(u => u.startsWith(`https://${host}/fonts/`) && u.endsWith('.woff2')), host).toBe(true);
+    expect(await drawnIn(tab), host).toEqual({ name: 'theme', branch: 'theme' });
+  }
 });

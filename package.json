@@ -1,6 +1,6 @@
 {
   "name": "roadmapper",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Roadmapper draws a roadmap, kept in one JSON file, as a tree: zoomed out, anyone can read it, and zooming in shows more detail.",
   "license": "MIT",
   "keywords": [

@@ -2,7 +2,7 @@
 // Each command gets the folder it was typed in and the files it uses, and does not know which of the two runs it: each path typed is from that folder,
 // and each path printed is to it. A command that cannot do its work writes nothing, prints one line for each error, and ends with exit code 1.
 /// <reference types="node" />
-import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, watch, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, statSync, watch, writeFileSync } from 'node:fs';
 import { createServer, type RequestListener, type ServerResponse } from 'node:http';
 import { networkInterfaces } from 'node:os';
 import { basename, dirname, extname, join, relative, resolve } from 'node:path';
@@ -11,6 +11,7 @@ import { RoadmapError, sayError, sayFailure, type ErrorName, type FileError } fr
 import { exportFiles, FILES } from './export.js';
 import { fileKey } from './key.js';
 import { SAVE, saveRequest } from './save.js';
+import { FONTS, fontType } from '../themes/fonts.js';
 
 /** What a command uses, as the one who runs it gives it. */
 export interface Setup {
@@ -28,6 +29,8 @@ export interface Setup {
   page: string;
   /** The export's lib, dist/lib/roadmapper-page.js, which `export` writes next to the page. */
   lib: string;
+  /** The folder of the fonts of the theme, with their license texts, which `build` and `export` write next to the page as the folder fonts/, and `dev` serves there. */
+  fonts: string;
 }
 
 /** Each command: how many paths it takes, and the options it takes. */
@@ -87,8 +90,10 @@ export async function run(command: string | undefined, words: string[], s: Setup
 
     case 'build': {
       const [, folder = s.app] = paths;
-      // what a build writes into its folder: the one file of the page
-      const no = refusal(folder, ['index.html']);
+      // what a build writes into its folder: the one file of the page, and the folder of the fonts
+      const fonts = fontFiles(s.fonts);
+      if (!fonts) return fail(to(s.fonts), 'Unreadable file');
+      const no = refusal(folder, ['index.html'], fonts);
       if (no) return fail(to(folder), no.error, no.value);
       const text = checked(file, to, line => console.error(line));
       if (text === undefined) return 1;
@@ -97,7 +102,8 @@ export async function run(command: string | undefined, words: string[], s: Setup
       const html = fillPage(page, { text, file: basename(file), key: fileKey(file) });
       mkdirSync(folder, { recursive: true });
       writeFileSync(join(folder, 'index.html'), html);
-      console.log(`${to(folder)}/index.html  ${kb(html)}`);
+      cpSync(s.fonts, join(folder, FONTS), { recursive: true });
+      console.log(`${to(folder)}/index.html  ${kb(html)}\n${to(folder)}/${FONTS}/  ${kb(fontBytes(s.fonts, fonts))}`);
       return 0;
     }
 
@@ -106,7 +112,9 @@ export async function run(command: string | undefined, words: string[], s: Setup
       const [, folder = keep.private ? s.exportPrivate : s.export] = paths;
       if (!existsSync(s.lib)) return fail(to(s.lib), 'Unreadable file');
       const lib = readFileSync(s.lib);
-      const wrong = refusal(folder, Object.values(FILES));
+      const fonts = fontFiles(s.fonts);
+      if (!fonts) return fail(to(s.fonts), 'Unreadable file');
+      const wrong = refusal(folder, Object.values(FILES), fonts);
       if (wrong) return fail(to(folder), wrong.error, wrong.value);
       // the export must never take the place of the owner's file, by any path or link to it, also in a folder that holds an export
       const out = join(folder, FILES.roadmap);
@@ -125,7 +133,8 @@ export async function run(command: string | undefined, words: string[], s: Setup
       writeFileSync(join(folder, FILES.lib), lib);
       writeFileSync(out, files.roadmap);
       writeFileSync(join(folder, FILES.page), files.page);
-      const said: [string, string | Buffer][] = [[FILES.page, files.page], [FILES.roadmap, files.roadmap], [FILES.lib, lib]];
+      cpSync(s.fonts, join(folder, FONTS), { recursive: true });
+      const said: [string, string | Buffer | number][] = [[FILES.page, files.page], [FILES.roadmap, files.roadmap], [FILES.lib, lib], [`${FONTS}/`, fontBytes(s.fonts, fonts)]];
       console.log(said.map(([f, t]) => `${to(folder)}/${f}  ${kb(t)}`).join('\n'));
       return 0;
     }
@@ -141,7 +150,7 @@ export async function run(command: string | undefined, words: string[], s: Setup
       // a file with errors still serves: the page shows its error list, as it does for each broken save
       let text = first;
       const name = basename(file), key = fileKey(file);
-      const live = devServer(page, () => ({ text, file: name, key }), file);
+      const live = devServer(page, () => ({ text, file: name, key }), file, s.fonts);
       // a save that replaces the file, as many editors do, is seen in its folder, not on the file
       let wait: ReturnType<typeof setTimeout> | undefined;
       watch(dirname(file), (_, changed) => {
@@ -193,7 +202,19 @@ function checked(file: string, to: (path: string) => string, say: (line: string)
   return undefined;
 }
 
-const kb = (t: string | Buffer): string => `${Math.max(1, Math.round(Buffer.byteLength(t) / 1024))} kB`;
+const kb = (t: string | Buffer | number): string => `${Math.max(1, Math.round((typeof t === 'number' ? t : Buffer.byteLength(t)) / 1024))} kB`;
+
+/** The names of the files in the folder of the fonts, or nothing when it cannot be read. */
+function fontFiles(folder: string): string[] | undefined {
+  try {
+    return readdirSync(folder, { withFileTypes: true }).filter(e => e.isFile()).map(e => e.name).sort();
+  } catch {
+    return undefined;
+  }
+}
+
+/** How many bytes the files of the folder of the fonts hold, all together. */
+const fontBytes = (folder: string, names: string[]): number => names.reduce((n, name) => n + statSync(join(folder, name)).size, 0);
 
 /** Are the two paths the same file, by any path or link? */
 function same(a: string, b: string): boolean {
@@ -201,11 +222,12 @@ function same(a: string, b: string): boolean {
   return x.dev === y.dev && x.ino === y.ino;
 }
 
-/** The error of a folder that a command writing `files` must not write into, with its value, or nothing when it may.
- * The folder may be missing, empty, or hold exactly what the command wrote there before, which it writes over. Any other file in it is someone's own,
+/** The error of a folder that a command writing `files`, and the folder fonts/ with the files `fonts`, must not write into, with its value, or nothing when it may.
+ * The folder may be missing, empty, or hold exactly what the command wrote there before, which it writes over: each of `files`, and the folder fonts/ with
+ * some or all of `fonts`, or none, as an export of a version before the fonts came with Roadmapper. Any other file in it is someone's own,
  * such as the roadmap file itself or a project's folder: 'Folder not empty', with the files that are not the command's, or with all its files
  * when it holds only a part of what the command writes. A path that is a file, or lies inside one: 'Not a folder'. */
-function refusal(folder: string, files: string[]): { error: ErrorName; value: string } | undefined {
+function refusal(folder: string, files: string[], fonts: string[]): { error: ErrorName; value: string } | undefined {
   let entries;
   try {
     if (!statSync(folder).isDirectory()) return { error: 'Not a folder', value: '' };
@@ -217,9 +239,11 @@ function refusal(folder: string, files: string[]): { error: ErrorName; value: st
     throw e;
   }
   if (!entries.length) return undefined;
-  // a folder or a link by the name of a file the command writes is someone's own too
-  const own = entries.filter(e => !e.isFile() || !files.includes(e.name));
-  if (!own.length && entries.length === files.length) return undefined;
+  // a folder or a link by the name of a file the command writes is someone's own too, and so is a folder fonts/ with any other file in it
+  const ours = (e: { name: string; isFile(): boolean; isDirectory(): boolean }): boolean =>
+    e.isFile() ? files.includes(e.name) : e.isDirectory() && e.name === FONTS && readdirSync(join(folder, FONTS), { withFileTypes: true }).every(f => f.isFile() && fonts.includes(f.name));
+  const own = entries.filter(e => !ours(e));
+  if (!own.length && entries.filter(e => e.isFile()).length === files.length) return undefined;
   const names = (own.length ? own : entries).map(e => (e.isDirectory() ? `${e.name}/` : e.name)).sort();
   return { error: 'Folder not empty', value: names.join(', ') };
 }
@@ -242,14 +266,15 @@ function fillPage(page: string, roadmap: { text: string; file: string; key?: str
 const EVENTS = '/events';
 
 /** What `dev` serves: the app page at /, with the roadmap file as it is now, at /events each save of the file, as the page's src/app/main.ts reads it,
- * and at /save the plan that 'Save' of 'Edit on page' sends, which it writes into `file` (src/cli/save.ts). */
-export function devServer(page: string, now: () => { text: string; file: string; key?: string }, file: string): { listener: RequestListener; send: (roadmap: { text: string; file: string }) => void } {
+ * at /save the plan that 'Save' of 'Edit on page' sends, which it writes into `file` (src/cli/save.ts), and at /fonts/ the files of the folder `fonts`. */
+export function devServer(page: string, now: () => { text: string; file: string; key?: string }, file: string, fonts: string): { listener: RequestListener; send: (roadmap: { text: string; file: string }) => void } {
   const pages = new Set<ServerResponse>();
   const save = saveRequest(file);
   const listener: RequestListener = (req, res) => {
     const path = (req.url ?? '/').split('?')[0];
     if (path === '/') return answer(res, 200, 'text/html; charset=utf-8', fillPage(page, { ...now(), live: EVENTS, save: SAVE }));
     if (path === SAVE) return save(req, res);
+    if (path.startsWith(`/${FONTS}/`)) return fontFile(res, fonts, path.slice(FONTS.length + 2));
     if (path !== EVENTS) return answer(res, 404, 'text/plain; charset=utf-8', 'Not found');
     res.writeHead(200, { 'content-type': 'text/event-stream', 'cache-control': 'no-store' });
     res.write(': open\n\n');
@@ -263,11 +288,12 @@ export function devServer(page: string, now: () => { text: string; file: string;
   return { listener, send };
 }
 
-/** What `preview` serves: the three files of the export in `folder`, the page also without its .html, as a site does. */
+/** What `preview` serves: the three files of the export in `folder`, the page also without its .html, as a site does, and the files of its folder fonts/. */
 export function previewServer(folder: string): RequestListener {
   const types: Record<string, string> = { '.html': 'text/html; charset=utf-8', '.json': 'application/json; charset=utf-8', '.js': 'text/javascript; charset=utf-8' };
   return (req, res) => {
     const path = (req.url ?? '/').split('?')[0];
+    if (path.startsWith(`/${FONTS}/`)) return fontFile(res, join(folder, FONTS), path.slice(FONTS.length + 2));
     const name = path === '/roadmap' ? FILES.page : path.slice(1);
     let body: Buffer | undefined;
     try {
@@ -278,6 +304,13 @@ export function previewServer(folder: string): RequestListener {
     if (body === undefined) return answer(res, 404, 'text/plain; charset=utf-8', 'Not found');
     answer(res, 200, types[extname(name)], body);
   };
+}
+
+/** Sends a file of a folder of fonts by its name as the address writes it, or 'Not found' for a name that is not a file in it. The names of the font files
+ * hold no letter that an address writes otherwise. */
+function fontFile(res: ServerResponse, folder: string, name: string): void {
+  if (!fontFiles(folder)?.includes(name)) return answer(res, 404, 'text/plain; charset=utf-8', 'Not found');
+  answer(res, 200, fontType(name), readFileSync(join(folder, name)));
 }
 
 function answer(res: ServerResponse, status: number, type: string, body: string | Buffer): void {

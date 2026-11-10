@@ -44,7 +44,8 @@ When a project that imports the lib builds with Vite, Vite warns that a chunk is
 ## In a page with no bundler
 
 1. Copy the `roadmapper.js` of the lib, `node_modules/roadmapper/dist/lib/roadmapper.js`, into the folder of the page.
-2. Put these two lines in the page:
+2. Copy the folder `node_modules/roadmapper/dist/lib/fonts/` next to it. The box loads the fonts from the folder `fonts/` next to `roadmapper.js`. Without it, the box draws in the fallback fonts.
+3. Put these two lines in the page:
 
    ```html
    <script src="roadmapper.js" defer></script>
@@ -91,8 +92,23 @@ A page opened from disk cannot read a file by `src`. For such a page, put the te
 - The page sets the size of the box with its own CSS, as for any element. The page can also hide the box.
 - With no size set, the box is 560 px high and as wide as the element that holds it.
 - The CSS of the page does not change the box, and the CSS of the box does not change the page.
-- The lib adds one `<link rel="stylesheet">` to the `<head>` of the page, for the web fonts of the theme from Google Fonts. It does this because a font that is named only inside the box does not load.
 - The colors and the fonts come from the theme. The box is light or dark as the device of the person who views the page is set. 'Light' or 'Dark' in the popup of the box changes only that box.
+
+## Fonts
+
+The fonts of the theme ship with the lib, in the folder `dist/lib/fonts/` of the package. The box loads each font file from the folder `fonts/` next to the lib's own files, only when a name needs its letters. It asks no other host.
+
+- The lib adds the fonts to the page with the browser's font API, because a font that is named only inside the box does not load. It adds no element to the page.
+- In a React app or a page with a bundler, the bundler copies the font files into the build. Vite and webpack do this with no setting.
+- On a page with no bundler, the folder `fonts/` goes next to `roadmapper.js`, as [In a page with no bundler](#in-a-page-with-no-bundler) says.
+- A Content-Security-Policy that allows fonts only from the page's own origin, `font-src 'self'`, lets the fonts load when the lib is served from that origin.
+- Until a font has loaded, and when it cannot load, the box draws in the fallback fonts.
+
+The dev server of Vite 7 or older does not serve the font files of the lib, so the box draws in the fallback fonts there. To serve them, add this line to the config in `vite.config.js`:
+
+```js
+optimizeDeps: { exclude: ['roadmapper'] },
+```
 
 ## In the box
 

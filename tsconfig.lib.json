@@ -7,5 +7,5 @@
     "rootDir": "src",
     "outDir": "dist/lib/types"
   },
-  "include": ["src/lib/index.ts", "src/lib/react.ts"]
+  "include": ["src/lib/index.ts", "src/lib/react.ts", "src/themes/theme-fonts.d.ts"]
 }

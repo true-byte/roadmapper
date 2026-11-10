@@ -2,7 +2,6 @@
 // the tip, the side bar, the aim, the names of 'Show only blockers' and the error list. What it shows is drawn again on each good show().
 // Also what the view reads of the theme and of the browser: the icon set, the padding of the stage, where the side bar goes, the layout, and how thick a scroll bar is.
 import { ARROW, BRANCHES, MODE, TOOLS, iconSet } from '../icons/icons.js';
-import { fontsOf } from './fonts.js';
 import { SVG_NS } from './svg.js';
 import type { ViewOptions } from './view.js';
 
@@ -34,7 +33,6 @@ const pad = (s: string): number => parseFloat(s) || 0;
 export function makeDom(host: HTMLElement, options: ViewOptions) {
   host.classList.add('roadmap');
   host.classList.toggle('box', !!options.box);
-  fontsOf(host);
   // the icon set that the theme names, or the icons of it that the view is given; a step whose icon is not in it keeps its mark
   const icons = options.icons ?? iconSet(getComputedStyle(host).getPropertyValue('--icon-set').trim());
   const ICON_BOX = icons?.size ?? 24;

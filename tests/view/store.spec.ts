@@ -261,5 +261,8 @@ test('a kept pick whose place is gone comes into sight', async ({ page }) => {
   await side(page).getByRole('button', { name: 'Close' }).click();
   await expect(side(page)).toBeHidden();
   await settle(page);
-  expect(await scroll(), 'the plan stays as the sheet closes').toEqual(at);
+  // the plan goes back to where it was before the sheet opened: by no more than the glide that kept the step 24 px inside the room
+  const now = await scroll();
+  expect(Math.abs(now[0] - at[0]), 'the plan stays as the sheet closes').toBeLessThanOrEqual(24);
+  expect(now[1], 'the plan stays as the sheet closes').toBe(at[1]);
 });

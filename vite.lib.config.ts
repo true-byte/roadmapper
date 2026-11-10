@@ -1,4 +1,5 @@
 import { defineConfig, type BuildOptions } from 'vite';
+import { themeFonts, type FontsAt } from './src/themes/fonts.ts';
 
 // The lib, in dist/lib, in three builds that `--mode` picks. `npm run build:lib` runs all three, `module` first, as it empties dist/lib.
 const BUILDS: Record<string, BuildOptions> = {
@@ -30,5 +31,7 @@ const BUILDS: Record<string, BuildOptions> = {
 
 export default defineConfig(({ mode }) => {
   if (!Object.hasOwn(BUILDS, mode)) throw new Error(`vite.lib.config.ts: --mode is one of ${Object.keys(BUILDS).join(', ')}, not ${mode}`);
-  return { publicDir: false, build: { outDir: 'dist/lib', emptyOutDir: false, ...BUILDS[mode] } };
+  // each build writes the folder fonts/ of the theme next to it, and the lib finds it there: by import.meta.url in a module, by its own address in a plain script
+  const fonts: FontsAt = mode === 'module' ? 'module' : 'script';
+  return { publicDir: false, plugins: [themeFonts(fonts)], build: { outDir: 'dist/lib', emptyOutDir: false, ...BUILDS[mode] } };
 });

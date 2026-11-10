@@ -66,3 +66,5 @@ npx skills add https://github.com/true-byte/roadmapper --skill roadmapper -a cla
 ## License
 
 Roadmapper is under the MIT License. [LICENSE](LICENSE) holds its text.
+
+The fonts that Roadmapper draws in, Atkinson Hyperlegible and Chakra Petch, are under the SIL Open Font License 1.1. Their license texts ship with the font files, in `src/themes/default/fonts/` and in the folder `fonts/` of each build and export.

@@ -6,6 +6,7 @@ import { build, defineConfig, type Plugin } from 'vite';
 import { viteSingleFile } from 'vite-plugin-singlefile';
 import { fileKey } from './src/cli/key.ts';
 import { SAVE, saveRequest } from './src/cli/save.ts';
+import { FONTS, fontFiles, fontsFolder, themeFonts } from './src/themes/fonts.ts';
 
 // The app page, src/app/index.html.
 // `npm run dev` serves it on one roadmap file: the one in ROADMAP_FILE, which `npm run dev -- [file]` names (scripts/dev.mjs), or else roadmap/roadmap.json.
@@ -35,7 +36,8 @@ function roadmapFile(file: string): Plugin {
 
 /** The export's lib, which `vite build --config vite.lib.config.ts --mode export` writes into dist/lib/roadmapper-page.js, as the module 'virtual:export-lib'.
  * It is built here from the source, with that config, so 'Export' in the app saves the very file that `npx roadmapper export` writes (src/app/export.ts).
- * The module holds it gzipped, in base64, at under half its size; the app unpacks it only when 'Export' is pressed. The dev server builds it again after a change to its source. */
+ * The module holds it gzipped, in base64, at under half its size; the app unpacks it only when 'Export' is pressed. The dev server builds it again after a change to its source.
+ * It holds the files of the folder fonts/ of the theme too, in base64, as `fonts`: the export carries them next to its page. */
 function exportLib(): Plugin {
   const id = '\0virtual:export-lib';
   return {
@@ -48,7 +50,8 @@ function exportLib(): Plugin {
       const lib = [built].flat().flatMap(b => ('output' in b ? b.output : [])).find(o => o.type === 'chunk' && o.isEntry);
       if (lib?.type !== 'chunk') throw new Error("vite.config.ts: the export's lib was not built");
       for (const m of lib.moduleIds) if (!m.startsWith('\0')) this.addWatchFile(m.split('?')[0]);
-      return `export default ${JSON.stringify(gzipSync(lib.code, { level: 9 }).toString('base64'))};`;
+      const fonts = Object.fromEntries(fontFiles().map(name => [`${FONTS}/${name}`, readFileSync(join(fontsFolder(), name)).toString('base64')]));
+      return `export default ${JSON.stringify(gzipSync(lib.code, { level: 9 }).toString('base64'))};\nexport const fonts = ${JSON.stringify(fonts)};`;
     },
   };
 }
@@ -83,7 +86,8 @@ const firstPaint: Plugin = {
 
 export default defineConfig(({ command }) => ({
   root: 'src/app',
-  plugins: command === 'build' ? [viteSingleFile(), appPage, exportLib(), firstPaint] : [roadmapFile(file), exportLib(), firstPaint, watchSource],
+  // the page finds the folder fonts/ next to itself: `roadmapper build` writes it there, and the dev servers serve it there
+  plugins: command === 'build' ? [viteSingleFile(), appPage, exportLib(), firstPaint, themeFonts('page')] : [roadmapFile(file), exportLib(), firstPaint, watchSource, themeFonts('page')],
   resolve: command === 'build' ? { alias: { 'virtual:roadmap': fileURLToPath(new URL('src/app/slot.ts', import.meta.url)) } } : {},
   // the CLI's build (vite.cli.config.ts) empties dist/cli first, and this writes the page next to it
   build: { outDir: '../../dist/cli', emptyOutDir: false },

@@ -29,7 +29,7 @@ export interface Said {
   err: string;
 }
 
-/** Runs `npx roadmapper <words>` as typed in the folder `here`, with the files the package has: the app page and the export's lib that dist/ holds. */
+/** Runs `npx roadmapper <words>` as typed in the folder `here`, with the files the package has: the app page, the export's lib and the folder of the fonts that dist/ holds. */
 export async function roadmapper(words: string[], here: string): Promise<Said> {
   const { projectFiles, run } = await cliSource();
   const [command, ...rest] = words;
@@ -48,6 +48,7 @@ export async function roadmapper(words: string[], here: string): Promise<Said> {
       exportPrivate: join(here, 'dist/export-private'),
       page: join(ROOT, 'dist/cli/app.html'),
       lib: join(ROOT, 'dist/lib/roadmapper-page.js'),
+      fonts: join(ROOT, 'dist/lib/fonts'),
     });
     return { code, ...said };
   } finally {
@@ -71,15 +72,16 @@ export function removeFolders(): void {
   for (const dir of made.splice(0)) rmSync(dir, { recursive: true, force: true });
 }
 
-/** What a request listener answers at a path, with no server: its status, its type and what it wrote so far. */
-export function ask(listener: RequestListener, url: string): { status: number; type: string; body: () => string } {
+/** What a request listener answers at a path, with no server: its status, its type and what it wrote so far, as text or as bytes. */
+export function ask(listener: RequestListener, url: string): { status: number; type: string; body: () => string; bytes: () => Buffer } {
   const req = { url, on: () => req } as unknown as IncomingMessage;
-  const got = { status: 0, type: '', text: '' };
+  const got = { status: 0, type: '', parts: [] as Buffer[] };
   const res = {
     writeHead: (status: number, headers: Record<string, string>) => Object.assign(got, { status, type: headers['content-type'] }),
-    write: (b: string | Buffer) => (got.text += b.toString()),
-    end: (b?: string | Buffer) => (got.text += b?.toString() ?? ''),
+    write: (b: string | Buffer) => got.parts.push(Buffer.from(b)),
+    end: (b?: string | Buffer) => b !== undefined && got.parts.push(Buffer.from(b)),
   } as unknown as ServerResponse;
   listener(req, res);
-  return { status: got.status, type: got.type, body: () => got.text };
+  const bytes = (): Buffer => Buffer.concat(got.parts);
+  return { status: got.status, type: got.type, body: () => bytes().toString(), bytes };
 }
