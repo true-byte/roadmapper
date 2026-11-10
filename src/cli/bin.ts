@@ -17,5 +17,6 @@ const code = await run(command, words, {
   exportPrivate: join(here, 'dist/export-private'),
   page: fileURLToPath(new URL('app.html', import.meta.url)),
   lib: fileURLToPath(new URL('../lib/roadmapper-page.js', import.meta.url)),
+  fonts: fileURLToPath(new URL('../lib/fonts', import.meta.url)),
 });
 if (code !== undefined) process.exitCode = code;

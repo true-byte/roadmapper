@@ -10,14 +10,14 @@ The examples come from the sample roadmap file, 'Plant care app'.
 |---|---|---|
 | Who it is for | You | Strangers, on a site |
 | Command | `npx roadmapper build` | `npx roadmapper export` |
-| Files | `index.html` | `roadmap.html`, `roadmap.json` and `roadmapper.js` |
+| Files | `index.html` and the folder `fonts/` | `roadmap.html`, `roadmap.json`, `roadmapper.js` and the folder `fonts/` |
 | Private items | Shown | Left out, unless you add `--private` |
 | Opens from disk | Yes | Yes |
 | Remembers the view | Yes, as the app does | No |
 
 ## The HTML file
 
-- It is the app page with the roadmap inside it: one file that holds the script, the styles and the roadmap.
+- It is the app page with the roadmap inside it: one file that holds the script, the styles and the roadmap. It loads the fonts from the folder `fonts/` next to it, so keep the two together.
 - It works like the app, as [view.md](view.md) says. It does not redraw when the roadmap file changes. To show a change, run `npx roadmapper build` again.
 - It shows the private items, so it is for you only. Strangers get the HTML export.
 - In a clone, `npm run preview` serves it the way a site does.
@@ -29,6 +29,7 @@ The examples come from the sample roadmap file, 'Plant care app'.
 | `roadmap.html` | The page of the export. It holds a copy of `roadmap.json`, which it draws only when it cannot read `roadmap.json`, as when you open it from disk. |
 | `roadmap.json` | The roadmap that a stranger sees, with no private item, and the drawings of the icons that it names. |
 | `roadmapper.js` | The lib of the export, which reads `roadmap.json` and draws it. It is not the `roadmapper.js` of the lib: [embed.md, section "Which roadmapper.js is which"](embed.md#which-roadmapperjs-is-which) tells them apart. |
+| `fonts/` | The fonts of the theme, with their license texts. The lib loads them from this folder. |
 
 ## Export from the app
 
@@ -38,7 +39,7 @@ The app and the HTML file can also save the export, as one file.
 2. To export the whole roadmap, turn on 'Include private items' in the part 'Export'.
 3. Click the button 'Export' under that switch.
 
-The browser saves `roadmap.zip`. It holds the three files that `npx roadmapper export` writes for the same roadmap file. With 'Include private items' on, it holds the files that `npx roadmapper export --private` writes. Unzip it. Then open its `roadmap.html`, or upload its three files as [Put the export on a site](#put-the-export-on-a-site) says.
+The browser saves `roadmap.zip`. It holds the files and the folder `fonts/` that `npx roadmapper export` writes for the same roadmap file. With 'Include private items' on, it holds what `npx roadmapper export --private` writes. Unzip it. Then open its `roadmap.html`, or upload all that it holds as [Put the export on a site](#put-the-export-on-a-site) says.
 
 When every item is private, the export for strangers has nothing to show. With 'Include private items' off, the button then shows the mark of a blocked step and the error `Nothing public` in red. The browser saves nothing. Turn on 'Include private items' to export the whole roadmap.
 
@@ -53,7 +54,7 @@ When every item is private, the export for strangers has nothing to show. With '
 
    Without `--private`, `npx roadmapper preview` serves only `dist/export/`, the folder that `npx roadmapper export` writes into when you name no folder. So run `npx roadmapper export` with no folder.
 
-2. Upload the three files into one folder of the site. Upload the `roadmap.json` of the export, never your roadmap file: anyone can read what is on a site.
+2. Upload the three files and the folder `fonts/` into one folder of the site. Upload the `roadmap.json` of the export, never your roadmap file: anyone can read what is on a site.
 
 The page is at the address of that folder plus `roadmap.html`. On a host that drops the `.html`, the page is at that address plus `roadmap`.
 
@@ -61,7 +62,7 @@ The page is at the address of that folder plus `roadmap.html`. On a host that dr
 
 To show the roadmap in a page that the site already has:
 
-1. Put the `roadmapper.js` and the `roadmap.json` of the export next to that page.
+1. Put the `roadmapper.js`, the `roadmap.json` and the folder `fonts/` of the export next to that page.
 2. Put these two lines in the page:
 
    ```html
@@ -78,7 +79,7 @@ After each change in this table, export again, then upload the files that the ta
 | After a change to | Upload |
 |---|---|
 | The roadmap file | `roadmap.json` and `roadmap.html` |
-| Roadmapper | All three files |
+| Roadmapper | All three files and the folder `fonts/` |
 
 The browser asks the site each time whether `roadmap.json` has changed. So a stranger sees the new roadmap on the next visit.
 

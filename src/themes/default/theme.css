@@ -1,4 +1,4 @@
-/* The default theme: every color and font of the view, the web fonts and the icon set it draws with, as CSS variables, which view.css reads.
+/* The default theme: every color and font of the view, and the icon set it draws with, as CSS variables, which view.css reads. fonts.css, next to this file, gives the files of the fonts.
    They are set on the app's page, and on the root of the view in a box or on the export's page, inside a shadow root, where :root matches nothing. */
 
 /* The colors of the two modes: each is light-dark(), its light value, then its dark value. They are set on the root of each view too,
@@ -25,6 +25,4 @@
   --tip-shadow: 0 8px 24px rgb(0 0 0 / 0.4);
   /* the set the icons of the steps come from, by its name in src/icons/sets.ts */
   --icon-set: tabler;
-  /* the style sheet of the web fonts above */
-  --fonts: "https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Chakra+Petch:wght@500;600&display=swap";
 }

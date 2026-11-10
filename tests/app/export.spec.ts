@@ -1,8 +1,8 @@
-// What 'Export' in the app saves (src/app/export.ts): roadmap.zip, which holds the three files that `npx roadmapper export` writes for the same roadmap file.
+// What 'Export' in the app saves (src/app/export.ts): roadmap.zip, which holds the files that `npx roadmapper export` writes for the same roadmap file.
 // The part 'Export' of the popup: tests/view/export.spec.ts. The page of the export: tests/lib/export-script.spec.ts.
 /// <reference types="node" />
 import { execFile } from 'node:child_process';
-import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -12,8 +12,8 @@ import { expect, openTools, popup, settle, test } from '../support/helpers';
 const ROOT = fileURLToPath(new URL('../..', import.meta.url));
 /** The export of tests/fixtures/export.json, which npm test writes. */
 const EXPORTED = join(ROOT, 'dist/tests/export');
-/** The files of an export, in the order the zip holds them. */
-const NAMES = ['roadmap.html', 'roadmap.json', 'roadmapper.js'];
+/** The files of an export, in the order the zip holds them: the page, the roadmap, the lib, then the folder fonts/. */
+const NAMES = ['roadmap.html', 'roadmap.json', 'roadmapper.js', ...readdirSync(join(EXPORTED, 'fonts')).sort().map(f => `fonts/${f}`)];
 
 /** The button 'Export' in the popup, by its class: its name changes to 'Saved'. */
 const exportButton = (page: Page): Locator => popup(page).locator('button.export');
@@ -24,7 +24,7 @@ function npx(dir: string, args: string[]): Promise<void> {
     execFile(process.execPath, [join(ROOT, 'dist/cli/roadmapper.js'), ...args], { cwd: dir }, (e, out, err) => (e ? failed(new Error(out + err)) : done()));
   });
 }
-/** The three files of an export in a folder, in the order the zip holds them. */
+/** The files of an export in a folder, in the order the zip holds them. */
 const filesIn = (dir: string): Buffer[] => NAMES.map(n => readFileSync(join(dir, n)));
 
 /** The names and the bytes of the files in a zip, read from its central directory. The zip writer itself: tests/app/zip.test.ts. */
@@ -45,7 +45,7 @@ async function save(page: Page): Promise<Download> {
   const [download] = await Promise.all([page.waitForEvent('download'), exportButton(page).click()]);
   return download;
 }
-/** Checks that a download is roadmap.zip with these three files, byte for byte. */
+/** Checks that a download is roadmap.zip with these files, byte for byte. */
 async function holds(download: Download, want: Buffer[]): Promise<void> {
   expect(download.suggestedFilename()).toBe('roadmap.zip');
   const files = unzip(readFileSync(await download.path()));

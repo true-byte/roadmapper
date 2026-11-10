@@ -1,7 +1,7 @@
 // The zoom control: its stops, + and −, the grip that hides it, and the tools button with its popup of the parts 'Key', 'View' and 'Export'.
 // Each control in the popup acts on its own and leaves the popup open; a press out of it shuts it and does nothing else.
 /// <reference types="node" />
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { icons as tabler } from '@iconify-json/tabler';
@@ -23,12 +23,13 @@ const GEAR = [...tabler.icons.settings.body.matchAll(/ d="([^"]+)"/g)].map(m => 
 /** The folder of the export of tests/fixtures/export.json, which npm test writes. */
 const EXPORT = fileURLToPath(new URL('../../dist/tests/export/', import.meta.url));
 
-/** Opens the export on a made-up site, which serves its three files, and waits until the plan is drawn and at rest. */
+/** Opens the export on a made-up site, which serves its three files and its fonts, and waits until the plan is drawn and at rest. */
 async function openExport(page: Page): Promise<void> {
   const types: Record<string, string> = { 'roadmap.html': 'text/html; charset=utf-8', 'roadmap.json': 'application/json', 'roadmapper.js': 'text/javascript; charset=utf-8' };
-  await page.route('https://fonts.googleapis.com/**', r => r.abort());
+  const fonts = readdirSync(join(EXPORT, 'fonts')).map(f => `fonts/${f}`);
   await page.route('https://landing.test/**', r => {
     const name = new URL(r.request().url()).pathname.slice(1);
+    if (fonts.includes(name)) return r.fulfill({ contentType: 'font/woff2', body: readFileSync(join(EXPORT, name)) });
     return Object.hasOwn(types, name) ? r.fulfill({ contentType: types[name], body: readFileSync(join(EXPORT, name)) }) : r.fulfill({ status: 404, body: 'Not found' });
   });
   await page.goto('https://landing.test/roadmap.html');

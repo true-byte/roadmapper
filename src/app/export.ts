@@ -1,7 +1,7 @@
-// What 'Export' in the popup of the app saves: roadmap.zip, which holds the three files that `npx roadmapper export` writes, with the same bytes for the same
-// roadmap file: the page and the roadmap from exportFiles() (src/cli/export.ts), and the export's lib, which the page holds (vite.config.ts).
+// What 'Export' in the popup of the app saves: roadmap.zip, which holds the files that `npx roadmapper export` writes, with the same bytes for the same
+// roadmap file: the page and the roadmap from exportFiles() (src/cli/export.ts), and the export's lib and the folder fonts/, which the page holds (vite.config.ts).
 // main.ts loads this module only when 'Export' is pressed.
-import lib from 'virtual:export-lib';
+import lib, { fonts } from 'virtual:export-lib';
 import { exportFiles, FILES } from '../cli/export.js';
 import { zip } from './zip.js';
 
@@ -17,6 +17,7 @@ export async function exportZip(text: string, keep: { private: boolean }): Promi
     { name: FILES.page, data: utf8.encode(files.page) },
     { name: FILES.roadmap, data: utf8.encode(files.roadmap) },
     { name: FILES.lib, data: await unpack(lib) },
+    ...Object.entries(fonts).map(([name, base64]) => ({ name, data: Uint8Array.from(atob(base64), c => c.charCodeAt(0)) })),
   ]);
   return new File([bytes], ZIP_NAME, { type: 'application/zip' });
 }

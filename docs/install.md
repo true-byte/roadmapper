@@ -60,6 +60,7 @@ npm install roadmapper@latest
 | The sample roadmap file | `roadmap/sample.roadmap.json` |
 | The docs, with the screenshots of the README | `docs/` |
 | The README | `README.md` |
-| The license | `LICENSE` |
+| The license of Roadmapper | `LICENSE` |
+| The fonts Atkinson Hyperlegible and Chakra Petch, with their licenses, the SIL Open Font License 1.1 | `dist/lib/fonts/` |
 
 The package installs no other package into your project.

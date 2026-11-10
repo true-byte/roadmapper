@@ -271,7 +271,8 @@ In edit mode, the plan does not redraw on save, as [Edit on the page](#edit-on-t
 - When the plan runs down, a line of a name is as wide as the space to the right of its branch. That space is widest on a top-level branch and narrowest in a track.
 - The space over a branch grows for a name of 3 lines. So no name runs into another name, a step, a frame or a caption.
 - When the plan runs across, a name is much nearer to its own step than to the step of the branch over it.
-- The fonts come from Google Fonts, in the app, in the box of the lib and in the HTML export. With no network, the plan draws in fallback fonts. When a web font of the theme loads, the names wrap again in that font. The rest of the page stays as it was, with 'Show only blockers' on or off.
+- The fonts come with Roadmapper, from the folder `fonts/` next to the page of the app, the lib of the box or the page of the HTML export. They need no network. The page asks no other host for them.
+- The plan draws in fallback fonts until a font of the theme has loaded. Then the names wrap again in that font. The rest of the page stays as it was, with 'Show only blockers' on or off.
 - When the system asks for reduced motion, the plan changes its level, layout, icons, labels and place at once, with no animation.
 
 ## Long text

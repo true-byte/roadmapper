@@ -84,7 +84,7 @@ To run one test file on the pages that were built last, name the file:
 npx playwright test tests/view/toolbar.spec.ts
 ```
 
-`playwright.config.ts` runs the browser tests offline, so the pages draw in the fallback fonts. It runs them in the dark color scheme, at 1440 × 900, with reduced motion. A test that checks a move turns motion on.
+`playwright.config.ts` runs the browser tests offline. The app page and the pages of the lib and of the export load the fonts of the theme from their folder `fonts/`, which needs no network. The test pages of the view in `tests/pages/` have no fonts of the theme, so they draw in the fallback fonts. It runs the tests in the dark color scheme, at 1440 × 900, with reduced motion. A test that checks a move turns motion on.
 
 A test waits for what the page does, such as an attribute, a text or an event that the page sets. It never waits for a set time. Where the page does not set the order of two events, the test passes in either order.
 
@@ -178,12 +178,13 @@ These rules hold for `README.md`, every file in `docs/`, `CONTRIBUTING.md`, `CLA
 
 ## Add a theme
 
-A theme is one file, `theme.css`, in a folder of its own in `src/themes/`. It sets every color and font of the view as CSS variables.
+A theme is a folder of its own in `src/themes/`. Its `theme.css` sets every color and font of the view as CSS variables. Its `fonts.css` lists the files of its fonts, which are in its folder `fonts/`.
 
 1. Copy `src/themes/default/` to `src/themes/<name>/`, where `<name>` is the name of the new theme.
-2. Set each variable in the new `theme.css`. `--fonts` is the address of the style sheet of the web fonts. `--icon-set` is the name of an icon set in `src/icons/sets.ts`.
+2. Set each variable in the new `theme.css`. `--display` and `--body` name the fonts. `--icon-set` is the name of an icon set in `src/icons/sets.ts`.
 3. Write each color in the rule for `:root, .roadmap` as `light-dark()`: its light value, then its dark value, as in the default theme. Then 'Device', 'Light' and 'Dark' in the popup each draw the new theme.
-4. Name the new folder in the `@import` of `src/themes/theme.css`. The app page, the lib and the export then draw in the new theme.
+4. Put a woff2 file into `fonts/` for each weight of each font that the theme draws, and the license text of each font. Write an `@font-face` rule for each file in `fonts.css`, with `src: url("fonts/<file>.woff2") format("woff2")`.
+5. Name the new folder in the `@import` of `src/themes/theme.css`. The app page, the lib and the export then draw in the new theme, and each build ships its folder `fonts/`.
 
 To add an icon set, put it into `src/icons/`, and add a loader by its name to `src/icons/sets.ts`. Keep the license of the icon set with its drawings, so that the license ships with them.
 
@@ -387,7 +388,7 @@ A patch fixes a release with a lower version than the release that `master` hold
 | `docs/` | The docs on using Roadmapper, and the screenshots of `README.md` in `docs/images/`. |
 | `src/roadmap/` | The types of a roadmap file, the code that checks a roadmap file, and the code that gives each step its state. |
 | `src/view/` | The view, `mountRoadmap()`, which draws the plan. |
-| `src/themes/` | The themes, each in a folder of its own, and `theme.css`, which names the theme that is drawn. |
+| `src/themes/` | The themes, each in a folder of its own with its fonts, `theme.css`, which names the theme that is drawn, and `fonts.ts`, which gives the builds the fonts of that theme. |
 | `src/icons/` | The icon sets that a theme can name, and the code that loads them. |
 | `src/app/` | The app page. |
 | `src/lib/` | The lib: the tag `<roadmapper-view>` and the React component `Roadmap`. |

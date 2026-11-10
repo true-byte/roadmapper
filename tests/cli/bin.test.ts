@@ -6,6 +6,7 @@ import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFile
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { expect, test } from '@playwright/test';
+import { fontFiles } from '../../src/themes/fonts';
 import { ROOT, shell } from '../support/cli';
 
 /** The other project, and Roadmapper as installed in it. */
@@ -64,6 +65,8 @@ test('the package holds what a project needs, and installs nothing else', () => 
   expect(pkg.dependencies).toBeUndefined();
   for (const f of ['dist/cli/roadmapper.js', 'dist/cli/app.html', 'dist/lib/index.js', 'dist/lib/react.js', 'dist/lib/roadmapper.js', 'dist/lib/roadmapper-page.js',
     'README.md', 'roadmap/sample.roadmap.json']) expect(existsSync(join(installed, f)), f).toBe(true);
+  // the fonts of the theme, with their license texts, next to the lib
+  expect(readdirSync(join(installed, 'dist/lib/fonts'))).toEqual(fontFiles());
   // never the skill, which a project installs with npx skills add, from GitHub, nor Roadmapper's own roadmap file
   expect(existsSync(join(installed, '.claude')), '.claude').toBe(false);
   expect(readdirSync(join(installed, 'roadmap'))).toEqual(['sample.roadmap.json']);
@@ -78,13 +81,15 @@ test('npx roadmapper builds and exports roadmap.json where it is typed', async (
 
   // the app page of the package, with the roadmap in it
   expect(built.code, built.err).toBe(0);
-  expect(built.out).toMatch(/^dist\/app\/index\.html {2}\d+ kB\n$/);
-  expect(readdirSync(join(dir, 'dist/app'))).toEqual(['index.html']);
+  expect(built.out).toMatch(/^dist\/app\/index\.html {2}\d+ kB\ndist\/app\/fonts\/ {2}\d+ kB\n$/);
+  expect(readdirSync(join(dir, 'dist/app'))).toEqual(['fonts', 'index.html']);
+  expect(readdirSync(join(dir, 'dist/app/fonts'))).toEqual(fontFiles());
   expect(readFileSync(join(dir, 'dist/app/index.html'), 'utf8')).toContain('Ends \\u003c/script>\\u003c!-- here');
 
   // the lib of the package, and the icons of the set the commands hold
   expect(exported.code, exported.err).toBe(0);
-  expect(exported.out.replace(/\d+ kB$/gm, 'n kB')).toBe('dist/export/roadmap.html  n kB\ndist/export/roadmap.json  n kB\ndist/export/roadmapper.js  n kB\n');
+  expect(exported.out.replace(/\d+ kB$/gm, 'n kB')).toBe('dist/export/roadmap.html  n kB\ndist/export/roadmap.json  n kB\ndist/export/roadmapper.js  n kB\ndist/export/fonts/  n kB\n');
+  expect(readdirSync(join(dir, 'dist/export/fonts'))).toEqual(fontFiles());
   expect(readFileSync(join(dir, 'dist/export/roadmapper.js'), 'utf8')).toBe(readFileSync(join(installed, 'dist/lib/roadmapper-page.js'), 'utf8'));
   const roadmap = JSON.parse(readFileSync(join(dir, 'dist/export/roadmap.json'), 'utf8'));
   expect(Object.keys(roadmap.icons.icons)).toEqual(expect.arrayContaining(['bulb', 'code', 'rocket']));
