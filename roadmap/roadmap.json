@@ -333,7 +333,7 @@
                                   "links": [
                                     {
                                       "name": "Embed a roadmap",
-                                      "url": "https://github.com/true-byte/roadmapper/blob/master/docs/embed.md",
+                                      "url": "https://github.com/true-byte/roadmapper/blob/master/docs/05-embed.md",
                                       "icon": "file-text"
                                     }
                                   ]
@@ -388,7 +388,7 @@
                                   "links": [
                                     {
                                       "name": "The HTML export",
-                                      "url": "https://github.com/true-byte/roadmapper/blob/master/docs/export.md",
+                                      "url": "https://github.com/true-byte/roadmapper/blob/master/docs/04-export.md",
                                       "icon": "file-text"
                                     }
                                   ]
@@ -1501,16 +1501,104 @@
       ]
     },
     {
+      "name": "v1.0.3",
+      "holds": "The docs read at levels, from plain to deep, in nerDDocs.",
+      "items": [
+        {
+          "id": "start-v1-0-3",
+          "name": "Start v1.0.3",
+          "icon": "flag",
+          "state": "done",
+          "why": "v1.0.3 waits for Release v1.0.2.",
+          "doneWhen": "Release v1.0.2 is done, and the branch release/1.0.3 exists.",
+          "waitsFor": [
+            "release-v1-0-2"
+          ]
+        },
+        {
+          "name": "nerDDocs docs",
+          "split": [
+            {
+              "items": [
+                {
+                  "id": "nerddocs-docs-design",
+                  "name": "nerDDocs docs design",
+                  "icon": "books",
+                  "state": "done",
+                  "why": "A reader picks the depth of the docs with the slider of nerDDocs.",
+                  "doneWhen": "The levels and the page tree of the docs are reviewed and approved."
+                },
+                {
+                  "name": "nerDDocs docs build",
+                  "split": [
+                    {
+                      "name": "Code",
+                      "items": [
+                        {
+                          "id": "nerddocs-docs-code",
+                          "name": "nerDDocs docs code",
+                          "icon": "books",
+                          "state": "done",
+                          "why": "The docs move into nerDDocs as designed, and each level is filled.",
+                          "doneWhen": "npx nerddocs shows each page of docs/ at each level, and npx nerddocs check docs prints Problems: 0. Each link to a doc in README.md, CONTRIBUTING.md and CLAUDE.md opens its page."
+                        }
+                      ]
+                    },
+                    {
+                      "name": "Tests",
+                      "items": [
+                        {
+                          "id": "nerddocs-docs-tests",
+                          "name": "nerDDocs docs tests",
+                          "icon": "books",
+                          "state": "done",
+                          "why": "A test of the docs, so a change cannot break their format unseen.",
+                          "doneWhen": "npm test fails when npx nerddocs check docs finds a problem."
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "publish-to-npm-4",
+          "name": "Publish to npm",
+          "icon": "package",
+          "state": "done",
+          "why": "The docs at levels reach npm without waiting for v1.1.0.",
+          "doneWhen": "In a new project, npm install roadmapper installs Roadmapper v1.0.3, and npx nerddocs node_modules/roadmapper/docs shows its docs at each level."
+        },
+        {
+          "id": "release-v1-0-3",
+          "name": "Release v1.0.3",
+          "icon": "rocket",
+          "state": "done",
+          "why": "v1.0.3 is out when the docs are moved, tested and on npm.",
+          "doneWhen": "master holds v1.0.3 with the tag v1.0.3, and the release of v1.0.3 is reviewed and approved.",
+          "links": [
+            {
+              "name": "v1.0.3",
+              "url": "https://github.com/true-byte/roadmapper/releases/tag/v1.0.3",
+              "icon": "tag"
+            }
+          ]
+        }
+      ]
+    },
+    {
       "name": "v1.1.0",
       "items": [
         {
           "id": "review-v1-1-0-scope",
           "name": "Review v1.1.0 scope",
           "icon": "flag",
-          "why": "The scope of v1.1.0 is reviewed once v1.0.2 is out.",
+          "why": "The scope of v1.1.0 is reviewed once v1.0.3 is out.",
           "doneWhen": "The steps of v1.1.0 are reviewed and approved.",
           "waitsFor": [
-            "release-v1-0-2"
+            "release-v1-0-3"
           ]
         },
         {

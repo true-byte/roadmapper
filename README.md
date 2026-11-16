@@ -11,7 +11,7 @@ Roadmapper draws a roadmap as a tree, which the docs call the plan. The roadmap 
 
 ## Install
 
-Run this command in your project's folder. [docs/install.md](docs/install.md) gives the Node version that Roadmapper needs, and each step in detail.
+Run this command in your project's folder. [docs/01-intro.md](docs/01-intro.md#what-it-needs) gives the Node version that Roadmapper needs, and each step in detail.
 
 ```sh
 npm install roadmapper
@@ -43,7 +43,7 @@ import roadmap from './roadmap.json';
 <Roadmap roadmap={roadmap} style={{ height: 720 }} />
 ```
 
-[docs/embed.md](docs/embed.md) gives each prop of `Roadmap`, and the tag `<roadmapper-view>` for a page without React.
+[docs/05-embed.md](docs/05-embed.md) gives each prop of `Roadmap`, and the tag `<roadmapper-view>` for a page without React.
 
 ## Claude Code skill
 
@@ -53,11 +53,19 @@ The `roadmapper` skill tells Claude how to write and keep a roadmap file. With i
 npx skills add https://github.com/true-byte/roadmapper --skill roadmapper -a claude-code --copy
 ```
 
-[docs/skill.md](docs/skill.md) says what to ask Claude, and how to update the skill.
+[docs/06-skill.md](docs/06-skill.md) says what to ask Claude, and how to update the skill.
 
 ## Docs
 
-[docs/README.md](docs/README.md) says what Roadmapper is for, and lists each doc.
+[docs/01-intro.md](docs/01-intro.md) says what Roadmapper is for, and lists each doc.
+
+The docs are a [nerDDocs](https://github.com/true-byte/nerDDocs) site. Each page holds its text at three reading levels: 'Basics', 'Details' and 'Internals'. To read a page at one reading level, with a slider that switches between them, run this command in your project's folder:
+
+```sh
+npx nerddocs node_modules/roadmapper/docs
+```
+
+On GitHub, a page shows the text of all its reading levels, with each fence line, such as `::: details internals`, as text.
 
 ## Contributing
 

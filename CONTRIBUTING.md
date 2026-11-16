@@ -4,7 +4,7 @@ This doc covers how to work on Roadmapper itself. It says how to set up a clone,
 
 ## Set up a clone
 
-Roadmapper needs the Node version that [docs/install.md, section "What it needs"](docs/install.md#what-it-needs) gives. Run these commands to clone Roadmapper and install what it needs:
+Roadmapper needs the Node version that [docs/01-intro.md, section "What it needs"](docs/01-intro.md#what-it-needs) gives. Run these commands to clone Roadmapper and install what it needs:
 
 ```sh
 git clone https://github.com/true-byte/roadmapper
@@ -19,7 +19,7 @@ npx playwright install chromium
 npx playwright install --with-deps chromium
 ```
 
-[docs/commands.md](docs/commands.md) gives the commands that draw, check or export a roadmap file, or pack Roadmapper. [docs/commands.md, section "The roadmap files of the clone"](docs/commands.md#the-roadmap-files-of-the-clone) says which roadmap file `npm run dev` draws, and how to draw another one.
+[docs/02-commands.md](docs/02-commands.md) gives the commands that draw, check or export a roadmap file, or pack Roadmapper. [docs/02-commands.md, section "The roadmap files of the clone"](docs/02-commands.md#the-roadmap-files-of-the-clone) says which roadmap file `npm run dev` draws, and how to draw another one.
 
 `npm run dev` shows each change to `src/`. A saved `.ts` file reloads the page. A saved `.css` file changes the styles on the page with no reload. `npx roadmapper` serves the app page of the installed package, so it does not show a change to `src/`.
 
@@ -69,6 +69,8 @@ A test that can run in Node goes in a `.test.ts` file. A test opens a page only 
 | `tests/support/` | The helpers of the browser tests, the plans that the tests draw, and the Vite plugins of the test pages. The plan page holds only the icons that the plans in `tests/support/plans.ts` name, so that it opens fast. A test that needs another icon names it in a plan there. |
 | `tests/fixtures/` | The roadmap files that `npm test` builds pages from: `roadmap.json`, a copy of a real roadmap, and `export.json`, a made-up roadmap with private items and a `</script>` in a name. |
 | `tests/pages/` | The test pages: `plan/`, which draws the plan that a test gives, and `embed/`, two made-up pages of another project. One page in `embed/` is a React app with `<Roadmap>`. The other page has no bundler and loads `dist/lib/roadmapper.js`. |
+
+`tests/docs.test.ts` checks the docs in `docs/` with `npx nerddocs check docs`.
 
 `tests/cli/bin.test.ts` packs Roadmapper, and installs the package into a new project in the system's temp folder. It runs `npx roadmapper` there, then deletes that project.
 
@@ -142,9 +144,24 @@ These rules hold for `README.md`, every file in `docs/`, `CONTRIBUTING.md`, `CLA
 
 ### Scope
 
-- Each doc covers one subject. Its first line names it: "This doc covers …".
+- Each doc covers one subject. The title of a page in `docs/` names it. In every other doc, the first line names it: "This doc covers …".
 - One fact lives in one doc. Other docs link to it.
 - A doc says what is. It names a missing thing only where the reader would fail without it, and then says what to do instead.
+
+### Reading levels
+
+`docs/` is a [nerDDocs](https://github.com/true-byte/nerDDocs) site. Each page holds its text at three reading levels, 'Basics', 'Details' and 'Internals', which `docs/nerddocs.json` names. A fence such as `::: details internals` marks the text of the reading levels that it names. Each reading level holds every fact of the reading levels below it.
+
+| Reading level | For | What it tells |
+|---|---|---|
+| 'Basics' | A person who uses Roadmapper for the first time | What each part is for, and the first steps, in plain words |
+| 'Details' | A person who uses Roadmapper every day | Each option, control, limit and error |
+| 'Internals' | A person who changes or debugs Roadmapper | How the code does each thing, by its file and function |
+
+- Write and change the pages with the `nerddocs` skill, in `.claude/skills/nerddocs/`. Its files say where each fact goes.
+- To read the docs at each reading level, run `npx nerddocs` in the clone, and open the address that it prints.
+- `npm test` runs `npx nerddocs check docs`, which prints each problem of a page, such as a link to a missing heading.
+- To update the skill, run `npx skills update nerddocs`.
 
 ### Sentences
 
@@ -385,7 +402,8 @@ A patch fixes a release with a lower version than the release that `master` hold
 |---|---|
 | `roadmap/` | The roadmap files of the clone. |
 | `.claude/skills/roadmapper/` | The `roadmapper` skill, with the roadmap file format. |
-| `docs/` | The docs on using Roadmapper, and the screenshots of `README.md` in `docs/images/`. |
+| `.claude/skills/nerddocs/` | The `nerddocs` skill, which says how to write the pages of `docs/`. `skills-lock.json` says where it comes from. |
+| `docs/` | The docs on using Roadmapper, as a nerDDocs site with its `nerddocs.json`, and the screenshots of `README.md` in `docs/images/`. |
 | `src/roadmap/` | The types of a roadmap file, the code that checks a roadmap file, and the code that gives each step its state. |
 | `src/view/` | The view, `mountRoadmap()`, which draws the plan. |
 | `src/themes/` | The themes, each in a folder of its own with its fonts, `theme.css`, which names the theme that is drawn, and `fonts.ts`, which gives the builds the fonts of that theme. |
