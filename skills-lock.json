@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "skills": {
+    "nerddocs": {
+      "source": "true-byte/nerDDocs",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/nerddocs/SKILL.md",
+      "computedHash": "cd55d58eefa7f87e20712dfeee5c7076511b67ef2b9dcf4c2991e8ccdfd69692",
+      "installMode": "copy"
+    }
+  }
+}

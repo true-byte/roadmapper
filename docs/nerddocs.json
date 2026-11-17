@@ -1,0 +1,8 @@
+{
+  "levels": [
+    { "id": "basics", "name": "Basics", "icon": "eye" },
+    { "id": "details", "name": "Details", "icon": "list" },
+    { "id": "internals", "name": "Internals", "icon": "cpu" }
+  ],
+  "defaultLevel": "basics"
+}
