@@ -1,6 +1,6 @@
 {
   "name": "roadmapper",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Roadmapper draws a roadmap, kept in one JSON file, as a tree: zoomed out, anyone can read it, and zooming in shows more detail.",
   "license": "MIT",
   "keywords": [
@@ -73,6 +73,7 @@
     "@types/node": "^24.19.2",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
+    "nerddocs": "1.0.0",
     "playwright": "1.63.0",
     "react": "^19.2.9",
     "react-dom": "^19.2.9",

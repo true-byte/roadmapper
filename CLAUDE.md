@@ -4,10 +4,10 @@ This doc covers the rules for a Claude session that works on Roadmapper itself, 
 
 | What | Where |
 |---|---|
-| What Roadmapper is for, and the list of the docs on using it | [docs/README.md](docs/README.md) |
+| What Roadmapper is for, and the list of the docs on using it | [docs/01-intro.md](docs/01-intro.md) |
 | How to set up a clone, build, check and test the code, add a theme, send a change, make a release, and find each folder | [CONTRIBUTING.md](CONTRIBUTING.md) |
 | The rules that every edit to a doc follows | [CONTRIBUTING.md, section "Write docs"](CONTRIBUTING.md#write-docs) |
-| Every command that draws, checks or exports a roadmap file, or packs Roadmapper | [docs/commands.md](docs/commands.md) |
+| Every command that draws, checks or exports a roadmap file, or packs Roadmapper | [docs/02-commands.md](docs/02-commands.md) |
 | The roadmap file format | [.claude/skills/roadmapper/format.md](.claude/skills/roadmapper/format.md) |
 | How to keep a roadmap file | The `roadmapper` skill, [.claude/skills/roadmapper/SKILL.md](.claude/skills/roadmapper/SKILL.md) |
 | Roadmapper's own roadmap file | `roadmap/roadmap.json` |
