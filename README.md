@@ -59,7 +59,7 @@ npx skills add https://github.com/true-byte/roadmapper --skill roadmapper -a cla
 
 [docs/01-intro.md](docs/01-intro.md) says what Roadmapper is for, and lists each doc.
 
-The docs are a [nerDDocs](https://github.com/true-byte/nerDDocs) site. Each page holds its text at three reading levels: 'Basics', 'Details' and 'Internals'. To read a page at one reading level, with a slider that switches between them, run this command in your project's folder:
+The docs are a [nerDDocs](https://github.com/true-byte/nerDDocs) site, online at https://true-byte.github.io/roadmapper/. Each page holds its text at three reading levels: 'Basics', 'Details' and 'Internals'. A slider on the page switches between them. To read the docs of your installed version, run this command in your project's folder:
 
 ```sh
 npx nerddocs node_modules/roadmapper/docs

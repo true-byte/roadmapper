@@ -1541,6 +1541,21 @@
                           "state": "done",
                           "why": "The docs move into nerDDocs as designed, and each level is filled.",
                           "doneWhen": "npx nerddocs shows each page of docs/ at each level, and npx nerddocs check docs prints Problems: 0. Each link to a doc in README.md, CONTRIBUTING.md and CLAUDE.md opens its page."
+                        },
+                        {
+                          "id": "docs-site",
+                          "name": "Docs site",
+                          "icon": "world",
+                          "state": "done",
+                          "why": "A reader opens the docs at their reading levels in a browser, with no install.",
+                          "doneWhen": "Each push to master publishes docs/ to https://true-byte.github.io/roadmapper/, and README.md links to it.",
+                          "links": [
+                            {
+                              "name": "Roadmapper docs",
+                              "url": "https://true-byte.github.io/roadmapper/",
+                              "icon": "world"
+                            }
+                          ]
                         }
                       ]
                     },

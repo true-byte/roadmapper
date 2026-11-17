@@ -161,6 +161,7 @@ These rules hold for `README.md`, every file in `docs/`, `CONTRIBUTING.md`, `CLA
 - Write and change the pages with the `nerddocs` skill, in `.claude/skills/nerddocs/`. Its files say where each fact goes.
 - To read the docs at each reading level, run `npx nerddocs` in the clone, and open the address that it prints.
 - `npm test` runs `npx nerddocs check docs`, which prints each problem of a page, such as a link to a missing heading.
+- Each push to `master` publishes `docs/` to https://true-byte.github.io/roadmapper/, by the workflow `.github/workflows/docs.yml`. The workflow runs the check first, so a page with a problem never goes online.
 - To update the skill, run `npx skills update nerddocs`.
 
 ### Sentences
